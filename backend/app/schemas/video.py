@@ -16,7 +16,7 @@ class CategoryResponse(BaseModel):
 
 
 class VideoSubmitRequest(BaseModel):
-    tweet_url: str
+    url: str
     category_slugs: list[str] = []
     title: str | None = None
 
@@ -25,8 +25,9 @@ class VideoResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str
-    tweet_url: str
-    tweet_id: str
+    url: str
+    external_id: str
+    platform: str = "x"
     author_name: str | None = None
     author_url: str | None = None
     oembed_html: str | None = None

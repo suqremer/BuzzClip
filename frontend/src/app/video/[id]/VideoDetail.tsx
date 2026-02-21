@@ -80,7 +80,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         {video.oembed_html && (
           <div className="p-4">
-            <VideoEmbed oembedHtml={video.oembed_html} />
+            <VideoEmbed oembedHtml={video.oembed_html} platform={video.platform} />
           </div>
         )}
 

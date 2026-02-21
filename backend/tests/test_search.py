@@ -18,7 +18,7 @@ async def test_search_videos_by_title(client):
     await client.post(
         "/api/videos",
         json={
-            "tweet_url": "https://x.com/user/status/555666777",
+            "url": "https://x.com/user/status/555666777",
             "category_slugs": [],
             "title": "Amazing cat compilation",
         },

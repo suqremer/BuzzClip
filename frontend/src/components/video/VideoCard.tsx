@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { Video } from "@/types/video";
+import { PLATFORMS } from "@/lib/constants";
 import { VideoEmbed } from "./VideoEmbed";
 import { VoteButton } from "./VoteButton";
 import { MuteButton } from "./MuteButton";
@@ -16,12 +17,15 @@ export function VideoCard({ video }: VideoCardProps) {
       <Link href={`/video/${video.id}`}>
         {video.oembed_html && (
           <div className="p-3">
-            <VideoEmbed oembedHtml={video.oembed_html} />
+            <VideoEmbed oembedHtml={video.oembed_html} platform={video.platform} />
           </div>
         )}
       </Link>
       <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+            {PLATFORMS.find((p) => p.value === video.platform)?.icon ?? "𝕏"}
+          </span>
           {video.categories.map((cat) => (
             <span
               key={cat.slug}

@@ -16,21 +16,21 @@ async def test_submit_video_success(client):
     res = await client.post(
         "/api/videos",
         json={
-            "tweet_url": "https://x.com/user/status/123456789",
+            "url": "https://x.com/user/status/123456789",
             "category_slugs": [],
         },
         headers={"Authorization": f"Bearer {token}"},
     )
     assert res.status_code == 201
     data = res.json()
-    assert data["tweet_id"] == "123456789"
+    assert data["external_id"] == "123456789"
     assert "id" in data
 
 
 @pytest.mark.asyncio
 async def test_submit_video_no_auth(client):
     res = await client.post("/api/videos", json={
-        "tweet_url": "https://x.com/user/status/123456789",
+        "url": "https://x.com/user/status/123456789",
         "category_slugs": [],
     })
     assert res.status_code == 401
@@ -42,7 +42,7 @@ async def test_submit_invalid_url(client):
     res = await client.post(
         "/api/videos",
         json={
-            "tweet_url": "https://youtube.com/watch?v=abc",
+            "url": "https://instagram.com/p/abc123",
             "category_slugs": [],
         },
         headers={"Authorization": f"Bearer {token}"},

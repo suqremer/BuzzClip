@@ -17,8 +17,9 @@ class Video(Base):
     __tablename__ = "videos"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
-    tweet_url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-    tweet_id: Mapped[str] = mapped_column(String(30), nullable=False, index=True)
+    url: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    external_id: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    platform: Mapped[str] = mapped_column(String(20), nullable=False, default="x", index=True)
     author_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     author_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     oembed_html: Mapped[str | None] = mapped_column(Text, nullable=True)

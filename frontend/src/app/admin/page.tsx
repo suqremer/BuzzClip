@@ -16,7 +16,8 @@ interface Report {
 interface AdminVideo {
   id: string;
   title: string | null;
-  tweet_url: string;
+  url: string;
+  platform: string;
   is_active: boolean;
   vote_count: number;
   created_at: string;
@@ -250,7 +251,7 @@ function VideosTable({
                   href={`/video/${v.id}`}
                   className="text-indigo-600 hover:underline"
                 >
-                  {v.title || v.tweet_url.slice(0, 30) + "..."}
+                  {v.title || v.url.slice(0, 30) + "..."}
                 </a>
               </td>
               <td className="px-4 py-3">{v.vote_count}</td>

@@ -27,6 +27,7 @@ PERIOD_MAP = {
 
 @router.get("/trending", response_model=VideoListResponse)
 async def get_trending(
+    platform: str | None = Query(None),
     current_user: User | None = Depends(get_optional_user),
     session: AsyncSession = Depends(get_session),
 ):
@@ -92,6 +93,9 @@ async def get_trending(
         if trending_video_ids:
             is_real_trending = True
 
+    # Parse platform filter
+    platform_list = [p.strip() for p in platform.split(",") if p.strip()] if platform else []
+
     if not trending_video_ids:
         # Fallback: newest videos with highest votes in 24h
         since_24h = now - timedelta(hours=24)
@@ -107,6 +111,8 @@ async def get_trending(
             .order_by(func.count(Vote.id).desc(), Video.created_at.desc())
             .limit(10)
         )
+        if platform_list:
+            fallback_query = fallback_query.where(Video.platform.in_(platform_list))
         result = await session.execute(fallback_query)
         rows = list(result.all())
         videos = [row[0] for row in rows]
@@ -122,6 +128,8 @@ async def get_trending(
             .order_by(Video.vote_count.desc())
             .limit(10)
         )
+        if platform_list:
+            query = query.where(Video.platform.in_(platform_list))
         result = await session.execute(query)
         videos = list(result.scalars().all())
 
@@ -156,6 +164,7 @@ async def get_trending(
 async def get_rankings(
     period: str = Query("24h", pattern="^(24h|1w|1m|all)$"),
     category: str | None = Query(None),
+    platform: str | None = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
     current_user: User | None = Depends(get_optional_user),
@@ -195,6 +204,12 @@ async def get_rankings(
             )
             .order_by(Video.vote_count.desc(), Video.created_at.desc())
         )
+
+    # Platform filter
+    if platform:
+        platforms = [p.strip() for p in platform.split(",") if p.strip()]
+        if platforms:
+            query = query.where(Video.platform.in_(platforms))
 
     # Category filter
     if category:

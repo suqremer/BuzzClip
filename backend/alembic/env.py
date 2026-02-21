@@ -16,6 +16,8 @@ from app.models.vote import Vote  # noqa: F401
 from app.models.category import Category  # noqa: F401
 from app.models.vote_snapshot import VoteSnapshot  # noqa: F401
 from app.models.report import Report  # noqa: F401
+from app.models.user_hidden_category import UserHiddenCategory  # noqa: F401
+from app.models.user_mute import UserMute  # noqa: F401
 
 config = context.config
 

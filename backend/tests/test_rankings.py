@@ -64,8 +64,9 @@ async def test_vote_snapshot_creation(test_db: AsyncSession):
     # Create a video
     video = Video(
         id=str(uuid.uuid4()),
-        tweet_url="https://x.com/test/status/123456",
-        tweet_id="123456",
+        url="https://x.com/test/status/123456",
+        external_id="123456",
+        platform="x",
         title="Test Video",
         submitted_by=user.id,
         vote_count=5,

@@ -15,54 +15,35 @@ declare global {
 
 interface VideoEmbedProps {
   oembedHtml: string;
+  platform?: "x" | "youtube" | "tiktok";
 }
 
-export function VideoEmbed({ oembedHtml }: VideoEmbedProps) {
+const SANITIZE_CONFIG = {
+  ADD_TAGS: ["blockquote", "iframe"],
+  ADD_ATTR: [
+    "data-tweet-id", "data-width", "data-dnt",
+    "allowfullscreen", "frameborder",
+    "src", "allow", "class", "cite", "data-video-id",
+    "width", "height", "title",
+  ],
+};
+
+export function VideoEmbed({ oembedHtml, platform = "x" }: VideoEmbedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const sanitizedHtml = useMemo(
-    () =>
-      DOMPurify.sanitize(oembedHtml, {
-        ADD_TAGS: ["blockquote", "iframe"],
-        ADD_ATTR: ["data-tweet-id", "data-width", "data-dnt", "allowfullscreen", "frameborder"],
-      }),
+    () => DOMPurify.sanitize(oembedHtml, SANITIZE_CONFIG),
     [oembedHtml],
   );
 
   useEffect(() => {
-    const loadWidgets = () => {
-      window.twttr?.widgets.load(containerRef.current);
-    };
-
-    if (window.twttr) {
-      loadWidgets();
-      return;
+    if (platform === "x") {
+      loadTwitterWidgets(containerRef.current);
+    } else if (platform === "tiktok") {
+      loadTikTokEmbed();
     }
-
-    const existing = document.querySelector(
-      'script[src="https://platform.twitter.com/widgets.js"]',
-    ) as HTMLScriptElement | null;
-
-    if (existing) {
-      existing.addEventListener("load", loadWidgets);
-      const interval = setInterval(() => {
-        if (window.twttr) {
-          clearInterval(interval);
-          loadWidgets();
-        }
-      }, 100);
-      return () => {
-        existing.removeEventListener("load", loadWidgets);
-        clearInterval(interval);
-      };
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://platform.twitter.com/widgets.js";
-    script.async = true;
-    script.onload = loadWidgets;
-    document.body.appendChild(script);
-  }, [sanitizedHtml]);
+    // YouTube uses <iframe> — no script needed
+  }, [sanitizedHtml, platform]);
 
   return (
     <div
@@ -71,4 +52,46 @@ export function VideoEmbed({ oembedHtml }: VideoEmbedProps) {
       className="mx-auto max-w-[550px]"
     />
   );
+}
+
+function loadTwitterWidgets(container: HTMLElement | null) {
+  const loadWidgets = () => {
+    window.twttr?.widgets.load(container);
+  };
+
+  if (window.twttr) {
+    loadWidgets();
+    return;
+  }
+
+  const existing = document.querySelector(
+    'script[src="https://platform.twitter.com/widgets.js"]',
+  ) as HTMLScriptElement | null;
+
+  if (existing) {
+    const interval = setInterval(() => {
+      if (window.twttr) {
+        clearInterval(interval);
+        loadWidgets();
+      }
+    }, 100);
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.src = "https://platform.twitter.com/widgets.js";
+  script.async = true;
+  script.onload = loadWidgets;
+  document.body.appendChild(script);
+}
+
+function loadTikTokEmbed() {
+  const scriptSrc = "https://www.tiktok.com/embed.js";
+  if (document.querySelector(`script[src="${scriptSrc}"]`)) {
+    return;
+  }
+  const script = document.createElement("script");
+  script.src = scriptSrc;
+  script.async = true;
+  document.body.appendChild(script);
 }

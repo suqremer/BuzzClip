@@ -20,7 +20,7 @@ async def test_get_public_profile(client):
     await client.post(
         "/api/videos",
         json={
-            "tweet_url": "https://x.com/user/status/111222333",
+            "url": "https://x.com/user/status/111222333",
             "category_slugs": [],
         },
         headers={"Authorization": f"Bearer {token}"},

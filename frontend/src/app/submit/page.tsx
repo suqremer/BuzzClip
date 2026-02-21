@@ -55,7 +55,7 @@ export default function SubmitPage() {
     setSubmitting(true);
     try {
       await apiPost<SubmitResponse>("/api/videos", {
-        tweet_url: url,
+        url: url,
         category_slugs: categories,
       });
       router.push("/ranking");
@@ -72,7 +72,7 @@ export default function SubmitPage() {
     <div className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="mb-2 text-2xl font-bold">動画を投稿</h1>
       <p className="mb-8 text-sm text-gray-500">
-        X(Twitter)の動画URLを貼り付けて、カテゴリを選んで投稿しよう。
+        X, YouTube, TikTokの動画URLを貼り付けて、カテゴリを選んで投稿しよう。
       </p>
 
       <div className="space-y-6">

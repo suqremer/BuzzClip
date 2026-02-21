@@ -16,6 +16,12 @@ export const CATEGORIES = [
   { slug: "other", nameJa: "その他", icon: "🏷️" },
 ] as const;
 
+export const PLATFORMS = [
+  { value: "x", label: "𝕏", icon: "𝕏" },
+  { value: "youtube", label: "YouTube", icon: "▶" },
+  { value: "tiktok", label: "TikTok", icon: "♪" },
+] as const;
+
 export const PERIODS = [
   { value: "24h", label: "24時間" },
   { value: "1w", label: "1週間" },

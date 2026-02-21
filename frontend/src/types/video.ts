@@ -1,7 +1,8 @@
 export interface Video {
   id: string;
-  tweet_url: string;
-  tweet_id: string;
+  url: string;
+  external_id: string;
+  platform: "x" | "youtube" | "tiktok";
   author_name: string | null;
   author_url: string | null;
   oembed_html: string | null;

@@ -8,6 +8,7 @@ import type { PaginatedResponse } from "@/types/api";
 import { VideoCard } from "@/components/video/VideoCard";
 import { RankingTabs } from "@/components/ranking/RankingTabs";
 import { CategoryFilter } from "@/components/ranking/CategoryFilter";
+import { PlatformFilter } from "@/components/ranking/PlatformFilter";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { usePreferences } from "@/contexts/PreferencesContext";
 
@@ -17,6 +18,7 @@ function RankingContent() {
   const { preferences } = usePreferences();
 
   const [period, setPeriod] = useState("24h");
+  const [platforms, setPlatforms] = useState<string[]>([]);
   const [category, setCategory] = useState<string | null>(initialCategory);
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +37,7 @@ function RankingContent() {
           per_page: "20",
         });
         if (category) params.set("category", category);
+        if (platforms.length > 0) params.set("platform", platforms.join(","));
         const data = await apiGet<PaginatedResponse<Video>>(
           `/api/rankings?${params}`
         );
@@ -46,7 +49,7 @@ function RankingContent() {
         setLoading(false);
       }
     },
-    [period, category]
+    [period, category, platforms]
   );
 
   useEffect(() => {
@@ -87,6 +90,9 @@ function RankingContent() {
 
       <div className="mb-4">
         <RankingTabs activePeriod={period} onPeriodChange={setPeriod} />
+      </div>
+      <div className="mb-4">
+        <PlatformFilter selectedPlatforms={platforms} onPlatformsChange={setPlatforms} />
       </div>
       <div className="mb-6">
         <CategoryFilter

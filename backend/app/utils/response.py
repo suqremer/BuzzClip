@@ -6,8 +6,9 @@ from app.schemas.video import CategoryResponse, VideoResponse
 def video_to_response(video: Video, user_voted: bool = False, is_trending: bool = False) -> VideoResponse:
     return VideoResponse(
         id=video.id,
-        tweet_url=video.tweet_url,
-        tweet_id=video.tweet_id,
+        url=video.url,
+        external_id=video.external_id,
+        platform=video.platform,
         author_name=video.author_name,
         author_url=video.author_url,
         oembed_html=video.oembed_html,

@@ -13,7 +13,7 @@ async def _create_user_and_video(client) -> tuple[str, str]:
     video = await client.post(
         "/api/videos",
         json={
-            "tweet_url": "https://x.com/user/status/999888777",
+            "url": "https://x.com/user/status/999888777",
             "category_slugs": [],
         },
         headers={"Authorization": f"Bearer {token}"},

@@ -18,7 +18,7 @@ from app.schemas.video import (
 from app.services.auth import get_current_user, get_optional_user
 from app.services.oembed import fetch_oembed
 from app.utils.response import video_to_response
-from app.utils.url_validator import validate_tweet_url
+from app.utils.url_validator import validate_video_url
 
 router = APIRouter(prefix="/api/videos", tags=["videos"])
 
@@ -30,16 +30,16 @@ async def submit_video(
     session: AsyncSession = Depends(get_session),
 ):
     # Validate URL
-    is_valid, normalized_url, tweet_id = validate_tweet_url(request.tweet_url)
+    is_valid, normalized_url, external_id, platform = validate_video_url(request.url)
     if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="有効なX(Twitter)のURLを入力してください",
+            detail="有効な動画URLを入力してください（X, YouTube, TikTok）",
         )
 
     # Check duplicate
     result = await session.execute(
-        select(Video).where(Video.tweet_url == normalized_url)
+        select(Video).where(Video.url == normalized_url)
     )
     if result.scalar_one_or_none() is not None:
         raise HTTPException(
@@ -48,7 +48,7 @@ async def submit_video(
         )
 
     # Fetch oEmbed
-    oembed_data = await fetch_oembed(normalized_url)
+    oembed_data = await fetch_oembed(normalized_url, platform)
 
     # Get categories
     categories = []
@@ -60,8 +60,9 @@ async def submit_video(
 
     video = Video(
         id=str(uuid.uuid4()),
-        tweet_url=normalized_url,
-        tweet_id=tweet_id,
+        url=normalized_url,
+        external_id=external_id,
+        platform=platform,
         author_name=oembed_data.get("author_name") if oembed_data else None,
         author_url=oembed_data.get("author_url") if oembed_data else None,
         oembed_html=oembed_data.get("html") if oembed_data else None,
@@ -83,6 +84,7 @@ async def list_videos(
     category: str | None = Query(None),
     q: str | None = Query(None, max_length=100),
     sort: str = Query("new", pattern="^(new|hot)$"),
+    platform: str | None = Query(None),
     current_user: User | None = Depends(get_optional_user),
     session: AsyncSession = Depends(get_session),
 ):
@@ -90,6 +92,12 @@ async def list_videos(
         selectinload(Video.submitter),
         selectinload(Video.categories),
     )
+
+    # Platform filter
+    if platform:
+        platforms = [p.strip() for p in platform.split(",") if p.strip()]
+        if platforms:
+            query = query.where(Video.platform.in_(platforms))
 
     # Search filter
     if q:
