@@ -48,12 +48,20 @@ export function Header() {
               </button>
             </div>
           ) : (
-            <Link
-              href="/auth/signin"
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-            >
-              ログイン
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/auth/signin"
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                ログイン
+              </Link>
+              <Link
+                href="/auth/signup"
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              >
+                新規登録
+              </Link>
+            </div>
           )}
         </div>
 
@@ -101,9 +109,14 @@ export function Header() {
               </button>
             </>
           ) : (
-            <Link href="/auth/signin" className="block py-2 font-medium text-indigo-600" onClick={() => setMenuOpen(false)}>
-              ログイン
-            </Link>
+            <>
+              <Link href="/auth/signin" className="block py-2 font-medium text-gray-700" onClick={() => setMenuOpen(false)}>
+                ログイン
+              </Link>
+              <Link href="/auth/signup" className="block py-2 font-medium text-indigo-600" onClick={() => setMenuOpen(false)}>
+                新規登録
+              </Link>
+            </>
           )}
         </div>
       )}
