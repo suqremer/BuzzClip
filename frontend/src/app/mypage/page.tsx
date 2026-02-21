@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPatch } from "@/lib/api";
 import type { Video } from "@/types/video";
 import { VideoCard } from "@/components/video/VideoCard";
 
@@ -12,8 +12,102 @@ interface Profile {
   voted_videos: Video[];
 }
 
+function DisplayNameEditor({
+  currentName,
+  onSaved,
+}: {
+  currentName: string;
+  onSaved: () => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(currentName);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSave = async () => {
+    const trimmed = name.trim();
+    if (!trimmed || trimmed.length > 50) {
+      setError("1〜50文字で入力してください");
+      return;
+    }
+    if (trimmed === currentName) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      await apiPatch("/api/auth/me", { display_name: trimmed });
+      await onSaved();
+      setEditing(false);
+    } catch {
+      setError("名前の変更に失敗しました");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!editing) {
+    return (
+      <div className="flex items-center gap-2">
+        <p className="text-gray-500">{currentName}</p>
+        <button
+          onClick={() => {
+            setName(currentName);
+            setEditing(true);
+          }}
+          className="text-gray-400 hover:text-indigo-600"
+          title="名前を変更"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-4 w-4"
+          >
+            <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
+          </svg>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          maxLength={50}
+          autoFocus
+          className="rounded border border-gray-300 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSave();
+            if (e.key === "Escape") setEditing(false);
+          }}
+        />
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+        >
+          {saving ? "..." : "保存"}
+        </button>
+        <button
+          onClick={() => setEditing(false)}
+          className="rounded border border-gray-300 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+        >
+          取消
+        </button>
+      </div>
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
+  );
+}
+
 export default function MyPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, refreshUser } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -67,7 +161,12 @@ export default function MyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
       <h1 className="text-2xl font-bold">マイページ</h1>
-      <p className="mt-1 text-gray-500">{user.display_name}</p>
+      <div className="mt-1">
+        <DisplayNameEditor
+          currentName={user.display_name}
+          onSaved={refreshUser}
+        />
+      </div>
 
       {/* 投稿した動画 */}
       <section className="mt-10">

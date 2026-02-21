@@ -9,7 +9,7 @@ from app.database import get_session
 from app.models.user import User
 from app.models.video import Video
 from app.models.vote import Vote
-from app.schemas.user import AuthResponse, LoginRequest, SignupRequest, UserResponse
+from app.schemas.user import AuthResponse, LoginRequest, SignupRequest, UserResponse, UserUpdateRequest
 from app.services.auth import (
     create_access_token,
     get_current_user,
@@ -86,6 +86,18 @@ async def login(
 
 @router.get("/me", response_model=UserResponse)
 async def get_me(current_user: User = Depends(get_current_user)):
+    return UserResponse.model_validate(current_user)
+
+
+@router.patch("/me", response_model=UserResponse)
+async def update_me(
+    body: UserUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    current_user.display_name = body.display_name.strip()
+    await session.commit()
+    await session.refresh(current_user)
     return UserResponse.model_validate(current_user)
 
 
