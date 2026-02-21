@@ -42,8 +42,7 @@ async def google_login(request: Request):
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="Google OAuth is not configured",
         )
-    # Redirect back to backend callback (same domain = session preserved)
-    redirect_uri = str(request.url_for("google_callback"))
+    redirect_uri = f"{settings.backend_url}/api/auth/google/callback"
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
