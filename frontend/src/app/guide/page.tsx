@@ -17,6 +17,7 @@ export default function GuidePage() {
           </div>
           <div className="ml-11 mt-2 text-sm leading-relaxed text-gray-600">
             <p>X(Twitter)、YouTube、TikTokでバズっている動画のURLをコピーして、BuzzClipの「投稿する」ページに貼り付けます。カテゴリを選んで送信すれば完了！</p>
+            <p className="mt-2">ひとことコメントも添えられます。「#おもしろ」のように#を付けるとタグになり、動画カードに表示されます。</p>
           </div>
         </section>
 
@@ -38,7 +39,7 @@ export default function GuidePage() {
             <h2 className="text-lg font-bold">ランキングを楽しむ</h2>
           </div>
           <div className="ml-11 mt-2 text-sm leading-relaxed text-gray-600">
-            <p>24時間・1週間・1ヶ月・全期間のランキングや、カテゴリ別・プラットフォーム別で動画を探せます。トレンドタブでは今まさに盛り上がっている動画をチェック！</p>
+            <p>24時間・1週間・1ヶ月・全期間のランキングや、カテゴリ別・プラットフォーム別で動画を探せます。プラットフォームの選択は自動で保存されるので、次回も同じ設定で表示されます。トレンドタブでは今まさに盛り上がっている動画をチェック！</p>
           </div>
         </section>
 
