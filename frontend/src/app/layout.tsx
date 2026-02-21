@@ -18,17 +18,17 @@ const notoSansJP = Noto_Sans_JP({
 export const metadata: Metadata = {
   title: "BuzzClip - バズ動画ランキング",
   description:
-    "X(Twitter)で話題のバズ動画をみんなで集めてランキング化",
+    "話題のバズ動画をみんなで集めてランキング化。X・YouTube・TikTok対応",
   openGraph: {
     title: "BuzzClip - バズ動画ランキング",
     description:
-      "X(Twitter)で話題のバズ動画をみんなで集めてランキング化",
+      "話題のバズ動画をみんなで集めてランキング化。X・YouTube・TikTok対応",
     type: "website",
   },
   twitter: {
     card: "summary",
     title: "BuzzClip - バズ動画ランキング",
-    description: "X(Twitter)で話題のバズ動画をみんなで集めてランキング化",
+    description: "話題のバズ動画をみんなで集めてランキング化。X・YouTube・TikTok対応",
   },
 };
 

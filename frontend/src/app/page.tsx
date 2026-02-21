@@ -7,7 +7,7 @@ export default function HomePage() {
       {/* Hero */}
       <section className="bg-gradient-to-br from-indigo-600 to-purple-700 px-4 py-24 text-center text-white sm:py-32">
         <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-          Xでバズった動画、
+          バズった動画、
           <br />
           ぜんぶここに。
         </h1>
@@ -52,7 +52,7 @@ export default function HomePage() {
               </div>
               <h3 className="mt-2 text-lg font-bold">見つける</h3>
               <p className="mt-2 text-sm leading-relaxed text-gray-500">
-                Xでバズっている動画の
+                バズっている動画の
                 <br />
                 URLをコピー
               </p>

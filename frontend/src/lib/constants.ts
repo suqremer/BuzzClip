@@ -17,7 +17,7 @@ export const CATEGORIES = [
 ] as const;
 
 export const PLATFORMS = [
-  { value: "x", label: "𝕏", icon: "𝕏" },
+  { value: "x", label: "X", icon: "𝕏" },
   { value: "youtube", label: "YouTube", icon: "▶" },
   { value: "tiktok", label: "TikTok", icon: "♪" },
 ] as const;
