@@ -24,6 +24,7 @@ def video_to_response(video: Video, user_voted: bool = False, is_trending: bool 
         submitted_by=UserBriefResponse(
             id=video.submitter.id,
             display_name=video.submitter.display_name,
+            avatar_url=video.submitter.avatar_url,
         ) if video.submitter else None,
         created_at=video.created_at,
     )

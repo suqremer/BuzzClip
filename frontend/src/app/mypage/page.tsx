@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePreferences } from "@/contexts/PreferencesContext";
 import { apiGet, apiPatch, apiUpload, apiDelete } from "@/lib/api";
+import { CATEGORIES } from "@/lib/constants";
 import type { Video } from "@/types/video";
 import { VideoCard } from "@/components/video/VideoCard";
 
@@ -309,6 +311,118 @@ export default function MyPage() {
           </p>
         )}
       </section>
+
+      {/* 表示設定 */}
+      <CategoryVisibilitySettings />
+
+      {/* ミュート管理 */}
+      <MuteManagement />
     </div>
+  );
+}
+
+function CategoryVisibilitySettings() {
+  const { preferences, toggleHiddenCategory } = usePreferences();
+
+  return (
+    <section className="mt-10">
+      <h2 className="mb-2 text-lg font-bold">カテゴリ表示設定</h2>
+      <p className="mb-4 text-sm text-gray-500">
+        苦手なジャンルを非表示にできます。非表示にしたカテゴリはランキングのタブから消え、「すべて」表示でもフィルタされます。
+      </p>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        {CATEGORIES.map((cat) => {
+          const hidden = preferences.hiddenCategorySlugs.includes(cat.slug);
+          return (
+            <button
+              key={cat.slug}
+              onClick={() => toggleHiddenCategory(cat.slug)}
+              className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition ${
+                hidden
+                  ? "border-gray-200 bg-gray-50 text-gray-400 line-through"
+                  : "border-indigo-200 bg-white text-gray-700 hover:border-indigo-400"
+              }`}
+            >
+              <span className="text-base">{cat.icon}</span>
+              <span className="flex-1 text-left">{cat.nameJa}</span>
+              {hidden ? (
+                <svg className="h-4 w-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.11 6.11m3.769 3.769l4.242 4.242M6.11 6.11L3 3m3.11 3.11l4.243 4.243m4.242 4.242L21 21" />
+                </svg>
+              ) : (
+                <svg className="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function MuteManagement() {
+  const { preferences, unmuteUser } = usePreferences();
+  const [mutedUsers, setMutedUsers] = useState<Array<{ id: string; display_name: string; avatar_url: string | null }>>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (preferences.mutedUserIds.length === 0) {
+      setMutedUsers([]);
+      return;
+    }
+    setLoading(true);
+    apiGet<{ muted_users: Array<{ id: string; display_name: string; avatar_url: string | null }> }>("/api/auth/me/mutes")
+      .then((data) => setMutedUsers(data.muted_users))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [preferences.mutedUserIds.length]);
+
+  const handleUnmute = async (userId: string) => {
+    await unmuteUser(userId);
+    setMutedUsers((prev) => prev.filter((u) => u.id !== userId));
+  };
+
+  return (
+    <section className="mt-10">
+      <h2 className="mb-2 text-lg font-bold">ミュート中のユーザー</h2>
+      <p className="mb-4 text-sm text-gray-500">
+        ミュートしたユーザーの投稿はランキングに表示されなくなります。
+      </p>
+      {loading ? (
+        <div className="flex justify-center py-4">
+          <div className="h-6 w-6 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+        </div>
+      ) : mutedUsers.length === 0 ? (
+        <p className="py-4 text-center text-sm text-gray-400">
+          ミュート中のユーザーはいません。
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {mutedUsers.map((mu) => (
+            <div key={mu.id} className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3">
+              <div className="flex items-center gap-3">
+                {mu.avatar_url ? (
+                  <img src={mu.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
+                    {mu.display_name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span className="text-sm font-medium text-gray-700">{mu.display_name}</span>
+              </div>
+              <button
+                onClick={() => handleUnmute(mu.id)}
+                className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-medium text-gray-600 transition hover:bg-gray-50"
+              >
+                ミュート解除
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

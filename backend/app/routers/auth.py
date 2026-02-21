@@ -4,15 +4,19 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, status
 from PIL import Image
-from sqlalchemy import select
+from pydantic import BaseModel
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import get_session
+from app.models.category import Category
 from app.models.user import User
+from app.models.user_hidden_category import UserHiddenCategory
+from app.models.user_mute import UserMute
 from app.models.video import Video
 from app.models.vote import Vote
-from app.schemas.user import AuthResponse, LoginRequest, SignupRequest, UserResponse, UserUpdateRequest
+from app.schemas.user import AuthResponse, LoginRequest, SignupRequest, UserBriefResponse, UserResponse, UserUpdateRequest
 from app.services.auth import (
     create_access_token,
     get_current_user,
@@ -209,4 +213,167 @@ async def get_profile(
         "voted_videos": [
             video_to_response(v, user_voted=True) for v in voted_videos
         ],
+    }
+
+
+# --- Hidden Categories ---
+
+
+@router.get("/me/hidden-categories")
+async def get_hidden_categories(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(
+        select(Category.slug)
+        .join(UserHiddenCategory, UserHiddenCategory.category_id == Category.id)
+        .where(UserHiddenCategory.user_id == current_user.id)
+    )
+    return {"hidden_category_slugs": [row[0] for row in result]}
+
+
+class HiddenCategoriesRequest(BaseModel):
+    category_slugs: list[str]
+
+
+@router.put("/me/hidden-categories")
+async def update_hidden_categories(
+    body: HiddenCategoriesRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    # Lookup category IDs from slugs
+    if body.category_slugs:
+        result = await session.execute(
+            select(Category.id, Category.slug).where(Category.slug.in_(body.category_slugs))
+        )
+        slug_to_id = {row[1]: row[0] for row in result}
+    else:
+        slug_to_id = {}
+
+    # Replace all hidden categories
+    await session.execute(
+        delete(UserHiddenCategory).where(
+            UserHiddenCategory.user_id == current_user.id
+        )
+    )
+    for slug, cat_id in slug_to_id.items():
+        session.add(UserHiddenCategory(
+            id=str(uuid.uuid4()),
+            user_id=current_user.id,
+            category_id=cat_id,
+        ))
+    await session.commit()
+
+    return {"hidden_category_slugs": list(slug_to_id.keys())}
+
+
+# --- User Mutes ---
+
+
+@router.get("/me/mutes")
+async def get_muted_users(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(
+        select(UserMute).where(
+            UserMute.user_id == current_user.id
+        ).options(selectinload(UserMute.muted_user))
+    )
+    mutes = list(result.scalars().all())
+    return {
+        "muted_users": [
+            {
+                "id": m.muted_user.id,
+                "display_name": m.muted_user.display_name,
+                "avatar_url": m.muted_user.avatar_url,
+            }
+            for m in mutes if m.muted_user
+        ]
+    }
+
+
+@router.post("/me/mutes/{user_id}", status_code=status.HTTP_201_CREATED)
+async def mute_user(
+    user_id: str,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    if user_id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="自分自身をミュートすることはできません",
+        )
+
+    # Check target user exists
+    target = await session.execute(
+        select(User).where(User.id == user_id, User.is_active == True)  # noqa: E712
+    )
+    if target.scalar_one_or_none() is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="ユーザーが見つかりません",
+        )
+
+    # Check if already muted
+    existing = await session.execute(
+        select(UserMute).where(
+            UserMute.user_id == current_user.id,
+            UserMute.muted_user_id == user_id,
+        )
+    )
+    if existing.scalar_one_or_none() is not None:
+        return {"status": "already_muted"}
+
+    session.add(UserMute(
+        id=str(uuid.uuid4()),
+        user_id=current_user.id,
+        muted_user_id=user_id,
+    ))
+    await session.commit()
+    return {"status": "muted"}
+
+
+@router.delete("/me/mutes/{user_id}")
+async def unmute_user(
+    user_id: str,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    await session.execute(
+        delete(UserMute).where(
+            UserMute.user_id == current_user.id,
+            UserMute.muted_user_id == user_id,
+        )
+    )
+    await session.commit()
+    return {"status": "unmuted"}
+
+
+@router.get("/me/preferences")
+async def get_preferences(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    """Get all user preferences in one call (hidden categories + muted users)."""
+    # Hidden categories (return slugs)
+    hidden_result = await session.execute(
+        select(Category.slug)
+        .join(UserHiddenCategory, UserHiddenCategory.category_id == Category.id)
+        .where(UserHiddenCategory.user_id == current_user.id)
+    )
+    hidden_category_slugs = [row[0] for row in hidden_result]
+
+    # Muted users
+    mute_result = await session.execute(
+        select(UserMute.muted_user_id).where(
+            UserMute.user_id == current_user.id
+        )
+    )
+    muted_user_ids = [row[0] for row in mute_result]
+
+    return {
+        "hidden_category_slugs": hidden_category_slugs,
+        "muted_user_ids": muted_user_ids,
     }

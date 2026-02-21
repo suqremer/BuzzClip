@@ -18,6 +18,7 @@ export function VoteButton({ videoId, initialCount, initialVoted }: VoteButtonPr
   const [count, setCount] = useState(initialCount);
   const [loading, setLoading] = useState(false);
   const [showLoginMsg, setShowLoginMsg] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleClick = async () => {
     if (loading) return;
@@ -32,6 +33,7 @@ export function VoteButton({ videoId, initialCount, initialVoted }: VoteButtonPr
     }
 
     setLoading(true);
+    setErrorMsg("");
     try {
       if (voted) {
         const res = await apiDelete<{ new_vote_count: number }>(`/api/votes/${videoId}`);
@@ -43,7 +45,8 @@ export function VoteButton({ videoId, initialCount, initialVoted }: VoteButtonPr
         setVoted(true);
       }
     } catch {
-      // ignore
+      setErrorMsg("エラーが発生しました");
+      setTimeout(() => setErrorMsg(""), 2000);
     } finally {
       setLoading(false);
     }
@@ -78,6 +81,11 @@ export function VoteButton({ videoId, initialCount, initialVoted }: VoteButtonPr
       {showLoginMsg && (
         <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-2.5 py-1 text-xs text-white shadow">
           ログインが必要です
+        </div>
+      )}
+      {errorMsg && (
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-red-600 px-2.5 py-1 text-xs text-white shadow">
+          {errorMsg}
         </div>
       )}
     </div>

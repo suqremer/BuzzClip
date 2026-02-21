@@ -48,8 +48,9 @@ DEFAULT_CATEGORIES = [
     {"slug": "gaming", "name_ja": "ゲーム", "icon": "🎮", "sort_order": 7},
     {"slug": "news", "name_ja": "ニュース", "icon": "📰", "sort_order": 8},
     {"slug": "tech", "name_ja": "テクノロジー", "icon": "🤖", "sort_order": 9},
-    {"slug": "sexy", "name_ja": "セクシー", "icon": "♡", "sort_order": 10},
-    {"slug": "other", "name_ja": "その他", "icon": "🏷️", "sort_order": 11},
+    {"slug": "idol", "name_ja": "アイドル", "icon": "🎤", "sort_order": 10},
+    {"slug": "sexy", "name_ja": "セクシー", "icon": "♡", "sort_order": 11},
+    {"slug": "other", "name_ja": "その他", "icon": "🏷️", "sort_order": 12},
 ]
 
 

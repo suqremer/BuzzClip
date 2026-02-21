@@ -1,6 +1,7 @@
 "use client";
 
 import { CATEGORIES } from "@/lib/constants";
+import { usePreferences } from "@/contexts/PreferencesContext";
 
 interface CategoryFilterProps {
   activeCategory: string | null;
@@ -8,6 +9,10 @@ interface CategoryFilterProps {
 }
 
 export function CategoryFilter({ activeCategory, onCategoryChange }: CategoryFilterProps) {
+  const { isCategoryHidden } = usePreferences();
+
+  const visibleCategories = CATEGORIES.filter((cat) => !isCategoryHidden(cat.slug));
+
   return (
     <div className="flex gap-2 overflow-x-auto pb-2">
       <button
@@ -20,7 +25,7 @@ export function CategoryFilter({ activeCategory, onCategoryChange }: CategoryFil
       >
         すべて
       </button>
-      {CATEGORIES.map((cat) => (
+      {visibleCategories.map((cat) => (
         <button
           key={cat.slug}
           onClick={() => onCategoryChange(cat.slug)}

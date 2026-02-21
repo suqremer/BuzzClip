@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Video } from "@/types/video";
 import { VideoEmbed } from "./VideoEmbed";
 import { VoteButton } from "./VoteButton";
+import { MuteButton } from "./MuteButton";
 
 interface VideoCardProps {
   video: Video;
@@ -39,15 +40,23 @@ export function VideoCard({ video }: VideoCardProps) {
         </div>
       </div>
       {video.submitted_by && (
-        <div className="border-t border-gray-100 px-4 py-2 text-xs text-gray-400">
-          投稿:{" "}
-          <Link
-            href={`/user/${video.submitted_by.id}`}
-            className="text-indigo-500 hover:underline"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {video.submitted_by.display_name}
-          </Link>
+        <div className="flex items-center justify-between border-t border-gray-100 px-4 py-2">
+          <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            {video.submitted_by.avatar_url && (
+              <img src={video.submitted_by.avatar_url} alt="" className="h-4 w-4 rounded-full object-cover" />
+            )}
+            <span>投稿:</span>
+            <Link
+              href={`/user/${video.submitted_by.id}`}
+              className="text-indigo-500 hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {video.submitted_by.display_name}
+            </Link>
+          </div>
+          <div onClick={(e) => e.stopPropagation()}>
+            <MuteButton userId={video.submitted_by.id} displayName={video.submitted_by.display_name} />
+          </div>
         </div>
       )}
     </div>

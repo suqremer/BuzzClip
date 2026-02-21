@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { PreferencesProvider } from "@/contexts/PreferencesContext";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { AdSense } from "@/components/AdSense";
 import "./globals.css";
@@ -42,10 +43,12 @@ export default function RootLayout({
       <AdSense />
       <body className={`${notoSansJP.variable} font-sans antialiased`}>
         <AuthProvider>
-          <Header />
-          <main className="min-h-screen pb-16 md:pb-0">{children}</main>
-          <Footer />
-          <BottomNav />
+          <PreferencesProvider>
+            <Header />
+            <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+            <Footer />
+            <BottomNav />
+          </PreferencesProvider>
         </AuthProvider>
       </body>
     </html>

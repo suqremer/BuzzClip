@@ -6,6 +6,7 @@ import Link from "next/link";
 import { apiGet } from "@/lib/api";
 import type { Video, UserBrief } from "@/types/video";
 import { VideoCard } from "@/components/video/VideoCard";
+import { MuteButton } from "@/components/video/MuteButton";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 interface UserProfile {
@@ -97,8 +98,11 @@ export default function UserProfilePage() {
             {user.display_name.charAt(0).toUpperCase()}
           </div>
         )}
-        <div>
-          <h1 className="text-2xl font-bold">{user.display_name}</h1>
+        <div className="flex-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">{user.display_name}</h1>
+            <MuteButton userId={user.id} displayName={user.display_name} />
+          </div>
           <p className="text-sm text-gray-500">
             投稿数: {total}件
           </p>
