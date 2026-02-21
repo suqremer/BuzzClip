@@ -10,7 +10,7 @@ from app.config import settings
 from app.database import init_db
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.routers import auth, categories, oauth, rankings, reports, users, videos, votes
+from app.routers import admin, auth, categories, oauth, rankings, reports, users, videos, votes
 from app.tasks.snapshot import take_vote_snapshots
 from app.utils.limiter import limiter
 
@@ -55,6 +55,7 @@ async def add_security_headers(request: Request, call_next):
     return response
 
 
+app.include_router(admin.router)
 app.include_router(auth.router)
 app.include_router(oauth.router)
 app.include_router(videos.router)

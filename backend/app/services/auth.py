@@ -69,6 +69,18 @@ async def get_current_user(
     return user
 
 
+async def get_admin_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """FastAPI dependency to get the current authenticated admin user."""
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="管理者権限が必要です",
+        )
+    return current_user
+
+
 async def get_optional_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(security),
     session: AsyncSession = Depends(get_session),

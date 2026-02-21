@@ -12,14 +12,19 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "BuzzClip - 今バズってる動画、ここに全部。",
+  title: "BuzzClip - バズ動画ランキング",
   description:
-    "X(Twitter)でバズってる動画をみんなで集めてランキング化。面白い・感動・衝撃の動画を見逃さない。",
+    "X(Twitter)で話題のバズ動画をみんなで集めてランキング化",
   openGraph: {
-    title: "BuzzClip - 今バズってる動画、ここに全部。",
+    title: "BuzzClip - バズ動画ランキング",
     description:
-      "X(Twitter)でバズってる動画をみんなで集めてランキング化。",
+      "X(Twitter)で話題のバズ動画をみんなで集めてランキング化",
     type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "BuzzClip - バズ動画ランキング",
+    description: "X(Twitter)で話題のバズ動画をみんなで集めてランキング化",
   },
 };
 

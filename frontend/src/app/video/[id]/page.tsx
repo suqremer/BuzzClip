@@ -12,12 +12,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const res = await fetch(`${API_URL}/api/videos/${id}`, { cache: "no-store" });
     if (!res.ok) return { title: "BuzzClip" };
     const video = await res.json();
+    const title = `${video.title || "バズ動画"} - BuzzClip`;
+    const description = video.author_name
+      ? `${video.author_name}さんのバズ動画をBuzzClipでチェック`
+      : "BuzzClipで話題のバズ動画をチェック";
+    const url = `${API_URL}/video/${id}`;
     return {
-      title: `${video.title || "バズ動画"} - BuzzClip`,
-      description: `BuzzClipで話題の動画をチェック`,
+      title,
+      description,
       openGraph: {
-        title: `${video.title || "バズ動画"} - BuzzClip`,
+        title,
+        description,
         type: "article",
+        url,
+      },
+      twitter: {
+        card: "summary",
+        title,
+        description,
       },
     };
   } catch {
