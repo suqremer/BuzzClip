@@ -36,6 +36,14 @@ export function VideoCard({ video }: VideoCardProps) {
               {cat.icon} {cat.name_ja}
             </span>
           ))}
+          {video.tags?.map((tag) => (
+            <span
+              key={tag.id}
+              className="rounded-full bg-purple-50 px-2.5 py-0.5 text-xs font-medium text-purple-600"
+            >
+              #{tag.name}
+            </span>
+          ))}
         </div>
         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <ShareButtons videoId={video.id} title={video.title ?? undefined} />
@@ -47,6 +55,11 @@ export function VideoCard({ video }: VideoCardProps) {
           />
         </div>
       </div>
+      {video.comment && (
+        <div className="border-t border-gray-100 px-4 py-2">
+          <p className="text-xs text-gray-500">{video.comment}</p>
+        </div>
+      )}
       {video.submitted_by && (
         <div className="flex items-center justify-between border-t border-gray-100 px-4 py-2">
           <div className="flex items-center gap-1.5 text-xs text-gray-400">

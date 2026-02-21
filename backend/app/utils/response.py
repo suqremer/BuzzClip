@@ -1,6 +1,6 @@
 from app.models.video import Video
 from app.schemas.user import UserBriefResponse
-from app.schemas.video import CategoryResponse, VideoResponse
+from app.schemas.video import CategoryResponse, TagResponse, VideoResponse
 
 
 def video_to_response(video: Video, user_voted: bool = False, is_trending: bool = False) -> VideoResponse:
@@ -13,11 +13,16 @@ def video_to_response(video: Video, user_voted: bool = False, is_trending: bool 
         author_url=video.author_url,
         oembed_html=video.oembed_html,
         title=video.title,
+        comment=video.comment,
         categories=[
             CategoryResponse(
                 id=c.id, slug=c.slug, name_ja=c.name_ja, icon=c.icon
             )
             for c in video.categories
+        ],
+        tags=[
+            TagResponse(id=t.id, name=t.name)
+            for t in (video.tags if video.tags else [])
         ],
         vote_count=video.vote_count,
         user_voted=user_voted,

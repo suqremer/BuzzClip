@@ -16,10 +16,10 @@ import { ContributorRanking } from "@/components/social/ContributorRanking";
 function RankingContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category");
-  const { preferences } = usePreferences();
+  const { preferences, setPreferredPlatforms } = usePreferences();
 
   const [period, setPeriod] = useState("24h");
-  const [platforms, setPlatforms] = useState<string[]>([]);
+  const [platforms, setPlatforms] = useState<string[]>(preferences.preferredPlatforms);
   const [category, setCategory] = useState<string | null>(initialCategory);
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,7 +93,7 @@ function RankingContent() {
         <RankingTabs activePeriod={period} onPeriodChange={setPeriod} />
       </div>
       <div className="mb-4">
-        <PlatformFilter selectedPlatforms={platforms} onPlatformsChange={setPlatforms} />
+        <PlatformFilter selectedPlatforms={platforms} onPlatformsChange={(p) => { setPlatforms(p); setPreferredPlatforms(p); }} />
       </div>
       <div className="mb-6">
         <CategoryFilter

@@ -187,7 +187,7 @@ async def get_profile(
     result = await session.execute(
         select(Video)
         .where(Video.submitted_by == current_user.id, Video.is_active == True)  # noqa: E712
-        .options(selectinload(Video.submitter), selectinload(Video.categories))
+        .options(selectinload(Video.submitter), selectinload(Video.categories), selectinload(Video.tags))
         .order_by(Video.created_at.desc())
     )
     submitted_videos = list(result.scalars().all())
@@ -197,7 +197,7 @@ async def get_profile(
         select(Video)
         .join(Vote, Vote.video_id == Video.id)
         .where(Vote.user_id == current_user.id, Video.is_active == True)  # noqa: E712
-        .options(selectinload(Video.submitter), selectinload(Video.categories))
+        .options(selectinload(Video.submitter), selectinload(Video.categories), selectinload(Video.tags))
         .order_by(Video.created_at.desc())
     )
     voted_videos = list(result.scalars().all())

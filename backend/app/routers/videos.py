@@ -1,3 +1,4 @@
+import re
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -7,6 +8,7 @@ from sqlalchemy.orm import selectinload
 
 from app.database import get_session
 from app.models.category import Category
+from app.models.tag import Tag
 from app.models.user import User
 from app.models.video import Video, video_categories
 from app.models.vote import Vote
@@ -58,6 +60,25 @@ async def submit_video(
         )
         categories = list(result.scalars().all())
 
+    # Parse tags from comment (e.g. "#猫 #おもしろ")
+    comment = (request.comment or "")[:200].strip() or None
+    tag_names: list[str] = []
+    if comment:
+        tag_names = list(dict.fromkeys(
+            t.lower() for t in re.findall(r"#(\w+)", comment)
+        ))[:5]  # max 5 tags
+
+    # Resolve or create tags
+    tags = []
+    for name in tag_names:
+        result = await session.execute(select(Tag).where(Tag.name == name))
+        tag = result.scalar_one_or_none()
+        if not tag:
+            tag = Tag(id=str(uuid.uuid4()), name=name)
+            session.add(tag)
+        tag.video_count += 1
+        tags.append(tag)
+
     video = Video(
         id=str(uuid.uuid4()),
         url=normalized_url,
@@ -67,12 +88,14 @@ async def submit_video(
         author_url=oembed_data.get("author_url") if oembed_data else None,
         oembed_html=oembed_data.get("html") if oembed_data else None,
         title=request.title,
+        comment=comment,
         submitted_by=current_user.id,
         categories=categories,
+        tags=tags,
     )
     session.add(video)
     await session.commit()
-    await session.refresh(video, ["submitter", "categories"])
+    await session.refresh(video, ["submitter", "categories", "tags"])
 
     return video_to_response(video)
 
@@ -91,6 +114,7 @@ async def list_videos(
     query = select(Video).where(Video.is_active == True).options(  # noqa: E712
         selectinload(Video.submitter),
         selectinload(Video.categories),
+        selectinload(Video.tags),
     )
 
     # Platform filter
@@ -180,6 +204,7 @@ async def get_video(
         .options(
             selectinload(Video.submitter),
             selectinload(Video.categories),
+            selectinload(Video.tags),
         )
     )
     video = result.scalar_one_or_none()

@@ -158,6 +158,7 @@ async def get_playlist(
         .options(
             selectinload(PlaylistVideo.video).selectinload(Video.submitter),
             selectinload(PlaylistVideo.video).selectinload(Video.categories),
+            selectinload(PlaylistVideo.video).selectinload(Video.tags),
         )
         .order_by(PlaylistVideo.position.asc())
     )

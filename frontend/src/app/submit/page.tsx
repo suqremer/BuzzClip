@@ -17,6 +17,7 @@ export default function SubmitPage() {
   const { user, loading: authLoading } = useAuth();
   const [url, setUrl] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
+  const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -57,6 +58,7 @@ export default function SubmitPage() {
       await apiPost<SubmitResponse>("/api/videos", {
         url: url,
         category_slugs: categories,
+        comment: comment || undefined,
       });
       router.push("/ranking");
     } catch (e) {
@@ -101,6 +103,27 @@ export default function SubmitPage() {
             <span className="font-medium">カテゴリを選択</span>
           </div>
           <CategorySelect selected={categories} onChange={setCategories} />
+        </div>
+
+        {/* Step 3: Comment */}
+        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
+              3
+            </span>
+            <span className="font-medium">ひとこと（任意）</span>
+          </div>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            maxLength={200}
+            rows={2}
+            placeholder="おすすめポイントなど #タグ も使えます"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          />
+          <p className="mt-1 text-xs text-gray-400">
+            {comment.length}/200　#を付けるとタグになります（最大5つ）
+          </p>
         </div>
 
         {/* Submit */}

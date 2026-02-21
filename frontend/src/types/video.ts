@@ -1,3 +1,8 @@
+export interface VideoTag {
+  id: string;
+  name: string;
+}
+
 export interface Video {
   id: string;
   url: string;
@@ -7,7 +12,9 @@ export interface Video {
   author_url: string | null;
   oembed_html: string | null;
   title: string | null;
+  comment: string | null;
   categories: Category[];
+  tags: VideoTag[];
   vote_count: number;
   user_voted: boolean;
   is_trending: boolean;

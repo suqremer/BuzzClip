@@ -46,7 +46,7 @@ async def get_public_profile(
     result = await session.execute(
         select(Video)
         .where(Video.submitted_by == user_id, Video.is_active == True)  # noqa: E712
-        .options(selectinload(Video.submitter), selectinload(Video.categories))
+        .options(selectinload(Video.submitter), selectinload(Video.categories), selectinload(Video.tags))
         .order_by(Video.created_at.desc())
         .offset((page - 1) * per_page)
         .limit(per_page)

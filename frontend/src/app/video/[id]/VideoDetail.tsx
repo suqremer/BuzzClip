@@ -100,6 +100,25 @@ export default function VideoDetail({ id }: VideoDetailProps) {
             ))}
           </div>
 
+          {/* Tags */}
+          {video.tags && video.tags.length > 0 && (
+            <div className="mb-3 flex flex-wrap gap-2">
+              {video.tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="rounded-full bg-purple-50 px-3 py-1 text-sm font-medium text-purple-600"
+                >
+                  #{tag.name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Comment */}
+          {video.comment && (
+            <p className="mb-3 text-sm text-gray-600">{video.comment}</p>
+          )}
+
           {/* Vote Button (large) */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">

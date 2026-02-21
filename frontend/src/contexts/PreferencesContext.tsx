@@ -13,6 +13,7 @@ import { apiGet, apiPut, apiPost, apiDelete } from "@/lib/api";
 interface Preferences {
   hiddenCategorySlugs: string[];
   mutedUserIds: string[];
+  preferredPlatforms: string[];
 }
 
 interface PreferencesContextValue {
@@ -23,12 +24,16 @@ interface PreferencesContextValue {
   unmuteUser: (userId: string) => Promise<void>;
   isUserMuted: (userId: string) => boolean;
   isCategoryHidden: (slug: string) => boolean;
+  setPreferredPlatforms: (platforms: string[]) => void;
 }
 
 const defaultPreferences: Preferences = {
   hiddenCategorySlugs: [],
   mutedUserIds: [],
+  preferredPlatforms: [],
 };
+
+const PLATFORMS_STORAGE_KEY = "buzzclip_platforms";
 
 const STORAGE_KEY = "buzzclip_preferences";
 
@@ -39,12 +44,29 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
   const [preferences, setPreferences] = useState<Preferences>(defaultPreferences);
   const [loading, setLoading] = useState(false);
 
+  // Load platforms from localStorage (works for both logged-in and anonymous)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = localStorage.getItem(PLATFORMS_STORAGE_KEY);
+      if (stored) {
+        const platforms = JSON.parse(stored);
+        if (Array.isArray(platforms)) {
+          setPreferences((prev) => ({ ...prev, preferredPlatforms: platforms }));
+        }
+      }
+    } catch { /* ignore */ }
+  }, []);
+
   useEffect(() => {
     if (!user) {
       if (typeof window !== "undefined") {
         try {
           const stored = localStorage.getItem(STORAGE_KEY);
-          if (stored) setPreferences(JSON.parse(stored));
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            setPreferences((prev) => ({ ...prev, ...parsed }));
+          }
         } catch { /* ignore */ }
       }
       return;
@@ -53,10 +75,11 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     setLoading(true);
     apiGet<{ hidden_category_slugs: string[]; muted_user_ids: string[] }>("/api/auth/me/preferences")
       .then((data) => {
-        setPreferences({
+        setPreferences((prev) => ({
+          ...prev,
           hiddenCategorySlugs: data.hidden_category_slugs,
           mutedUserIds: data.muted_user_ids,
-        });
+        }));
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -108,6 +131,13 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
     return preferences.hiddenCategorySlugs.includes(slug);
   }, [preferences.hiddenCategorySlugs]);
 
+  const setPreferredPlatforms = useCallback((platforms: string[]) => {
+    setPreferences((prev) => ({ ...prev, preferredPlatforms: platforms }));
+    if (typeof window !== "undefined") {
+      localStorage.setItem(PLATFORMS_STORAGE_KEY, JSON.stringify(platforms));
+    }
+  }, []);
+
   return (
     <PreferencesContext.Provider
       value={{
@@ -118,6 +148,7 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
         unmuteUser,
         isUserMuted,
         isCategoryHidden,
+        setPreferredPlatforms,
       }}
     >
       {children}

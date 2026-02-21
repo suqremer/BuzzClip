@@ -115,6 +115,7 @@ async def get_trending(
             .options(
                 selectinload(Video.submitter),
                 selectinload(Video.categories),
+                selectinload(Video.tags),
             )
             .group_by(Video.id)
             .order_by(func.count(Vote.id).desc(), Video.created_at.desc())
@@ -133,6 +134,7 @@ async def get_trending(
             .options(
                 selectinload(Video.submitter),
                 selectinload(Video.categories),
+                selectinload(Video.tags),
             )
             .order_by(Video.vote_count.desc())
             .limit(10)
@@ -198,6 +200,7 @@ async def get_rankings(
             .options(
                 selectinload(Video.submitter),
                 selectinload(Video.categories),
+                selectinload(Video.tags),
             )
             .group_by(Video.id)
             .order_by(func.count(Vote.id).desc(), Video.created_at.desc())
@@ -210,6 +213,7 @@ async def get_rankings(
             .options(
                 selectinload(Video.submitter),
                 selectinload(Video.categories),
+                selectinload(Video.tags),
             )
             .order_by(Video.vote_count.desc(), Video.created_at.desc())
         )

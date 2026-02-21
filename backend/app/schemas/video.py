@@ -15,10 +15,18 @@ class CategoryResponse(BaseModel):
     video_count: int = 0
 
 
+class TagResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    name: str
+
+
 class VideoSubmitRequest(BaseModel):
     url: str
     category_slugs: list[str] = []
     title: str | None = None
+    comment: str | None = None
 
 
 class VideoResponse(BaseModel):
@@ -32,7 +40,9 @@ class VideoResponse(BaseModel):
     author_url: str | None = None
     oembed_html: str | None = None
     title: str | None = None
+    comment: str | None = None
     categories: list[CategoryResponse] = []
+    tags: list[TagResponse] = []
     vote_count: int = 0
     user_voted: bool = False
     is_trending: bool = False
