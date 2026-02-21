@@ -1,125 +1,116 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/constants";
-import { apiGet } from "@/lib/api";
-import type { Video } from "@/types/video";
-import type { PaginatedResponse } from "@/types/api";
-import { VideoCard } from "@/components/video/VideoCard";
-import { TrendBadge } from "@/components/video/TrendBadge";
 
 export default function HomePage() {
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [trendingVideos, setTrendingVideos] = useState<Video[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    Promise.all([
-      apiGet<PaginatedResponse<Video>>("/api/rankings?period=24h&per_page=10"),
-      apiGet<PaginatedResponse<Video>>("/api/rankings/trending").catch(() => ({ items: [] as Video[] })),
-    ])
-      .then(([rankingData, trendingData]) => {
-        setVideos(rankingData.items);
-        setTrendingVideos(trendingData.items);
-      })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
-
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-indigo-600 to-purple-700 px-4 py-20 text-center text-white">
-        <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
-          今バズってる動画、
+      <section className="bg-gradient-to-br from-indigo-600 to-purple-700 px-4 py-24 text-center text-white sm:py-32">
+        <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl">
+          Xでバズった動画、
           <br />
-          ここに全部。
+          ぜんぶここに。
         </h1>
-        <p className="mx-auto mt-4 max-w-md text-lg text-indigo-100">
-          X(Twitter)でバズってる動画をみんなで集めてランキング化。
-          <br />
-          面白い・感動・衝撃の動画を見逃さない。
+        <p className="mx-auto mt-6 max-w-lg text-lg leading-relaxed text-indigo-100 sm:text-xl">
+          みんなで見つけて、みんなで育てる
+          <br className="sm:hidden" />
+          動画ランキング
         </p>
-        <div className="mt-8 flex justify-center gap-3">
+        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/ranking"
-            className="rounded-full bg-white px-6 py-3 text-sm font-bold text-indigo-600 shadow-lg transition hover:bg-indigo-50"
+            className="w-full rounded-full bg-white px-8 py-3.5 text-base font-bold text-indigo-600 shadow-lg transition hover:bg-indigo-50 sm:w-auto"
           >
             ランキングを見る
           </Link>
           <Link
             href="/submit"
-            className="rounded-full border-2 border-white px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
+            className="w-full rounded-full border-2 border-white px-8 py-3.5 text-base font-bold text-white transition hover:bg-white/10 sm:w-auto"
           >
             動画を投稿する
           </Link>
         </div>
       </section>
 
-      {/* Trending */}
-      {trendingVideos.length > 0 && (
-        <section className="mx-auto max-w-3xl px-4 py-12">
-          <div className="mb-6 flex items-center gap-3">
-            <h2 className="text-xl font-bold">今バズり始め</h2>
-            <TrendBadge />
+      {/* How It Works */}
+      <section className="px-4 py-20 sm:py-24">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="text-center text-2xl font-bold sm:text-3xl">
+            かんたん3ステップ
+          </h2>
+          <p className="mt-3 text-center text-gray-500">
+            バズ動画をみんなでシェアして、ランキングをつくろう
+          </p>
+          <div className="mt-14 grid gap-10 sm:grid-cols-3 sm:gap-8">
+            {/* Step 1 */}
+            <div className="text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100 text-3xl">
+                🔍
+              </div>
+              <div className="mt-2 text-sm font-bold text-indigo-600">
+                Step 1
+              </div>
+              <h3 className="mt-2 text-lg font-bold">見つける</h3>
+              <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                Xでバズっている動画の
+                <br />
+                URLをコピー
+              </p>
+            </div>
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100 text-3xl">
+                📋
+              </div>
+              <div className="mt-2 text-sm font-bold text-indigo-600">
+                Step 2
+              </div>
+              <h3 className="mt-2 text-lg font-bold">投稿する</h3>
+              <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                BuzzClipにURLを貼るだけ
+                <br />
+                カテゴリを選択
+              </p>
+            </div>
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100 text-3xl">
+                🚀
+              </div>
+              <div className="mt-2 text-sm font-bold text-indigo-600">
+                Step 3
+              </div>
+              <h3 className="mt-2 text-lg font-bold">みんなで育てる</h3>
+              <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                いいねで動画が
+                <br />
+                ランキングUP
+              </p>
+            </div>
           </div>
-          <div className="space-y-4">
-            {trendingVideos.map((video) => (
-              <VideoCard key={video.id} video={video} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 24h Ranking */}
-      <section className="mx-auto max-w-3xl px-4 py-12">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold">24時間ランキング</h2>
-          <Link
-            href="/ranking"
-            className="text-sm font-medium text-indigo-600 hover:underline"
-          >
-            もっと見る →
-          </Link>
         </div>
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
-          </div>
-        ) : error ? (
-          <p className="py-12 text-center text-gray-400">
-            データの読み込みに失敗しました。ページを再読み込みしてください。
-          </p>
-        ) : videos.length === 0 ? (
-          <p className="py-12 text-center text-gray-400">
-            まだ動画がありません。最初の投稿者になろう！
-          </p>
-        ) : (
-          <div className="space-y-4">
-            {videos.map((video) => (
-              <VideoCard key={video.id} video={video} />
-            ))}
-          </div>
-        )}
       </section>
 
-      {/* Categories */}
-      <section className="bg-gray-50 px-4 py-12">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="mb-6 text-center text-xl font-bold">
+      {/* Category Showcase */}
+      <section className="bg-gray-50 px-4 py-20 sm:py-24">
+        <div className="mx-auto max-w-4xl">
+          <h2 className="text-center text-2xl font-bold sm:text-3xl">
             カテゴリから探す
           </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+          <p className="mt-3 text-center text-gray-500">
+            気になるジャンルのバズ動画をチェック
+          </p>
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/ranking?category=${cat.slug}`}
-                className="flex flex-col items-center gap-1.5 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md"
+                className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
               >
-                <span className="text-2xl">{cat.icon}</span>
-                <span className="text-sm font-medium text-gray-700">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-xl">
+                  {cat.icon}
+                </span>
+                <span className="text-sm font-semibold text-gray-700">
                   {cat.nameJa}
                 </span>
               </Link>
@@ -128,17 +119,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="px-4 py-16 text-center">
-        <h2 className="text-2xl font-bold">バズ動画、見つけた？</h2>
-        <p className="mt-2 text-gray-500">
-          みんなでシェアして、ランキングを育てよう。
+      {/* Bottom CTA */}
+      <section className="px-4 py-20 text-center sm:py-24">
+        <h2 className="text-2xl font-bold sm:text-3xl">
+          今すぐバズ動画を探そう
+        </h2>
+        <p className="mx-auto mt-4 max-w-md text-gray-500">
+          毎日更新されるランキングで、話題の動画を見逃さない。
         </p>
         <Link
-          href="/submit"
-          className="mt-6 inline-block rounded-full bg-indigo-600 px-8 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-indigo-700"
+          href="/ranking"
+          className="mt-8 inline-block rounded-full bg-indigo-600 px-10 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-indigo-700"
         >
-          動画を投稿する
+          ランキングを見る
         </Link>
       </section>
     </div>

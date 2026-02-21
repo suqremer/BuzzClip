@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans_JP } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
@@ -38,8 +39,9 @@ export default function RootLayout({
       <body className={`${notoSansJP.variable} font-sans antialiased`}>
         <AuthProvider>
           <Header />
-          <main className="min-h-screen">{children}</main>
+          <main className="min-h-screen pb-16 md:pb-0">{children}</main>
           <Footer />
+          <BottomNav />
         </AuthProvider>
       </body>
     </html>
