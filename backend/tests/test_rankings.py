@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 import pytest
 import pytest_asyncio
@@ -78,7 +78,7 @@ async def test_vote_snapshot_creation(test_db: AsyncSession):
         id=str(uuid.uuid4()),
         video_id=video.id,
         vote_count=video.vote_count,
-        snapshot_at=datetime.now(timezone.utc),
+        snapshot_at=datetime.utcnow(),
     )
     test_db.add(snapshot)
     await test_db.commit()

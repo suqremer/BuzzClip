@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -29,12 +29,12 @@ class Video(Base):
     vote_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0, index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(
-        nullable=False, default=lambda: datetime.now(timezone.utc), index=True
+        nullable=False, default=lambda: datetime.utcnow(), index=True
     )
     updated_at: Mapped[datetime] = mapped_column(
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.utcnow(),
+        onupdate=lambda: datetime.utcnow(),
     )
 
     submitter = relationship("User", back_populates="videos", lazy="select")

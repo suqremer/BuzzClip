@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from sqlalchemy import delete, select
 
@@ -17,7 +17,7 @@ async def take_vote_snapshots():
             videos = (await session.execute(
                 select(Video).where(Video.is_active == True)  # noqa: E712
             )).scalars().all()
-            now = datetime.now(timezone.utc)
+            now = datetime.utcnow()
             for video in videos:
                 snapshot = VoteSnapshot(
                     video_id=video.id,
