@@ -14,14 +14,15 @@ async def take_vote_snapshots():
     """Take a snapshot of current vote counts for all active videos."""
     try:
         async with async_session() as session:
-            videos = (await session.execute(
-                select(Video).where(Video.is_active == True)  # noqa: E712
-            )).scalars().all()
+            # Only fetch id and vote_count columns to avoid loading full ORM objects
+            rows = (await session.execute(
+                select(Video.id, Video.vote_count).where(Video.is_active == True)  # noqa: E712
+            )).all()
             now = datetime.utcnow()
-            for video in videos:
+            for video_id, vote_count in rows:
                 snapshot = VoteSnapshot(
-                    video_id=video.id,
-                    vote_count=video.vote_count,
+                    video_id=video_id,
+                    vote_count=vote_count,
                     snapshot_at=now,
                 )
                 session.add(snapshot)
@@ -33,6 +34,6 @@ async def take_vote_snapshots():
             )
 
             await session.commit()
-            logger.info("Vote snapshots taken for %d videos", len(videos))
+            logger.info("Vote snapshots taken for %d videos", len(rows))
     except Exception:
         logger.exception("Failed to take vote snapshots")

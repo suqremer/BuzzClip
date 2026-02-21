@@ -69,10 +69,14 @@ function loadTwitterWidgets(container: HTMLElement | null) {
   ) as HTMLScriptElement | null;
 
   if (existing) {
+    let attempts = 0;
     const interval = setInterval(() => {
+      attempts++;
       if (window.twttr) {
         clearInterval(interval);
         loadWidgets();
+      } else if (attempts >= 50) {
+        clearInterval(interval);
       }
     }, 100);
     return;

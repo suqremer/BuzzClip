@@ -24,8 +24,8 @@ class Video(Base):
     author_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     oembed_html: Mapped[str | None] = mapped_column(Text, nullable=True)
     title: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    submitted_by: Mapped[str] = mapped_column(
-        String(36), ForeignKey("users.id"), nullable=False, index=True
+    submitted_by: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )
     vote_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0, index=True)
     comment: Mapped[str | None] = mapped_column(String(200), nullable=True)

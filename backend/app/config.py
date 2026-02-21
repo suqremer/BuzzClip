@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
     backend_url: str = "http://localhost:8000"
-    debug: bool = True
+    debug: bool = False
 
     @property
     def cors_origins(self) -> list[str]:
@@ -27,6 +27,11 @@ class Settings(BaseSettings):
 settings = Settings()
 
 if settings.jwt_secret_key == "dev-secret-key-change-in-production":
+    if not settings.debug:
+        raise RuntimeError(
+            "JWT_SECRET_KEY must be set in production. "
+            "Set a strong secret via environment variable."
+        )
     warnings.warn(
         "JWT_SECRET_KEY is using the default dev key. "
         "Set a strong secret in production!",

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { API_URL } from "@/lib/constants";
+import { API_URL, SITE_URL } from "@/lib/constants";
 import VideoDetail from "./VideoDetail";
 
 interface Props {
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const description = video.author_name
       ? `${video.author_name}さんのバズ動画をBuzzClipでチェック`
       : "BuzzClipで話題のバズ動画をチェック";
-    const url = `${API_URL}/video/${id}`;
+    const url = `${SITE_URL}/video/${id}`;
     return {
       title,
       description,

@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,12 +11,15 @@ from app.models.video import Video
 from app.models.vote import Vote
 from app.schemas.vote import VoteResponse
 from app.services.auth import get_current_user
+from app.utils.limiter import limiter
 
 router = APIRouter(prefix="/api/votes", tags=["votes"])
 
 
 @router.post("/{video_id}", response_model=VoteResponse)
+@limiter.limit("30/minute")
 async def upvote(
+    request: Request,
     video_id: str,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
@@ -79,7 +82,9 @@ async def upvote(
 
 
 @router.delete("/{video_id}", response_model=VoteResponse)
+@limiter.limit("30/minute")
 async def remove_vote(
+    request: Request,
     video_id: str,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),

@@ -1,7 +1,7 @@
 import re
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -19,6 +19,7 @@ from app.schemas.video import (
 )
 from app.services.auth import get_current_user, get_optional_user
 from app.services.oembed import fetch_oembed
+from app.utils.limiter import limiter
 from app.utils.response import video_to_response
 from app.utils.url_validator import validate_video_url
 
@@ -26,13 +27,15 @@ router = APIRouter(prefix="/api/videos", tags=["videos"])
 
 
 @router.post("", response_model=VideoResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("10/minute")
 async def submit_video(
-    request: VideoSubmitRequest,
+    request: Request,
+    body: VideoSubmitRequest,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
     # Validate URL
-    is_valid, normalized_url, external_id, platform = validate_video_url(request.url)
+    is_valid, normalized_url, external_id, platform = validate_video_url(body.url)
     if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -54,14 +57,14 @@ async def submit_video(
 
     # Get categories
     categories = []
-    if request.category_slugs:
+    if body.category_slugs:
         result = await session.execute(
-            select(Category).where(Category.slug.in_(request.category_slugs[:3]))
+            select(Category).where(Category.slug.in_(body.category_slugs[:3]))
         )
         categories = list(result.scalars().all())
 
     # Parse tags from comment (e.g. "#猫 #おもしろ")
-    comment = (request.comment or "")[:200].strip() or None
+    comment = (body.comment or "")[:200].strip() or None
     tag_names: list[str] = []
     if comment:
         tag_names = list(dict.fromkeys(
@@ -87,7 +90,7 @@ async def submit_video(
         author_name=oembed_data.get("author_name") if oembed_data else None,
         author_url=oembed_data.get("author_url") if oembed_data else None,
         oembed_html=oembed_data.get("html") if oembed_data else None,
-        title=request.title,
+        title=body.title,
         comment=comment,
         submitted_by=current_user.id,
         categories=categories,

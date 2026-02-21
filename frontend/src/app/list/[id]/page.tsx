@@ -19,6 +19,7 @@ export default function PlaylistDetailPage() {
   const [error, setError] = useState("");
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState("");
+  const [actionError, setActionError] = useState("");
 
   const fetchPlaylist = useCallback(() => {
     setLoading(true);
@@ -44,7 +45,8 @@ export default function PlaylistDetailPage() {
       setEditing(false);
       fetchPlaylist();
     } catch {
-      alert("名前の変更に失敗しました");
+      setActionError("名前の変更に失敗しました");
+      setTimeout(() => setActionError(""), 3000);
     }
   };
 
@@ -54,7 +56,8 @@ export default function PlaylistDetailPage() {
       await apiDelete(`/api/playlists/${id}`);
       router.push("/mypage");
     } catch {
-      alert("削除に失敗しました");
+      setActionError("削除に失敗しました");
+      setTimeout(() => setActionError(""), 3000);
     }
   };
 
@@ -157,6 +160,10 @@ export default function PlaylistDetailPage() {
           </div>
         )}
       </div>
+
+      {actionError && (
+        <p className="mb-4 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">{actionError}</p>
+      )}
 
       <p className="mb-4 text-sm text-gray-400">{playlist.video_count}件の動画</p>
 

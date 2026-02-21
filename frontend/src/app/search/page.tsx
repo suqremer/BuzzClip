@@ -14,6 +14,9 @@ function SearchContent() {
   const query = searchParams.get("q") || "";
 
   const [input, setInput] = useState(query);
+
+  // Sync input with URL query param changes (e.g. browser back/forward)
+  useEffect(() => { setInput(query); }, [query]);
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -73,8 +76,10 @@ function SearchContent() {
       <h1 className="mb-6 text-2xl font-bold">検索</h1>
 
       <form onSubmit={handleSubmit} className="mb-8">
+        <label htmlFor="search-input" className="sr-only">検索</label>
         <div className="flex gap-2">
           <input
+            id="search-input"
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}

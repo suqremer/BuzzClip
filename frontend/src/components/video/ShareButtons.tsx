@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
+
 interface ShareButtonsProps {
   videoId: string;
   title?: string;
 }
 
 export function ShareButtons({ videoId, title }: ShareButtonsProps) {
+  const [copyMsg, setCopyMsg] = useState("");
   const url = typeof window !== "undefined"
     ? `${window.location.origin}/video/${videoId}`
     : `/video/${videoId}`;
@@ -30,14 +33,20 @@ export function ShareButtons({ videoId, title }: ShareButtonsProps) {
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      alert("リンクをコピーしました");
+      setCopyMsg("コピーしました");
     } catch {
-      alert("コピーに失敗しました");
+      setCopyMsg("コピー失敗");
     }
+    setTimeout(() => setCopyMsg(""), 1500);
   };
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="relative flex items-center gap-1.5">
+      {copyMsg && (
+        <span className="absolute -top-7 right-0 whitespace-nowrap rounded bg-gray-800 px-2 py-0.5 text-xs text-white shadow">
+          {copyMsg}
+        </span>
+      )}
       <button
         onClick={shareX}
         className="rounded-full bg-gray-100 p-1.5 text-xs text-gray-500 transition hover:bg-gray-200"

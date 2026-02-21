@@ -1,6 +1,9 @@
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+export const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://buzzclip.jp";
+
 export const CATEGORIES = [
   { slug: "funny", nameJa: "おもしろ", icon: "😂" },
   { slug: "cats-animals", nameJa: "猫・動物", icon: "🐱" },

@@ -52,44 +52,56 @@ async def get_trending(
             ).group_by(VoteSnapshot.video_id)
         )).scalars().all()
 
-        for vid in videos_with_snapshots:
-            # Latest snapshot vote count
-            latest = (await session.execute(
-                select(VoteSnapshot.vote_count).where(
-                    VoteSnapshot.video_id == vid
-                ).order_by(VoteSnapshot.snapshot_at.desc()).limit(1)
-            )).scalar()
+        if videos_with_snapshots:
+            # Batch query: latest snapshot per video (3 queries total instead of 3N)
+            def _ranked_snapshot_subq(filter_clause=None):
+                q = select(
+                    VoteSnapshot.video_id,
+                    VoteSnapshot.vote_count,
+                    func.row_number().over(
+                        partition_by=VoteSnapshot.video_id,
+                        order_by=VoteSnapshot.snapshot_at.desc(),
+                    ).label("rn"),
+                ).where(VoteSnapshot.video_id.in_(videos_with_snapshots))
+                if filter_clause is not None:
+                    q = q.where(filter_clause)
+                return q.subquery()
 
-            # Snapshot closest to 1 hour ago
-            one_hour_snapshot = (await session.execute(
-                select(VoteSnapshot.vote_count).where(
-                    VoteSnapshot.video_id == vid,
-                    VoteSnapshot.snapshot_at <= one_hour_ago,
-                ).order_by(VoteSnapshot.snapshot_at.desc()).limit(1)
-            )).scalar()
+            latest_sq = _ranked_snapshot_subq()
+            latest_rows = (await session.execute(
+                select(latest_sq.c.video_id, latest_sq.c.vote_count).where(latest_sq.c.rn == 1)
+            )).all()
+            latest_map = {r[0]: r[1] for r in latest_rows}
 
-            # Snapshot closest to 3 hours ago
-            three_hour_snapshot = (await session.execute(
-                select(VoteSnapshot.vote_count).where(
-                    VoteSnapshot.video_id == vid,
-                    VoteSnapshot.snapshot_at <= three_hours_ago,
-                ).order_by(VoteSnapshot.snapshot_at.desc()).limit(1)
-            )).scalar()
+            one_hour_sq = _ranked_snapshot_subq(VoteSnapshot.snapshot_at <= one_hour_ago)
+            one_hour_rows = (await session.execute(
+                select(one_hour_sq.c.video_id, one_hour_sq.c.vote_count).where(one_hour_sq.c.rn == 1)
+            )).all()
+            one_hour_map = {r[0]: r[1] for r in one_hour_rows}
 
-            if latest is None or one_hour_snapshot is None or three_hour_snapshot is None:
-                continue
+            three_hour_sq = _ranked_snapshot_subq(VoteSnapshot.snapshot_at <= three_hours_ago)
+            three_hour_rows = (await session.execute(
+                select(three_hour_sq.c.video_id, three_hour_sq.c.vote_count).where(three_hour_sq.c.rn == 1)
+            )).all()
+            three_hour_map = {r[0]: r[1] for r in three_hour_rows}
 
-            votes_1h = latest - one_hour_snapshot
-            votes_3h = latest - three_hour_snapshot
+            for vid in videos_with_snapshots:
+                latest = latest_map.get(vid)
+                one_hour_val = one_hour_map.get(vid)
+                three_hour_val = three_hour_map.get(vid)
 
-            # Need at least 2 votes in 3h for meaningful trending
-            if votes_3h < 2:
-                continue
+                if latest is None or one_hour_val is None or three_hour_val is None:
+                    continue
 
-            # Velocity comparison: 1h velocity > average 3h velocity * 1.5
-            avg_3h_velocity = votes_3h / 3.0
-            if votes_1h > avg_3h_velocity * 1.5 and votes_1h > 0:
-                trending_video_ids.append(vid)
+                votes_1h = latest - one_hour_val
+                votes_3h = latest - three_hour_val
+
+                if votes_3h < 2:
+                    continue
+
+                avg_3h_velocity = votes_3h / 3.0
+                if votes_1h > avg_3h_velocity * 1.5 and votes_1h > 0:
+                    trending_video_ids.append(vid)
 
         if trending_video_ids:
             is_real_trending = True

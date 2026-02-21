@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiDelete, apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +16,10 @@ export function VoteButton({ videoId, initialCount, initialVoted }: VoteButtonPr
   const router = useRouter();
   const [voted, setVoted] = useState(initialVoted);
   const [count, setCount] = useState(initialCount);
+
+  // Sync state when props change (e.g. parent re-fetch)
+  useEffect(() => { setVoted(initialVoted); }, [initialVoted]);
+  useEffect(() => { setCount(initialCount); }, [initialCount]);
   const [loading, setLoading] = useState(false);
   const [showLoginMsg, setShowLoginMsg] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");

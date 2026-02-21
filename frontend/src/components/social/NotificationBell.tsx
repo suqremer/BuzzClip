@@ -9,8 +9,9 @@ export function NotificationBell() {
   const { user } = useAuth();
   const [count, setCount] = useState(0);
 
+  const userId = user?.id;
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
     const fetchCount = () => {
       apiGet<{ count: number }>("/api/notifications/unread-count")
         .then((data) => setCount(data.count))
@@ -19,7 +20,7 @@ export function NotificationBell() {
     fetchCount();
     const interval = setInterval(fetchCount, 60000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, [userId]);
 
   if (!user) return null;
 

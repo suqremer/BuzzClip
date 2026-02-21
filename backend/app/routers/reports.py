@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +8,7 @@ from app.models.report import Report
 from app.models.user import User
 from app.models.video import Video
 from app.services.auth import get_current_user
+from app.utils.limiter import limiter
 
 router = APIRouter(prefix="/api/reports", tags=["reports"])
 
@@ -21,7 +22,9 @@ class ReportRequest(BaseModel):
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/minute")
 async def create_report(
+    request: Request,
     body: ReportRequest,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),

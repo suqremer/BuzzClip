@@ -111,9 +111,10 @@ export default function SubmitPage() {
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
               3
             </span>
-            <span className="font-medium">ひとこと（任意）</span>
+            <label htmlFor="comment-input" className="font-medium">ひとこと（任意）</label>
           </div>
           <textarea
+            id="comment-input"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             maxLength={200}

@@ -18,6 +18,12 @@ from app.models.vote_snapshot import VoteSnapshot  # noqa: F401
 from app.models.report import Report  # noqa: F401
 from app.models.user_hidden_category import UserHiddenCategory  # noqa: F401
 from app.models.user_mute import UserMute  # noqa: F401
+from app.models.playlist import Playlist  # noqa: F401
+from app.models.playlist_video import PlaylistVideo  # noqa: F401
+from app.models.user_follow import UserFollow  # noqa: F401
+from app.models.notification import Notification  # noqa: F401
+from app.models.feedback import Feedback  # noqa: F401
+from app.models.tag import Tag  # noqa: F401
 
 config = context.config
 

@@ -184,8 +184,14 @@ async def google_callback(
 
     google_id = userinfo.get("sub")
     email = userinfo.get("email")
+    email_verified = userinfo.get("email_verified", False)
 
-    if not google_id or not email:
+    if not google_id or not email or not email_verified:
+        if not email_verified:
+            logger.error("Email not verified for google_id=%s", google_id)
+            return RedirectResponse(
+                f"{settings.frontend_url}/auth/callback/google?error=email_not_verified"
+            )
         logger.error(f"Missing user info: sub={google_id}, email={email}")
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=incomplete_profile"

@@ -350,6 +350,7 @@ function PlaylistManagement() {
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
   const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
 
   useEffect(() => {
     if (!user) return;
@@ -367,7 +368,8 @@ function PlaylistManagement() {
       setPlaylists((prev) => [pl, ...prev]);
       setNewName("");
     } catch {
-      alert("リストの作成に失敗しました");
+      setCreateError("リストの作成に失敗しました");
+      setTimeout(() => setCreateError(""), 3000);
     } finally {
       setCreating(false);
     }
@@ -398,6 +400,9 @@ function PlaylistManagement() {
           作成
         </button>
       </div>
+      {createError && (
+        <p className="mb-2 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">{createError}</p>
+      )}
       {loading ? (
         <div className="flex justify-center py-4">
           <div className="h-6 w-6 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />

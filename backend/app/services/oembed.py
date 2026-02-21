@@ -40,7 +40,7 @@ async def fetch_oembed(url: str, platform: str = "x", lang: str = "ja") -> dict 
                 data = resp.json()
                 oembed_cache.set(url, data)
                 return data
-    except httpx.RequestError:
+    except (httpx.RequestError, httpx.HTTPStatusError, ValueError):
         pass
 
     return None

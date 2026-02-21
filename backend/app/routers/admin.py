@@ -3,6 +3,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from sqlalchemy.orm import selectinload
+
 from app.database import get_session
 from app.models.feedback import Feedback
 from app.models.report import Report
@@ -99,7 +101,7 @@ async def update_video_status(
     session: AsyncSession = Depends(get_session),
 ):
     result = await session.execute(
-        select(Video).where(Video.id == video_id)
+        select(Video).where(Video.id == video_id).options(selectinload(Video.tags))
     )
     video = result.scalar_one_or_none()
     if video is None:
@@ -108,7 +110,17 @@ async def update_video_status(
             detail="Video not found",
         )
 
+    was_active = video.is_active
     video.is_active = body.is_active
+
+    # Update tag video_count on activation change
+    if was_active and not body.is_active:
+        for tag in video.tags:
+            tag.video_count = max(0, tag.video_count - 1)
+    elif not was_active and body.is_active:
+        for tag in video.tags:
+            tag.video_count += 1
+
     await session.commit()
 
     return {
