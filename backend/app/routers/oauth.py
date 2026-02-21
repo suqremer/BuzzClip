@@ -1,12 +1,14 @@
 import logging
 import secrets
 import uuid
+from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.requests import Request
 from fastapi.responses import RedirectResponse
+from jose import JWTError, jwt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,15 +34,37 @@ def _redirect_uri() -> str:
     return f"{settings.backend_url}/api/auth/google/callback"
 
 
+def _create_state_token() -> str:
+    """Create a signed JWT to use as OAuth state (CSRF protection).
+
+    Completely stateless: no cookies, no sessions, no database.
+    The JWT signature proves it came from our server.
+    """
+    payload = {
+        "nonce": secrets.token_urlsafe(16),
+        "exp": datetime.utcnow() + timedelta(minutes=10),
+    }
+    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+
+
+def _verify_state_token(state: str) -> bool:
+    """Verify the signed JWT state token."""
+    try:
+        jwt.decode(state, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
+        return True
+    except JWTError:
+        return False
+
+
 @router.get("/google/login")
-async def google_login(request: Request):
+async def google_login():
     if not _google_configured():
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="Google OAuth is not configured",
         )
 
-    state = secrets.token_urlsafe(32)
+    state = _create_state_token()
 
     params = {
         "client_id": settings.google_client_id,
@@ -52,16 +76,7 @@ async def google_login(request: Request):
         "prompt": "consent",
     }
 
-    response = RedirectResponse(f"{GOOGLE_AUTH_URL}?{urlencode(params)}")
-    response.set_cookie(
-        "_oauth_state",
-        state,
-        max_age=600,
-        httponly=True,
-        secure=not settings.debug,
-        samesite="lax",
-    )
-    return response
+    return RedirectResponse(f"{GOOGLE_AUTH_URL}?{urlencode(params)}")
 
 
 @router.get("/google/callback")
@@ -75,26 +90,35 @@ async def google_callback(
             detail="Google OAuth is not configured",
         )
 
+    # Check for Google-returned errors
     error = request.query_params.get("error")
     if error:
-        logger.error(f"Google returned error: {error}")
+        error_desc = request.query_params.get("error_description", "")
+        logger.error(f"Google returned error: {error} - {error_desc}")
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=google_denied"
+            f"&detail={error}"
         )
 
     code = request.query_params.get("code")
     state = request.query_params.get("state")
-    stored_state = request.cookies.get("_oauth_state")
 
-    if not code or not state or state != stored_state:
-        logger.error(f"State mismatch: got={state}, stored={stored_state}")
+    if not code:
+        logger.error("No authorization code in callback")
+        return RedirectResponse(
+            f"{settings.frontend_url}/auth/callback/google?error=no_code"
+        )
+
+    # Verify state (JWT signature + expiration)
+    if not state or not _verify_state_token(state):
+        logger.error(f"Invalid state token: {state[:20] if state else 'None'}...")
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=invalid_state"
         )
 
     # Exchange authorization code for tokens
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             token_resp = await client.post(
                 GOOGLE_TOKEN_URL,
                 data={
@@ -107,80 +131,118 @@ async def google_callback(
             )
 
         if token_resp.status_code != 200:
-            logger.error(f"Token exchange failed: {token_resp.status_code} {token_resp.text}")
+            logger.error(
+                f"Token exchange failed ({token_resp.status_code}): {token_resp.text}"
+            )
             return RedirectResponse(
-                f"{settings.frontend_url}/auth/callback/google?error=token_exchange_failed"
+                f"{settings.frontend_url}/auth/callback/google?error=token_failed"
+                f"&detail=status_{token_resp.status_code}"
             )
 
         token_data = token_resp.json()
+        access_token = token_data.get("access_token")
+        if not access_token:
+            logger.error(f"No access_token in response: {token_data}")
+            return RedirectResponse(
+                f"{settings.frontend_url}/auth/callback/google?error=token_failed"
+                f"&detail=no_access_token"
+            )
     except Exception as e:
-        logger.error(f"Token exchange error: {e}", exc_info=True)
+        logger.error(f"Token exchange exception: {e}", exc_info=True)
         return RedirectResponse(
-            f"{settings.frontend_url}/auth/callback/google?error=token_exchange_failed"
+            f"{settings.frontend_url}/auth/callback/google?error=token_failed"
+            f"&detail=exception"
         )
 
     # Get user info from Google
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             userinfo_resp = await client.get(
                 GOOGLE_USERINFO_URL,
-                headers={"Authorization": f"Bearer {token_data['access_token']}"},
+                headers={"Authorization": f"Bearer {access_token}"},
             )
 
         if userinfo_resp.status_code != 200:
-            logger.error(f"Userinfo fetch failed: {userinfo_resp.status_code}")
+            logger.error(f"Userinfo failed ({userinfo_resp.status_code})")
             return RedirectResponse(
                 f"{settings.frontend_url}/auth/callback/google?error=userinfo_failed"
             )
 
         userinfo = userinfo_resp.json()
     except Exception as e:
-        logger.error(f"Userinfo fetch error: {e}", exc_info=True)
+        logger.error(f"Userinfo exception: {e}", exc_info=True)
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=userinfo_failed"
         )
 
-    google_id = userinfo["sub"]
-    email = userinfo["email"]
+    google_id = userinfo.get("sub")
+    email = userinfo.get("email")
+
+    if not google_id or not email:
+        logger.error(f"Missing user info: sub={google_id}, email={email}")
+        return RedirectResponse(
+            f"{settings.frontend_url}/auth/callback/google?error=incomplete_profile"
+        )
+
     name = userinfo.get("name", email.split("@")[0])
     avatar = userinfo.get("picture")
 
-    # Check if user already exists with this Google ID
-    result = await session.execute(
-        select(User).where(User.provider == "google", User.provider_id == google_id)
-    )
-    user = result.scalar_one_or_none()
-
-    if user is None:
-        # Check if email already exists (linked to email provider)
-        result = await session.execute(select(User).where(User.email == email))
-        existing = result.scalar_one_or_none()
-
-        if existing:
-            # Link Google to existing email account
-            existing.provider = "google"
-            existing.provider_id = google_id
-            existing.avatar_url = avatar
-            await session.commit()
-            user = existing
-        else:
-            # Create new user
-            user = User(
-                id=str(uuid.uuid4()),
-                email=email,
-                display_name=name[:50],
-                avatar_url=avatar,
-                provider="google",
-                provider_id=google_id,
+    # Find or create user
+    try:
+        result = await session.execute(
+            select(User).where(
+                User.provider == "google", User.provider_id == google_id
             )
-            session.add(user)
-            await session.commit()
-            await session.refresh(user)
+        )
+        user = result.scalar_one_or_none()
 
-    jwt_token = create_access_token(user.id)
+        if user is None:
+            result = await session.execute(select(User).where(User.email == email))
+            existing = result.scalar_one_or_none()
 
-    # Redirect to frontend with token (clear the state cookie)
-    params = urlencode({"token": jwt_token})
-    response = RedirectResponse(f"{settings.frontend_url}/auth/callback/google?{params}")
-    response.delete_cookie("_oauth_state")
-    return response
+            if existing:
+                existing.provider = "google"
+                existing.provider_id = google_id
+                existing.avatar_url = avatar
+                await session.commit()
+                user = existing
+            else:
+                user = User(
+                    id=str(uuid.uuid4()),
+                    email=email,
+                    display_name=name[:50],
+                    avatar_url=avatar,
+                    provider="google",
+                    provider_id=google_id,
+                )
+                session.add(user)
+                await session.commit()
+                await session.refresh(user)
+
+        jwt_token = create_access_token(user.id)
+        params = urlencode({"token": jwt_token})
+        return RedirectResponse(
+            f"{settings.frontend_url}/auth/callback/google?{params}"
+        )
+    except Exception as e:
+        logger.error(f"DB error during user creation: {e}", exc_info=True)
+        return RedirectResponse(
+            f"{settings.frontend_url}/auth/callback/google?error=db_error"
+        )
+
+
+@router.get("/google/debug")
+async def google_debug():
+    """Diagnostic endpoint to verify OAuth configuration."""
+    return {
+        "google_configured": _google_configured(),
+        "client_id_set": bool(settings.google_client_id),
+        "client_id_prefix": settings.google_client_id[:20] + "..."
+        if settings.google_client_id
+        else "",
+        "client_secret_set": bool(settings.google_client_secret),
+        "redirect_uri": _redirect_uri(),
+        "frontend_url": settings.frontend_url,
+        "backend_url": settings.backend_url,
+        "debug_mode": settings.debug,
+    }
