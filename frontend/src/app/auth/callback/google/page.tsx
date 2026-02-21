@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { API_URL } from "@/lib/constants";
 
 function GoogleCallbackContent() {
   const router = useRouter();
@@ -13,29 +12,23 @@ function GoogleCallbackContent() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const code = searchParams.get("code");
-      if (!code) {
-        setError("認証コードが見つかりません");
+      const errorParam = searchParams.get("error");
+      if (errorParam) {
+        setError("Google認証に失敗しました");
+        return;
+      }
+
+      const token = searchParams.get("token");
+      if (!token) {
+        setError("認証トークンが見つかりません");
         return;
       }
 
       try {
-        const res = await fetch(
-          `${API_URL}/api/auth/google/callback?${searchParams.toString()}`,
-          { credentials: "include" },
-        );
-
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({ detail: "Google認証に失敗しました" }));
-          setError(body.detail || "Google認証に失敗しました");
-          return;
-        }
-
-        const data = await res.json();
-        await login(data.access_token);
+        await login(token);
         router.push("/");
       } catch {
-        setError("Google認証に失敗しました");
+        setError("ログインに失敗しました");
       }
     };
 

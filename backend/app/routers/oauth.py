@@ -1,15 +1,16 @@
 import logging
 import uuid
+from urllib.parse import urlencode
 
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_session
 from app.models.user import User
-from app.schemas.user import AuthResponse, UserResponse
 from app.services.auth import create_access_token
 
 logger = logging.getLogger(__name__)
@@ -41,7 +42,8 @@ async def google_login(request: Request):
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="Google OAuth is not configured",
         )
-    redirect_uri = f"{settings.frontend_url}/auth/callback/google"
+    # Redirect back to backend callback (same domain = session preserved)
+    redirect_uri = str(request.url_for("google_callback"))
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
@@ -56,12 +58,18 @@ async def google_callback(
             detail="Google OAuth is not configured",
         )
 
-    token = await oauth.google.authorize_access_token(request)
+    try:
+        token = await oauth.google.authorize_access_token(request)
+    except Exception as e:
+        logger.error(f"Google OAuth token exchange failed: {e}")
+        return RedirectResponse(
+            f"{settings.frontend_url}/auth/callback/google?error=token_exchange_failed"
+        )
+
     userinfo = token.get("userinfo")
     if not userinfo:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Failed to get user info from Google",
+        return RedirectResponse(
+            f"{settings.frontend_url}/auth/callback/google?error=no_userinfo"
         )
 
     google_id = userinfo["sub"]
@@ -102,7 +110,7 @@ async def google_callback(
             await session.refresh(user)
 
     jwt_token = create_access_token(user.id)
-    return AuthResponse(
-        access_token=jwt_token,
-        user=UserResponse.model_validate(user),
-    )
+
+    # Redirect to frontend with token
+    params = urlencode({"token": jwt_token})
+    return RedirectResponse(f"{settings.frontend_url}/auth/callback/google?{params}")
