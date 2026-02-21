@@ -60,7 +60,8 @@ async def google_callback(
     try:
         token = await oauth.google.authorize_access_token(request)
     except Exception as e:
-        logger.error(f"Google OAuth token exchange failed: {e}")
+        logger.error(f"Google OAuth token exchange failed: {e}", exc_info=True)
+        logger.error(f"Request URL: {request.url}, scheme: {request.url.scheme}")
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=token_exchange_failed"
         )

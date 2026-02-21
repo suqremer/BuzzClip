@@ -42,7 +42,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(SessionMiddleware, secret_key=settings.jwt_secret_key)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.jwt_secret_key,
+    https_only=not settings.debug,
+    same_site="lax",
+)
 
 
 @app.middleware("http")
