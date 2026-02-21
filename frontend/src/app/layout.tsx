@@ -4,6 +4,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { AdSense } from "@/components/AdSense";
 import "./globals.css";
 
 const notoSansJP = Noto_Sans_JP({
@@ -36,6 +38,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
+      <GoogleAnalytics />
+      <AdSense />
       <body className={`${notoSansJP.variable} font-sans antialiased`}>
         <AuthProvider>
           <Header />
