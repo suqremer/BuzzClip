@@ -30,6 +30,7 @@ class UserBriefResponse(BaseModel):
 
     id: str
     display_name: str
+    avatar_url: str | None = None
 
 
 class AuthResponse(BaseModel):

@@ -90,9 +90,13 @@ export default function UserProfilePage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
       <div className="mb-8 flex items-center gap-4">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-xl font-bold text-indigo-600">
-          {user.display_name.charAt(0).toUpperCase()}
-        </div>
+        {user.avatar_url ? (
+          <img src={user.avatar_url} alt={user.display_name} className="h-14 w-14 rounded-full object-cover" />
+        ) : (
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-xl font-bold text-indigo-600">
+            {user.display_name.charAt(0).toUpperCase()}
+          </div>
+        )}
         <div>
           <h1 className="text-2xl font-bold">{user.display_name}</h1>
           <p className="text-sm text-gray-500">

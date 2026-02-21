@@ -25,4 +25,5 @@ export interface Category {
 export interface UserBrief {
   id: string;
   display_name: string;
+  avatar_url: string | null;
 }

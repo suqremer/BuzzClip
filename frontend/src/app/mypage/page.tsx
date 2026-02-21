@@ -3,13 +3,118 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
-import { apiGet, apiPatch } from "@/lib/api";
+import { apiGet, apiPatch, apiUpload, apiDelete } from "@/lib/api";
 import type { Video } from "@/types/video";
 import { VideoCard } from "@/components/video/VideoCard";
 
 interface Profile {
   submitted_videos: Video[];
   voted_videos: Video[];
+}
+
+function AvatarEditor({
+  avatarUrl,
+  displayName,
+  onChanged,
+}: {
+  avatarUrl: string | null;
+  displayName: string;
+  onChanged: () => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("JPEG、PNG、WebP のみ対応しています");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setError("2MB以下の画像を選んでください");
+      return;
+    }
+
+    setUploading(true);
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      await apiUpload("/api/auth/me/avatar", formData);
+      await onChanged();
+    } catch {
+      setError("アップロードに失敗しました");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleDelete = async () => {
+    setUploading(true);
+    setError("");
+    try {
+      await apiDelete("/api/auth/me/avatar");
+      await onChanged();
+    } catch {
+      setError("削除に失敗しました");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <label className="group relative cursor-pointer">
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleFileChange}
+          className="hidden"
+          disabled={uploading}
+        />
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={displayName}
+            className="h-20 w-20 rounded-full object-cover ring-2 ring-gray-200 group-hover:ring-indigo-400"
+          />
+        ) : (
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-100 text-2xl font-bold text-indigo-600 ring-2 ring-gray-200 group-hover:ring-indigo-400">
+            {displayName.charAt(0).toUpperCase()}
+          </div>
+        )}
+        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/0 transition group-hover:bg-black/30">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-6 w-6 text-white opacity-0 transition group-hover:opacity-100"
+          >
+            <path d="M1 8a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 018.07 3h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0016.07 6H17a2 2 0 012 2v7a2 2 0 01-2 2H3a2 2 0 01-2-2V8z" />
+            <path d="M10 14a3 3 0 100-6 3 3 0 000 6z" />
+          </svg>
+        </div>
+        {uploading && (
+          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
+          </div>
+        )}
+      </label>
+      {avatarUrl && (
+        <button
+          onClick={handleDelete}
+          disabled={uploading}
+          className="text-xs text-gray-400 hover:text-red-500"
+        >
+          画像を削除
+        </button>
+      )}
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
+  );
 }
 
 function DisplayNameEditor({
@@ -161,7 +266,12 @@ export default function MyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
       <h1 className="text-2xl font-bold">マイページ</h1>
-      <div className="mt-1">
+      <div className="mt-4 flex items-center gap-4">
+        <AvatarEditor
+          avatarUrl={user.avatar_url}
+          displayName={user.display_name}
+          onChanged={refreshUser}
+        />
         <DisplayNameEditor
           currentName={user.display_name}
           onSaved={refreshUser}
