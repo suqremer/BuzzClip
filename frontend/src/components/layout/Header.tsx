@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { NotificationBell } from "@/components/social/NotificationBell";
 
 export function Header() {
   const { user, logout, loading } = useAuth();
@@ -37,6 +38,7 @@ export function Header() {
             <div className="h-8 w-16" />
           ) : user ? (
             <div className="flex items-center gap-3">
+              <NotificationBell />
               {user.avatar_url ? (
                 <img src={user.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover" />
               ) : (

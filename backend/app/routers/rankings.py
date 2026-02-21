@@ -11,6 +11,7 @@ from app.models.user import User
 from app.models.video import Video, video_categories
 from app.models.vote import Vote
 from app.models.vote_snapshot import VoteSnapshot
+from app.schemas.user import UserBriefResponse
 from app.schemas.video import VideoListResponse
 from app.services.auth import get_optional_user
 from app.utils.response import video_to_response
@@ -92,6 +93,14 @@ async def get_trending(
 
         if trending_video_ids:
             is_real_trending = True
+            # Mark videos as was_trending
+            trending_vids = await session.execute(
+                select(Video).where(Video.id.in_(trending_video_ids))
+            )
+            for tv in trending_vids.scalars().all():
+                if not tv.was_trending:
+                    tv.was_trending = True
+            await session.commit()
 
     # Parse platform filter
     platform_list = [p.strip() for p in platform.split(",") if p.strip()] if platform else []
@@ -250,3 +259,45 @@ async def get_rankings(
         per_page=per_page,
         has_next=(page * per_page) < total,
     )
+
+
+@router.get("/contributors")
+async def get_contributor_ranking(
+    session: AsyncSession = Depends(get_session),
+):
+    now = datetime.utcnow()
+    week_ago = now - timedelta(weeks=1)
+
+    query = (
+        select(
+            Video.submitted_by,
+            func.count(Vote.id).label("weekly_votes"),
+        )
+        .join(Vote, (Vote.video_id == Video.id) & (Vote.created_at >= week_ago))
+        .where(Video.is_active == True)  # noqa: E712
+        .group_by(Video.submitted_by)
+        .order_by(func.count(Vote.id).desc())
+        .limit(10)
+    )
+    result = await session.execute(query)
+    rows = list(result.all())
+
+    user_ids = [row[0] for row in rows]
+    users_map = {}
+    if user_ids:
+        users_result = await session.execute(
+            select(User).where(User.id.in_(user_ids), User.is_active == True)  # noqa: E712
+        )
+        users_map = {u.id: u for u in users_result.scalars().all()}
+
+    contributors = []
+    for rank, (user_id, weekly_votes) in enumerate(rows, 1):
+        user = users_map.get(user_id)
+        if user:
+            contributors.append({
+                "rank": rank,
+                "user": UserBriefResponse.model_validate(user),
+                "vote_count": weekly_votes,
+            })
+
+    return {"contributors": contributors, "period": "1w"}

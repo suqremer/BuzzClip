@@ -8,6 +8,8 @@ import type { PaginatedResponse } from "@/types/api";
 import { VideoEmbed } from "@/components/video/VideoEmbed";
 import { VoteButton } from "@/components/video/VoteButton";
 import { ReportButton } from "@/components/video/ReportButton";
+import { ShareButtons } from "@/components/video/ShareButtons";
+import { AddToPlaylistButton } from "@/components/video/AddToPlaylistButton";
 import { VideoCard } from "@/components/video/VideoCard";
 
 interface VideoDetailProps {
@@ -100,11 +102,15 @@ export default function VideoDetail({ id }: VideoDetailProps) {
 
           {/* Vote Button (large) */}
           <div className="flex items-center justify-between">
-            <VoteButton
-              videoId={video.id}
-              initialCount={video.vote_count}
-              initialVoted={video.user_voted}
-            />
+            <div className="flex items-center gap-3">
+              <VoteButton
+                videoId={video.id}
+                initialCount={video.vote_count}
+                initialVoted={video.user_voted}
+              />
+              <ShareButtons videoId={video.id} title={video.title ?? undefined} />
+              <AddToPlaylistButton videoId={video.id} />
+            </div>
             {video.submitted_by && (
               <Link
                 href={`/user/${video.submitted_by.id}`}

@@ -6,6 +6,8 @@ import { PLATFORMS } from "@/lib/constants";
 import { VideoEmbed } from "./VideoEmbed";
 import { VoteButton } from "./VoteButton";
 import { MuteButton } from "./MuteButton";
+import { ShareButtons } from "./ShareButtons";
+import { AddToPlaylistButton } from "./AddToPlaylistButton";
 
 interface VideoCardProps {
   video: Video;
@@ -35,7 +37,9 @@ export function VideoCard({ video }: VideoCardProps) {
             </span>
           ))}
         </div>
-        <div onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          <ShareButtons videoId={video.id} title={video.title ?? undefined} />
+          <AddToPlaylistButton videoId={video.id} />
           <VoteButton
             videoId={video.id}
             initialCount={video.vote_count}

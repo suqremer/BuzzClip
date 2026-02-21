@@ -5,6 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
+from app.models.notification import Notification
 from app.models.user import User
 from app.models.video import Video
 from app.models.vote import Vote
@@ -57,6 +58,17 @@ async def upvote(
         select(func.count()).select_from(Vote).where(Vote.video_id == video_id)
     )).scalar() or 0
     video.vote_count = count
+
+    # Notify video submitter (don't notify self)
+    if current_user.id != video.submitted_by:
+        session.add(Notification(
+            id=str(uuid.uuid4()),
+            user_id=video.submitted_by,
+            type="vote",
+            actor_id=current_user.id,
+            video_id=video_id,
+        ))
+
     await session.commit()
 
     return VoteResponse(

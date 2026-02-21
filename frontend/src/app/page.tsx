@@ -127,12 +127,20 @@ export default function HomePage() {
         <p className="mx-auto mt-4 max-w-md text-gray-500">
           毎日更新されるランキングで、話題の動画を見逃さない。
         </p>
-        <Link
-          href="/ranking"
-          className="mt-8 inline-block rounded-full bg-indigo-600 px-10 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-indigo-700"
-        >
-          ランキングを見る
-        </Link>
+        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <Link
+            href="/ranking"
+            className="inline-block rounded-full bg-indigo-600 px-10 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-indigo-700"
+          >
+            ランキングを見る
+          </Link>
+          <Link
+            href="/guide"
+            className="inline-block rounded-full border-2 border-gray-300 px-8 py-3.5 text-base font-bold text-gray-600 transition hover:border-indigo-400 hover:text-indigo-600"
+          >
+            使い方を見る
+          </Link>
+        </div>
       </section>
     </div>
   );

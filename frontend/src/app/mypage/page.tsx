@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePreferences } from "@/contexts/PreferencesContext";
-import { apiGet, apiPatch, apiUpload, apiDelete } from "@/lib/api";
+import { apiGet, apiPost, apiPatch, apiUpload, apiDelete } from "@/lib/api";
 import { CATEGORIES } from "@/lib/constants";
 import type { Video } from "@/types/video";
+import type { Playlist } from "@/types/playlist";
 import { VideoCard } from "@/components/video/VideoCard";
+import { BadgeList } from "@/components/social/BadgeList";
 
 interface Profile {
   submitted_videos: Video[];
@@ -274,11 +276,19 @@ export default function MyPage() {
           displayName={user.display_name}
           onChanged={refreshUser}
         />
-        <DisplayNameEditor
-          currentName={user.display_name}
-          onSaved={refreshUser}
-        />
+        <div>
+          <DisplayNameEditor
+            currentName={user.display_name}
+            onSaved={refreshUser}
+          />
+          <div className="mt-2">
+            <BadgeList userId={user.id} />
+          </div>
+        </div>
       </div>
+
+      {/* プレイリスト */}
+      <PlaylistManagement />
 
       {/* 投稿した動画 */}
       <section className="mt-10">
@@ -317,7 +327,101 @@ export default function MyPage() {
 
       {/* ミュート管理 */}
       <MuteManagement />
+
+      {/* フィードバック */}
+      <section className="mt-10">
+        <Link
+          href="/feedback"
+          className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+          フィードバックを送る
+        </Link>
+      </section>
     </div>
+  );
+}
+
+function PlaylistManagement() {
+  const { user } = useAuth();
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newName, setNewName] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    apiGet<{ items: Playlist[] }>("/api/playlists")
+      .then((data) => setPlaylists(data.items))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [user]);
+
+  const handleCreate = async () => {
+    if (!newName.trim()) return;
+    setCreating(true);
+    try {
+      const pl = await apiPost<Playlist>("/api/playlists", { name: newName.trim() });
+      setPlaylists((prev) => [pl, ...prev]);
+      setNewName("");
+    } catch {
+      alert("リストの作成に失敗しました");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  if (!user) return null;
+
+  return (
+    <section className="mt-10">
+      <h2 className="mb-4 text-lg font-bold">マイリスト</h2>
+      <div className="mb-4 flex items-center gap-2">
+        <input
+          type="text"
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          placeholder="新しいリスト名"
+          maxLength={100}
+          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleCreate();
+          }}
+        />
+        <button
+          onClick={handleCreate}
+          disabled={creating || !newName.trim()}
+          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+        >
+          作成
+        </button>
+      </div>
+      {loading ? (
+        <div className="flex justify-center py-4">
+          <div className="h-6 w-6 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+        </div>
+      ) : playlists.length === 0 ? (
+        <p className="py-4 text-center text-sm text-gray-400">リストはまだありません。</p>
+      ) : (
+        <div className="space-y-2">
+          {playlists.map((pl) => (
+            <Link
+              key={pl.id}
+              href={`/list/${pl.id}`}
+              className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 transition hover:bg-gray-50"
+            >
+              <div>
+                <span className="text-sm font-medium text-gray-700">{pl.name}</span>
+                <span className="ml-2 text-xs text-gray-400">{pl.video_count}件</span>
+              </div>
+              <span className="text-xs text-gray-400">{pl.is_public ? "公開" : "非公開"}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 

@@ -29,3 +29,4 @@ class User(Base):
 
     videos = relationship("Video", back_populates="submitter", lazy="select")
     votes = relationship("Vote", back_populates="user", lazy="select")
+    playlists = relationship("Playlist", back_populates="owner", lazy="select")

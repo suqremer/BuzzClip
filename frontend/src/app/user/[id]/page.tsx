@@ -7,6 +7,8 @@ import { apiGet } from "@/lib/api";
 import type { Video, UserBrief } from "@/types/video";
 import { VideoCard } from "@/components/video/VideoCard";
 import { MuteButton } from "@/components/video/MuteButton";
+import { FollowButton } from "@/components/social/FollowButton";
+import { BadgeList } from "@/components/social/BadgeList";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 interface UserProfile {
@@ -16,6 +18,9 @@ interface UserProfile {
   page: number;
   per_page: number;
   has_next: boolean;
+  followers_count?: number;
+  following_count?: number;
+  is_following?: boolean;
 }
 
 export default function UserProfilePage() {
@@ -27,6 +32,8 @@ export default function UserProfilePage() {
   const [page, setPage] = useState(1);
   const [hasNext, setHasNext] = useState(false);
   const [total, setTotal] = useState(0);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
@@ -40,6 +47,8 @@ export default function UserProfilePage() {
         setVideos(data.submitted_videos);
         setHasNext(data.has_next);
         setTotal(data.total);
+        setFollowersCount(data.followers_count ?? 0);
+        setFollowingCount(data.following_count ?? 0);
         setPage(1);
       })
       .catch(() => setError("ユーザーが見つかりませんでした"))
@@ -101,11 +110,17 @@ export default function UserProfilePage() {
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold">{user.display_name}</h1>
+            <FollowButton userId={user.id} />
             <MuteButton userId={user.id} displayName={user.display_name} />
           </div>
-          <p className="text-sm text-gray-500">
-            投稿数: {total}件
-          </p>
+          <div className="mt-1">
+            <BadgeList userId={user.id} />
+          </div>
+          <div className="mt-1 flex items-center gap-4 text-sm text-gray-500">
+            <span>投稿 {total}件</span>
+            <span>フォロワー {followersCount}</span>
+            <span>フォロー中 {followingCount}</span>
+          </div>
         </div>
       </div>
 

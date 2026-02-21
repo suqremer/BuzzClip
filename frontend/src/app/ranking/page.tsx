@@ -11,6 +11,7 @@ import { CategoryFilter } from "@/components/ranking/CategoryFilter";
 import { PlatformFilter } from "@/components/ranking/PlatformFilter";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { usePreferences } from "@/contexts/PreferencesContext";
+import { ContributorRanking } from "@/components/social/ContributorRanking";
 
 function RankingContent() {
   const searchParams = useSearchParams();
@@ -125,6 +126,11 @@ function RankingContent() {
           )}
         </div>
       )}
+
+      {/* Contributor Ranking */}
+      <section className="mt-10">
+        <ContributorRanking />
+      </section>
     </div>
   );
 }

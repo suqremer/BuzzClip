@@ -5,6 +5,7 @@ from sqlalchemy.orm import selectinload
 
 from app.database import get_session
 from app.models.user import User
+from app.models.user_follow import UserFollow
 from app.models.video import Video
 from app.models.vote import Vote
 from app.schemas.user import UserBriefResponse
@@ -65,6 +66,24 @@ async def get_public_profile(
             )
             voted_video_ids = {row[0] for row in vote_result}
 
+    # Follow counts
+    followers_count = (await session.execute(
+        select(func.count()).select_from(UserFollow).where(UserFollow.following_id == user_id)
+    )).scalar() or 0
+    following_count = (await session.execute(
+        select(func.count()).select_from(UserFollow).where(UserFollow.follower_id == user_id)
+    )).scalar() or 0
+
+    is_following = False
+    if current_user and current_user.id != user_id:
+        follow_result = await session.execute(
+            select(UserFollow).where(
+                UserFollow.follower_id == current_user.id,
+                UserFollow.following_id == user_id,
+            )
+        )
+        is_following = follow_result.scalar_one_or_none() is not None
+
     return {
         "user": UserBriefResponse.model_validate(user),
         "submitted_videos": [
@@ -74,4 +93,7 @@ async def get_public_profile(
         "page": page,
         "per_page": per_page,
         "has_next": (page * per_page) < total,
+        "followers_count": followers_count,
+        "following_count": following_count,
+        "is_following": is_following,
     }

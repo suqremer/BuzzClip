@@ -8,7 +8,22 @@ from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
 from app.database import init_db
-from app.routers import admin, auth, categories, oauth, rankings, reports, users, videos, votes
+from app.routers import (
+    admin,
+    auth,
+    badges,
+    categories,
+    feedback,
+    follows,
+    notifications,
+    oauth,
+    playlists,
+    rankings,
+    reports,
+    users,
+    videos,
+    votes,
+)
 from app.tasks.snapshot import take_vote_snapshots
 from app.utils.limiter import limiter
 
@@ -54,13 +69,18 @@ async def add_security_headers(request: Request, call_next):
 
 app.include_router(admin.router)
 app.include_router(auth.router)
-app.include_router(oauth.router)
-app.include_router(videos.router)
-app.include_router(votes.router)
-app.include_router(rankings.router)
+app.include_router(badges.router)
 app.include_router(categories.router)
+app.include_router(feedback.router)
+app.include_router(follows.router)
+app.include_router(notifications.router)
+app.include_router(oauth.router)
+app.include_router(playlists.router)
+app.include_router(rankings.router)
 app.include_router(reports.router)
 app.include_router(users.router)
+app.include_router(videos.router)
+app.include_router(votes.router)
 
 
 @app.get("/api/health")
