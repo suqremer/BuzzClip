@@ -131,12 +131,19 @@ async def google_callback(
             )
 
         if token_resp.status_code != 200:
+            error_body = token_resp.text
             logger.error(
-                f"Token exchange failed ({token_resp.status_code}): {token_resp.text}"
+                f"Token exchange failed ({token_resp.status_code}): {error_body}"
             )
+            # Extract Google's error description for debugging
+            try:
+                err_json = token_resp.json()
+                err_detail = err_json.get("error_description", err_json.get("error", ""))
+            except Exception:
+                err_detail = f"status_{token_resp.status_code}"
             return RedirectResponse(
                 f"{settings.frontend_url}/auth/callback/google?error=token_failed"
-                f"&detail=status_{token_resp.status_code}"
+                f"&detail={err_detail}"
             )
 
         token_data = token_resp.json()
