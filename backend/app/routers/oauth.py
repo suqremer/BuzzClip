@@ -1,10 +1,10 @@
+import logging
 import uuid
 
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.config import Config as StarletteConfig
 
 from app.config import settings
 from app.database import get_session
@@ -12,23 +12,31 @@ from app.models.user import User
 from app.schemas.user import AuthResponse, UserResponse
 from app.services.auth import create_access_token
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/auth", tags=["oauth"])
 
 oauth = OAuth()
+_google_registered = False
 
-if settings.google_client_id:
-    oauth.register(
-        name="google",
-        client_id=settings.google_client_id,
-        client_secret=settings.google_client_secret,
-        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-        client_kwargs={"scope": "openid email profile"},
-    )
+try:
+    if settings.google_client_id:
+        oauth.register(
+            name="google",
+            client_id=settings.google_client_id,
+            client_secret=settings.google_client_secret,
+            server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+            client_kwargs={"scope": "openid email profile"},
+        )
+        _google_registered = True
+        logger.info("Google OAuth registered successfully")
+except Exception as e:
+    logger.error(f"Failed to register Google OAuth: {e}")
 
 
 @router.get("/google/login")
 async def google_login(request: Request):
-    if not settings.google_client_id:
+    if not _google_registered:
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="Google OAuth is not configured",
@@ -42,7 +50,7 @@ async def google_callback(
     request: Request,
     session: AsyncSession = Depends(get_session),
 ):
-    if not settings.google_client_id:
+    if not _google_registered:
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="Google OAuth is not configured",
