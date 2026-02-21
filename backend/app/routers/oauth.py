@@ -1,9 +1,11 @@
 import logging
+import secrets
 import uuid
 from urllib.parse import urlencode
 
-from authlib.integrations.starlette_client import OAuth
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.requests import Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,33 +19,49 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/auth", tags=["oauth"])
 
-oauth = OAuth()
-_google_registered = False
+GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
-try:
-    if settings.google_client_id:
-        oauth.register(
-            name="google",
-            client_id=settings.google_client_id,
-            client_secret=settings.google_client_secret,
-            server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-            client_kwargs={"scope": "openid email profile"},
-        )
-        _google_registered = True
-        logger.info("Google OAuth registered successfully")
-except Exception as e:
-    logger.error(f"Failed to register Google OAuth: {e}")
+
+def _google_configured() -> bool:
+    return bool(settings.google_client_id and settings.google_client_secret)
+
+
+def _redirect_uri() -> str:
+    return f"{settings.backend_url}/api/auth/google/callback"
 
 
 @router.get("/google/login")
 async def google_login(request: Request):
-    if not _google_registered:
+    if not _google_configured():
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="Google OAuth is not configured",
         )
-    redirect_uri = f"{settings.backend_url}/api/auth/google/callback"
-    return await oauth.google.authorize_redirect(request, redirect_uri)
+
+    state = secrets.token_urlsafe(32)
+
+    params = {
+        "client_id": settings.google_client_id,
+        "redirect_uri": _redirect_uri(),
+        "response_type": "code",
+        "scope": "openid email profile",
+        "state": state,
+        "access_type": "offline",
+        "prompt": "consent",
+    }
+
+    response = RedirectResponse(f"{GOOGLE_AUTH_URL}?{urlencode(params)}")
+    response.set_cookie(
+        "_oauth_state",
+        state,
+        max_age=600,
+        httponly=True,
+        secure=not settings.debug,
+        samesite="lax",
+    )
+    return response
 
 
 @router.get("/google/callback")
@@ -51,25 +69,75 @@ async def google_callback(
     request: Request,
     session: AsyncSession = Depends(get_session),
 ):
-    if not _google_registered:
+    if not _google_configured():
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="Google OAuth is not configured",
         )
 
+    error = request.query_params.get("error")
+    if error:
+        logger.error(f"Google returned error: {error}")
+        return RedirectResponse(
+            f"{settings.frontend_url}/auth/callback/google?error=google_denied"
+        )
+
+    code = request.query_params.get("code")
+    state = request.query_params.get("state")
+    stored_state = request.cookies.get("_oauth_state")
+
+    if not code or not state or state != stored_state:
+        logger.error(f"State mismatch: got={state}, stored={stored_state}")
+        return RedirectResponse(
+            f"{settings.frontend_url}/auth/callback/google?error=invalid_state"
+        )
+
+    # Exchange authorization code for tokens
     try:
-        token = await oauth.google.authorize_access_token(request)
+        async with httpx.AsyncClient() as client:
+            token_resp = await client.post(
+                GOOGLE_TOKEN_URL,
+                data={
+                    "client_id": settings.google_client_id,
+                    "client_secret": settings.google_client_secret,
+                    "code": code,
+                    "redirect_uri": _redirect_uri(),
+                    "grant_type": "authorization_code",
+                },
+            )
+
+        if token_resp.status_code != 200:
+            logger.error(f"Token exchange failed: {token_resp.status_code} {token_resp.text}")
+            return RedirectResponse(
+                f"{settings.frontend_url}/auth/callback/google?error=token_exchange_failed"
+            )
+
+        token_data = token_resp.json()
     except Exception as e:
-        logger.error(f"Google OAuth token exchange failed: {e}", exc_info=True)
-        logger.error(f"Request URL: {request.url}, scheme: {request.url.scheme}")
+        logger.error(f"Token exchange error: {e}", exc_info=True)
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=token_exchange_failed"
         )
 
-    userinfo = token.get("userinfo")
-    if not userinfo:
+    # Get user info from Google
+    try:
+        async with httpx.AsyncClient() as client:
+            userinfo_resp = await client.get(
+                GOOGLE_USERINFO_URL,
+                headers={"Authorization": f"Bearer {token_data['access_token']}"},
+            )
+
+        if userinfo_resp.status_code != 200:
+            logger.error(f"Userinfo fetch failed: {userinfo_resp.status_code}")
+            return RedirectResponse(
+                f"{settings.frontend_url}/auth/callback/google?error=userinfo_failed"
+            )
+
+        userinfo = userinfo_resp.json()
+    except Exception as e:
+        logger.error(f"Userinfo fetch error: {e}", exc_info=True)
         return RedirectResponse(
-            f"{settings.frontend_url}/auth/callback/google?error=no_userinfo"
+            f"{settings.frontend_url}/auth/callback/google?error=userinfo_failed"
         )
 
     google_id = userinfo["sub"]
@@ -111,6 +179,8 @@ async def google_callback(
 
     jwt_token = create_access_token(user.id)
 
-    # Redirect to frontend with token
+    # Redirect to frontend with token (clear the state cookie)
     params = urlencode({"token": jwt_token})
-    return RedirectResponse(f"{settings.frontend_url}/auth/callback/google?{params}")
+    response = RedirectResponse(f"{settings.frontend_url}/auth/callback/google?{params}")
+    response.delete_cookie("_oauth_state")
+    return response

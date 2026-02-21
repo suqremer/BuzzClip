@@ -8,8 +8,6 @@ from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
 from app.database import init_db
-from starlette.middleware.sessions import SessionMiddleware
-
 from app.routers import admin, auth, categories, oauth, rankings, reports, users, videos, votes
 from app.tasks.snapshot import take_vote_snapshots
 from app.utils.limiter import limiter
@@ -41,12 +39,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
-app.add_middleware(
-    SessionMiddleware,
-    secret_key=settings.jwt_secret_key,
-    https_only=not settings.debug,
-    same_site="lax",
 )
 
 
