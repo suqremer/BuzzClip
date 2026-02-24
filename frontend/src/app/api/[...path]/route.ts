@@ -9,25 +9,24 @@
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 /**
- * Headers to strip from the upstream RESPONSE before forwarding to the browser.
- * The Edge Runtime's fetch() may decompress the body, making the original
- * content-encoding / content-length stale.
+ * Request headers to skip when forwarding to the backend.
+ * - host: backend has its own hostname
+ * - connection: hop-by-hop header, not forwarded
+ * - accept-encoding: let the proxy handle decompression
+ */
+const SKIP_REQ_HEADERS = new Set([
+  "host",
+  "connection",
+  "accept-encoding",
+]);
+
+/**
+ * Response headers to strip before forwarding to the browser.
+ * Edge Runtime may decompress the body, making these stale.
  */
 const STRIP_RES_HEADERS = new Set([
   "content-encoding",
   "transfer-encoding",
-  "content-length",
-]);
-
-/**
- * Headers to strip from the forwarded REQUEST to the backend.
- * - host: backend has its own hostname
- * - accept-encoding: prevent upstream from compressing (we handle that)
- * - content-length: let fetch recalculate from actual body to avoid mismatch
- */
-const STRIP_REQ_HEADERS = new Set([
-  "host",
-  "accept-encoding",
   "content-length",
 ]);
 
@@ -39,54 +38,74 @@ async function handler(
   const url = new URL(request.url);
   const target = `${BACKEND_URL}/api/${path.join("/")}${url.search}`;
 
-  // Forward request headers, stripping problematic ones
-  const headers = new Headers(request.headers);
-  for (const h of STRIP_REQ_HEADERS) {
-    headers.delete(h);
-  }
-
-  const init: RequestInit = {
-    method: request.method,
-    headers,
-    redirect: "manual",
-  };
-
-  // Forward body for state-changing methods.
-  // Consume as ArrayBuffer so fetch() can set correct content-length.
-  if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
-    const body = await request.arrayBuffer();
-    if (body.byteLength > 0) {
-      init.body = body;
+  // Build forwarded request headers using a plain object.
+  // Headers.forEach() yields lowercase keys per the spec.
+  const fwdHeaders: Record<string, string> = {};
+  request.headers.forEach((value, key) => {
+    if (!SKIP_REQ_HEADERS.has(key)) {
+      fwdHeaders[key] = value;
     }
+  });
+
+  // Read and forward body for state-changing methods.
+  let bodyBuf: ArrayBuffer | null = null;
+  if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+    bodyBuf = await request.arrayBuffer();
+    if (bodyBuf.byteLength > 0) {
+      // Explicitly set content-length to match the actual body size.
+      // This prevents mismatch when Edge Runtime re-encodes the body.
+      fwdHeaders["content-length"] = String(bodyBuf.byteLength);
+    } else {
+      bodyBuf = null;
+      delete fwdHeaders["content-length"];
+    }
+  } else {
+    delete fwdHeaders["content-length"];
   }
+
+  console.log(
+    `[proxy] → ${request.method} ${target} body=${bodyBuf?.byteLength ?? 0}B ct=${fwdHeaders["content-type"] ?? "none"}`,
+  );
 
   try {
-    const upstream = await fetch(target, init);
+    const upstream = await fetch(target, {
+      method: request.method,
+      headers: fwdHeaders,
+      body: bodyBuf,
+      redirect: "manual",
+    });
 
-    // Read entire response body to avoid stream-forwarding issues
-    const responseBody = await upstream.arrayBuffer();
+    // Read entire body as ArrayBuffer to avoid stream-forwarding issues.
+    const resBody = await upstream.arrayBuffer();
 
-    // Build clean response headers
-    const responseHeaders = new Headers(upstream.headers);
-    for (const h of STRIP_RES_HEADERS) {
-      responseHeaders.delete(h);
+    // Build clean response headers.
+    const resHeaders: Record<string, string> = {};
+    upstream.headers.forEach((value, key) => {
+      if (!STRIP_RES_HEADERS.has(key)) {
+        resHeaders[key] = value;
+      }
+    });
+
+    const resCT = upstream.headers.get("content-type") ?? "none";
+    console.log(
+      `[proxy] ← ${upstream.status} ${resCT} ${resBody.byteLength}B`,
+    );
+
+    // Log body preview for non-2xx responses (errors, redirects).
+    if (upstream.status < 200 || upstream.status >= 300) {
+      const preview = new TextDecoder()
+        .decode(resBody)
+        .substring(0, 500);
+      console.error(`[proxy] non-2xx body: ${preview}`);
     }
 
-    // Log errors for debugging (visible in Vercel Runtime Logs)
-    if (!upstream.ok && upstream.status >= 400) {
-      const preview = new TextDecoder().decode(responseBody).substring(0, 500);
-      console.error(
-        `[proxy] ${request.method} ${target} → ${upstream.status}: ${preview}`,
-      );
-    }
-
-    return new Response(responseBody, {
+    return new Response(resBody, {
       status: upstream.status,
       statusText: upstream.statusText,
-      headers: responseHeaders,
+      headers: resHeaders,
     });
   } catch (err) {
-    console.error(`[proxy] fetch failed: ${request.method} ${target}`, err);
+    console.error(`[proxy] fetch error: ${request.method} ${target}`, err);
     return new Response(
       JSON.stringify({ detail: "バックエンドに接続できません" }),
       {
