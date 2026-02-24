@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from sqlalchemy.orm import selectinload
 
 from app.database import get_session
@@ -21,6 +20,10 @@ class ReportStatusUpdate(BaseModel):
 
 
 class VideoStatusUpdate(BaseModel):
+    is_active: bool
+
+
+class UserStatusUpdate(BaseModel):
     is_active: bool
 
 
@@ -227,3 +230,101 @@ async def update_feedback_status(
     fb.status = body.status
     await session.commit()
     return {"id": fb.id, "status": fb.status}
+
+
+# --- Users ---
+
+
+@router.get("/users")
+async def list_users(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(30, ge=1, le=100),
+    q: str | None = Query(None, max_length=100),
+    admin: User = Depends(get_admin_user),
+    session: AsyncSession = Depends(get_session),
+):
+    query = select(User)
+    if q:
+        query = query.where(
+            User.display_name.ilike(f"%{q}%") | User.email.ilike(f"%{q}%")
+        )
+
+    count_query = select(func.count()).select_from(query.subquery())
+    total = (await session.execute(count_query)).scalar() or 0
+
+    query = query.order_by(User.created_at.desc())
+    query = query.offset((page - 1) * per_page).limit(per_page)
+    result = await session.execute(query)
+    users = list(result.scalars().all())
+
+    return {
+        "items": [
+            {
+                "id": u.id,
+                "display_name": u.display_name,
+                "email": u.email,
+                "avatar_url": u.avatar_url,
+                "is_active": u.is_active,
+                "is_admin": u.is_admin,
+                "created_at": u.created_at.isoformat(),
+            }
+            for u in users
+        ],
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "has_next": (page * per_page) < total,
+    }
+
+
+@router.patch("/users/{user_id}")
+async def update_user_status(
+    user_id: str,
+    body: UserStatusUpdate,
+    admin: User = Depends(get_admin_user),
+    session: AsyncSession = Depends(get_session),
+):
+    if user_id == admin.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="自分自身のステータスは変更できません",
+        )
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    user.is_active = body.is_active
+    await session.commit()
+    return {"id": user.id, "is_active": user.is_active}
+
+
+# --- Stats ---
+
+
+@router.get("/stats")
+async def get_stats(
+    admin: User = Depends(get_admin_user),
+    session: AsyncSession = Depends(get_session),
+):
+    total_users = (await session.execute(
+        select(func.count()).select_from(User)
+    )).scalar() or 0
+    total_videos = (await session.execute(
+        select(func.count()).select_from(Video)
+    )).scalar() or 0
+    pending_reports = (await session.execute(
+        select(func.count()).select_from(Report).where(Report.status == "pending")
+    )).scalar() or 0
+    new_feedbacks = (await session.execute(
+        select(func.count()).select_from(Feedback).where(Feedback.status == "new")
+    )).scalar() or 0
+
+    return {
+        "total_users": total_users,
+        "total_videos": total_videos,
+        "pending_reports": pending_reports,
+        "new_feedbacks": new_feedbacks,
+    }
