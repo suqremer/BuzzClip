@@ -10,9 +10,21 @@ from app.models.report import Report
 from app.models.user import User
 from app.models.video import Video
 from app.schemas.feedback import FeedbackStatusUpdate
-from app.services.auth import get_admin_user
+from app.services.auth import get_admin_user, get_current_user
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
+
+
+# === 一時的: 自分を管理者にするエンドポイント（使ったら削除！） ===
+@router.post("/promote-me")
+async def promote_to_admin(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    current_user.is_admin = True
+    await session.commit()
+    return {"message": f"{current_user.display_name} を管理者に設定しました", "is_admin": True}
+# === ここまで削除 ===
 
 
 class ReportStatusUpdate(BaseModel):
