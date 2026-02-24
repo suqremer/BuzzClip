@@ -10,6 +10,7 @@ from fastapi.requests import Request
 from fastapi.responses import RedirectResponse
 from jose import JWTError, jwt
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -245,7 +246,14 @@ async def google_callback(
         set_auth_cookie(redirect, jwt_token)
         set_refresh_cookie(redirect, refresh_token)
         return redirect
+    except IntegrityError as e:
+        await session.rollback()
+        logger.error("Integrity error during OAuth: %s", e)
+        return RedirectResponse(
+            f"{settings.frontend_url}/auth/callback/google?error=email_exists"
+        )
     except Exception as e:
+        await session.rollback()
         logger.error("DB error during user creation: %s", e, exc_info=True)
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=db_error"

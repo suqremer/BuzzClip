@@ -8,6 +8,20 @@
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+/**
+ * Hop-by-hop and encoding headers that must NOT be forwarded verbatim.
+ *
+ * The Edge Runtime's fetch() automatically decompresses gzip/br responses,
+ * but the original content-encoding and content-length headers remain on
+ * the Response object.  Forwarding them causes the browser to either
+ * truncate or double-decompress the body, breaking JSON parsing.
+ */
+const STRIP_RESPONSE_HEADERS = [
+  "content-encoding",
+  "transfer-encoding",
+  "content-length",
+];
+
 async function handler(
   request: Request,
   { params }: { params: Promise<{ path: string[] }> },
@@ -26,21 +40,30 @@ async function handler(
     redirect: "manual", // Don't follow redirects — forward them to the browser
   };
 
-  // Forward body for state-changing methods
+  // Forward body for state-changing methods.
+  // Consume as ArrayBuffer to avoid ReadableStream forwarding issues
+  // in the Edge Runtime (stream can only be consumed once).
   if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
-    init.body = request.body;
-    // @ts-expect-error duplex required for streaming request body
-    init.duplex = "half";
+    const body = await request.arrayBuffer();
+    if (body.byteLength > 0) {
+      init.body = body;
+    }
   }
 
   try {
     const upstream = await fetch(target, init);
 
-    // Return upstream response as-is (status, headers including Set-Cookie, body)
+    // Clone headers and strip encoding/length headers that the Edge
+    // Runtime already processed — prevents content-length mismatch.
+    const responseHeaders = new Headers(upstream.headers);
+    for (const h of STRIP_RESPONSE_HEADERS) {
+      responseHeaders.delete(h);
+    }
+
     return new Response(upstream.body, {
       status: upstream.status,
       statusText: upstream.statusText,
-      headers: upstream.headers,
+      headers: responseHeaders,
     });
   } catch {
     return new Response(
