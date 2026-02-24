@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 
 from app.database import get_session
 from app.models.category import Category
-from app.models.tag import Tag
+from app.models.tag import Tag, video_tags
 from app.models.user import User
 from app.models.video import Video, video_categories
 from app.models.vote import Vote
@@ -133,11 +133,18 @@ async def list_videos(
     # Search filter
     if q:
         search = f"%{q}%"
+        # Strip leading '#' so searching "#猫" matches tag "猫"
+        tag_q = q.lstrip("#")
+        tag_match = select(video_tags.c.video_id).join(
+            Tag, video_tags.c.tag_id == Tag.id
+        ).where(Tag.name.ilike(f"%{tag_q}%")).correlate(None)
+
         query = query.join(User, Video.submitted_by == User.id).where(
             or_(
                 Video.title.ilike(search),
                 Video.author_name.ilike(search),
                 User.display_name.ilike(search),
+                Video.id.in_(tag_match),
             )
         )
 
