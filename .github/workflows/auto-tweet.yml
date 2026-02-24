@@ -1,0 +1,56 @@
+name: Auto Tweet
+
+on:
+  schedule:
+    # 8:00 JST (UTC 23:00 previous day) - Morning
+    - cron: "0 23 * * *"
+    # 12:00 JST (UTC 03:00) - Lunch
+    - cron: "0 3 * * *"
+    # 20:00 JST (UTC 11:00) - Evening
+    - cron: "0 11 * * *"
+  workflow_dispatch:
+    inputs:
+      session:
+        description: "Session number (0=morning, 1=lunch, 2=evening)"
+        required: false
+        default: "0"
+
+permissions:
+  contents: read
+
+jobs:
+  tweet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install tweepy
+        name: Install tweepy
+
+      - name: Determine session number
+        id: session
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "num=${{ github.event.inputs.session }}" >> "$GITHUB_OUTPUT"
+          else
+            HOUR=$(TZ=Asia/Tokyo date +%H)
+            if [ "$HOUR" -lt 10 ]; then
+              echo "num=0" >> "$GITHUB_OUTPUT"
+            elif [ "$HOUR" -lt 16 ]; then
+              echo "num=1" >> "$GITHUB_OUTPUT"
+            else
+              echo "num=2" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Post tweet
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+        run: python scripts/auto_tweet.py ${{ steps.session.outputs.num }}
