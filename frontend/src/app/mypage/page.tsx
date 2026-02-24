@@ -418,6 +418,9 @@ export default function MyPage() {
         </div>
       </div>
 
+      {/* フォロー中 */}
+      <FollowingList />
+
       {/* プレイリスト */}
       <PlaylistManagement />
 
@@ -667,6 +670,74 @@ function MuteManagement() {
                 className="rounded-lg border border-input-border px-3 py-1 text-xs font-medium text-text-primary transition hover:bg-hover-bg"
               >
                 ミュート解除
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function FollowingList() {
+  const { user } = useAuth();
+  const [users, setUsers] = useState<Array<{ id: string; display_name: string; avatar_url: string | null }>>([]);
+  const [loading, setLoading] = useState(true);
+  const [unfollowingId, setUnfollowingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    apiGet<{ users: Array<{ id: string; display_name: string; avatar_url: string | null }>; total: number }>(`/api/follows/${user.id}/following?per_page=100`)
+      .then((data) => setUsers(data.users))
+      .catch((e) => { console.error("Failed to fetch following:", e); })
+      .finally(() => setLoading(false));
+  }, [user]);
+
+  const handleUnfollow = async (targetId: string) => {
+    setUnfollowingId(targetId);
+    try {
+      await apiDelete(`/api/follows/${targetId}`);
+      setUsers((prev) => prev.filter((u) => u.id !== targetId));
+    } catch {
+      alert("フォロー解除に失敗しました");
+    } finally {
+      setUnfollowingId(null);
+    }
+  };
+
+  if (!user) return null;
+
+  return (
+    <section className="mt-10">
+      <h2 className="mb-4 text-lg font-bold">フォロー中</h2>
+      {loading ? (
+        <div className="flex justify-center py-4">
+          <div className="h-6 w-6 animate-spin rounded-full border-4 border-brand-medium border-t-brand" />
+        </div>
+      ) : users.length === 0 ? (
+        <p className="py-4 text-center text-sm text-text-muted">
+          まだ誰もフォローしていません。
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {users.map((u) => (
+            <div key={u.id} className="flex items-center justify-between rounded-lg border border-border-main px-4 py-3">
+              <Link href={`/user/${u.id}`} className="flex items-center gap-3 min-w-0 flex-1">
+                {u.avatar_url ? (
+                  <img src={u.avatar_url} alt={u.display_name} className="h-8 w-8 rounded-full object-cover" loading="lazy" />
+                ) : (
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-medium text-sm font-bold text-brand-text">
+                    {u.display_name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span className="truncate text-sm font-medium text-text-primary">{u.display_name}</span>
+              </Link>
+              <button
+                onClick={() => handleUnfollow(u.id)}
+                disabled={unfollowingId === u.id}
+                className="ml-2 shrink-0 rounded-lg border border-input-border px-3 py-1 text-xs font-medium text-text-primary transition hover:bg-hover-bg disabled:opacity-50"
+              >
+                {unfollowingId === u.id ? "..." : "フォロー解除"}
               </button>
             </div>
           ))}

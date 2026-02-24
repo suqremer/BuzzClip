@@ -107,10 +107,28 @@ function RankingContent() {
     setActiveTag(tagName);
   }, []);
 
+  const handleRefresh = useCallback(() => {
+    setPage(1);
+    fetchVideos(1, true);
+  }, [fetchVideos]);
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">ランキング</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold">ランキング</h1>
+          <button
+            onClick={handleRefresh}
+            disabled={loading && videos.length === 0}
+            className="rounded-full p-1.5 text-text-muted transition hover:bg-hover-bg hover:text-text-primary disabled:opacity-50"
+            title="更新"
+            aria-label="更新"
+          >
+            <svg className={`h-5 w-5 ${loading && videos.length === 0 ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
         <SortToggle activeSort={sortMode} onSortChange={setSortMode} />
       </div>
 
