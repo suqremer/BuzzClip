@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -22,7 +22,7 @@ class Notification(Base):
     )
     is_read: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(
-        nullable=False, default=lambda: datetime.utcnow(), index=True
+        nullable=False, default=lambda: datetime.now(timezone.utc), index=True
     )
 
     actor = relationship("User", foreign_keys=[actor_id], lazy="select")

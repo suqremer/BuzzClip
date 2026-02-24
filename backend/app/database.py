@@ -17,7 +17,18 @@ def _get_async_url(url: str) -> str:
 
 
 database_url = _get_async_url(settings.database_url)
-engine = create_async_engine(database_url, echo=False)
+
+_pool_kwargs = {}
+if "sqlite" not in database_url:
+    # PostgreSQL pool settings (Railway free tier: max 20 connections)
+    _pool_kwargs = {
+        "pool_size": 5,
+        "max_overflow": 10,
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+    }
+
+engine = create_async_engine(database_url, echo=False, **_pool_kwargs)
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 

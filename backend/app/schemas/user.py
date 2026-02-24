@@ -23,6 +23,7 @@ class UserResponse(BaseModel):
     email: str
     display_name: str
     avatar_url: str | None = None
+    is_admin: bool = False
 
 
 class UserBriefResponse(BaseModel):
@@ -34,6 +35,4 @@ class UserBriefResponse(BaseModel):
 
 
 class AuthResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
     user: UserResponse

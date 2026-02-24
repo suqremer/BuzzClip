@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
@@ -20,5 +20,5 @@ class UserHiddenCategory(Base):
         String(36), ForeignKey("categories.id", ondelete="CASCADE"), nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(
-        nullable=False, default=lambda: datetime.utcnow()
+        nullable=False, default=lambda: datetime.now(timezone.utc)
     )

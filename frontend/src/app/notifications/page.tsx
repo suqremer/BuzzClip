@@ -22,7 +22,7 @@ export default function NotificationsPage() {
           setNotifications((prev) => (reset ? data.items : [...prev, ...data.items]));
           setHasNext(data.has_next);
         })
-        .catch(() => {})
+        .catch((e) => { console.error("Failed to fetch notifications:", e); })
         .finally(() => setLoading(false));
     },
     [user]
@@ -40,8 +40,8 @@ export default function NotificationsPage() {
     try {
       await apiPost("/api/notifications/mark-read", {});
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error("Failed to mark all notifications as read:", e);
     }
   };
 
@@ -54,7 +54,7 @@ export default function NotificationsPage() {
   if (authLoading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
       </div>
     );
   }
@@ -89,7 +89,7 @@ export default function NotificationsPage() {
 
       {loading && notifications.length === 0 ? (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
         </div>
       ) : notifications.length === 0 ? (
         <p className="py-12 text-center text-gray-400">通知はまだありません。</p>
@@ -102,7 +102,7 @@ export default function NotificationsPage() {
             >
               <div className="flex items-start gap-3">
                 {n.actor.avatar_url ? (
-                  <img src={n.actor.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+                  <img src={n.actor.avatar_url} alt={n.actor.display_name} className="h-8 w-8 rounded-full object-cover" loading="lazy" />
                 ) : (
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
                     {n.actor.display_name.charAt(0).toUpperCase()}

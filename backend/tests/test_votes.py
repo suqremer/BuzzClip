@@ -1,5 +1,7 @@
 import pytest
 
+from tests.conftest import extract_token
+
 
 async def _create_user_and_video(client) -> tuple[str, str]:
     """Create a user and submit a video, return (token, video_id)."""
@@ -8,7 +10,7 @@ async def _create_user_and_video(client) -> tuple[str, str]:
         "password": "password123",
         "display_name": "Voter",
     })
-    token = signup.json()["access_token"]
+    token = extract_token(signup)
 
     video = await client.post(
         "/api/videos",
@@ -65,7 +67,7 @@ async def test_vote_nonexistent_video(client):
         "password": "password123",
         "display_name": "Ghost",
     })
-    token = signup.json()["access_token"]
+    token = extract_token(signup)
 
     res = await client.post(
         "/api/votes/nonexistent-id",

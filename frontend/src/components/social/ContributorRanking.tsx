@@ -12,7 +12,7 @@ export function ContributorRanking() {
   useEffect(() => {
     apiGet<{ contributors: Contributor[]; period: string }>("/api/rankings/contributors")
       .then((data) => setContributors(data.contributors))
-      .catch(() => {})
+      .catch((e) => { console.error("Failed to fetch contributor rankings:", e); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -44,7 +44,7 @@ export function ContributorRanking() {
               {c.rank}
             </span>
             {c.user.avatar_url ? (
-              <img src={c.user.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover" />
+              <img src={c.user.avatar_url} alt={c.user.display_name} className="h-7 w-7 rounded-full object-cover" loading="lazy" />
             ) : (
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
                 {c.user.display_name.charAt(0).toUpperCase()}

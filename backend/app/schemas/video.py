@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.user import UserBriefResponse
 
@@ -23,10 +23,10 @@ class TagResponse(BaseModel):
 
 
 class VideoSubmitRequest(BaseModel):
-    url: str
-    category_slugs: list[str] = []
-    title: str | None = None
-    comment: str | None = None
+    url: str = Field(max_length=2048)
+    category_slugs: list[str] = Field(default=[], max_length=3)
+    title: str | None = Field(default=None, max_length=255)
+    comment: str | None = Field(default=None, max_length=200)
 
 
 class VideoResponse(BaseModel):

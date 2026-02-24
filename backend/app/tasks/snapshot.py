@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import delete, select
 
@@ -12,13 +12,14 @@ logger = logging.getLogger(__name__)
 
 async def take_vote_snapshots():
     """Take a snapshot of current vote counts for all active videos."""
+    rows = []
     try:
         async with async_session() as session:
             # Only fetch id and vote_count columns to avoid loading full ORM objects
             rows = (await session.execute(
                 select(Video.id, Video.vote_count).where(Video.is_active == True)  # noqa: E712
             )).all()
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             for video_id, vote_count in rows:
                 snapshot = VoteSnapshot(
                     video_id=video_id,
@@ -36,4 +37,4 @@ async def take_vote_snapshots():
             await session.commit()
             logger.info("Vote snapshots taken for %d videos", len(rows))
     except Exception:
-        logger.exception("Failed to take vote snapshots")
+        logger.exception("Failed to take vote snapshots (processing %d videos)", len(rows))

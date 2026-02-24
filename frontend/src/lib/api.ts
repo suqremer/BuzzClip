@@ -9,38 +9,54 @@ class ApiError extends Error {
   }
 }
 
-function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("buzzclip_token");
-}
+let refreshPromise: Promise<boolean> | null = null;
 
-export function setToken(token: string): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem("buzzclip_token", token);
-}
-
-export function removeToken(): void {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem("buzzclip_token");
+async function tryRefresh(): Promise<boolean> {
+  // Deduplicate concurrent refresh attempts
+  if (refreshPromise) return refreshPromise;
+  refreshPromise = (async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      return res.ok;
+    } catch {
+      return false;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+  return refreshPromise;
 }
 
 async function request<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const token = getToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),
   };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
 
-  const res = await fetch(`${API_URL}${path}`, {
+  let res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers,
+    credentials: "include",
   });
+
+  // On 401, try refreshing the access token once
+  if (res.status === 401 && path !== "/api/auth/refresh") {
+    const refreshed = await tryRefresh();
+    if (refreshed) {
+      res = await fetch(`${API_URL}${path}`, {
+        ...options,
+        headers,
+        credentials: "include",
+      });
+    }
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: "エラーが発生しました" }));
@@ -54,8 +70,8 @@ async function request<T>(
   return res.json();
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
-  return request<T>(path, { method: "GET" });
+export async function apiGet<T>(path: string, options?: RequestInit): Promise<T> {
+  return request<T>(path, { method: "GET", ...options });
 }
 
 export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
@@ -84,17 +100,22 @@ export async function apiDelete<T>(path: string): Promise<T> {
 }
 
 export async function apiUpload<T>(path: string, formData: FormData): Promise<T> {
-  const token = getToken();
-  const headers: Record<string, string> = {};
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-
-  const res = await fetch(`${API_URL}${path}`, {
+  let res = await fetch(`${API_URL}${path}`, {
     method: "POST",
-    headers,
     body: formData,
+    credentials: "include",
   });
+
+  if (res.status === 401) {
+    const refreshed = await tryRefresh();
+    if (refreshed) {
+      res = await fetch(`${API_URL}${path}`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+    }
+  }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: "エラーが発生しました" }));

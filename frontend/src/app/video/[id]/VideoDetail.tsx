@@ -37,7 +37,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
             .then((rel) =>
               setRelated(rel.items.filter((v) => v.id !== data.id).slice(0, 4))
             )
-            .catch(() => {});
+            .catch((e) => { console.error("Failed to fetch related videos:", e); });
         }
       })
       .catch(() => setError("動画が見つかりませんでした"))
@@ -47,7 +47,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
       </div>
     );
   }

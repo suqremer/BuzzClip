@@ -25,7 +25,7 @@ export function MuteButton({ userId, displayName }: MuteButtonProps) {
       setLoading(true);
       try {
         await unmuteUser(userId);
-      } catch { /* ignore */ }
+      } catch (e) { console.error("Failed to unmute user:", e); }
       setLoading(false);
       return;
     }
@@ -37,7 +37,7 @@ export function MuteButton({ userId, displayName }: MuteButtonProps) {
     setLoading(true);
     try {
       await muteUser(userId);
-    } catch { /* ignore */ }
+    } catch (e) { console.error("Failed to mute user:", e); }
     setLoading(false);
   };
 

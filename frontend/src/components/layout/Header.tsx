@@ -40,7 +40,7 @@ export function Header() {
             <div className="flex items-center gap-3">
               <NotificationBell />
               {user.avatar_url ? (
-                <img src={user.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover" />
+                <img src={user.avatar_url} alt={user.display_name} className="h-7 w-7 rounded-full object-cover" />
               ) : (
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
                   {user.display_name.charAt(0).toUpperCase()}
@@ -109,7 +109,7 @@ export function Header() {
             <>
               <div className="flex items-center gap-2 border-t border-gray-100 py-2 text-sm text-gray-500">
                 {user.avatar_url ? (
-                  <img src={user.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
+                  <img src={user.avatar_url} alt={user.display_name} className="h-6 w-6 rounded-full object-cover" />
                 ) : (
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
                     {user.display_name.charAt(0).toUpperCase()}

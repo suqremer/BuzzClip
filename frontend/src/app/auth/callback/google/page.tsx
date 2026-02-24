@@ -11,6 +11,9 @@ const ERROR_MESSAGES: Record<string, string> = {
   token_failed: "Googleとのトークン交換に失敗しました",
   userinfo_failed: "Googleからユーザー情報を取得できませんでした",
   incomplete_profile: "Googleアカウントのプロフィール情報が不足しています",
+  email_not_verified: "Googleアカウントのメールが未認証です",
+  email_exists:
+    "このメールアドレスは既にパスワードで登録されています。メールとパスワードでログインしてください",
   db_error: "サーバーエラーが発生しました",
 };
 
@@ -31,18 +34,19 @@ function GoogleCallbackContent() {
         return;
       }
 
-      const token = searchParams.get("token");
-      if (!token) {
-        setError("認証トークンが見つかりません");
+      // Cookie was set by the backend redirect — just fetch the user
+      const authParam = searchParams.get("auth");
+      if (authParam === "success") {
+        try {
+          await login();
+          router.push("/");
+        } catch {
+          setError("ログインに失敗しました");
+        }
         return;
       }
 
-      try {
-        await login(token);
-        router.push("/");
-      } catch {
-        setError("ログインに失敗しました");
-      }
+      setError("認証情報が見つかりません");
     };
 
     handleCallback();

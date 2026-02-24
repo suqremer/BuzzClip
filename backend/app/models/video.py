@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -32,12 +32,12 @@ class Video(Base):
     was_trending: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(
-        nullable=False, default=lambda: datetime.utcnow(), index=True
+        nullable=False, default=lambda: datetime.now(timezone.utc), index=True
     )
     updated_at: Mapped[datetime] = mapped_column(
         nullable=False,
-        default=lambda: datetime.utcnow(),
-        onupdate=lambda: datetime.utcnow(),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
     )
 
     submitter = relationship("User", back_populates="videos", lazy="select")

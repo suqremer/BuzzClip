@@ -1,7 +1,7 @@
 import logging
 import secrets
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 
 import httpx
@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.database import get_session
 from app.models.user import User
-from app.services.auth import create_access_token
+from app.services.auth import create_access_token, create_refresh_token, set_auth_cookie, set_refresh_cookie
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ def _create_state_token() -> str:
     """
     payload = {
         "nonce": secrets.token_urlsafe(16),
-        "exp": datetime.utcnow() + timedelta(minutes=10),
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=10),
     }
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
@@ -94,10 +94,9 @@ async def google_callback(
     error = request.query_params.get("error")
     if error:
         error_desc = request.query_params.get("error_description", "")
-        logger.error(f"Google returned error: {error} - {error_desc}")
+        logger.error("Google returned error: %s - %s", error, error_desc)
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=google_denied"
-            f"&detail={error}"
         )
 
     code = request.query_params.get("code")
@@ -111,7 +110,7 @@ async def google_callback(
 
     # Verify state (JWT signature + expiration)
     if not state or not _verify_state_token(state):
-        logger.error(f"Invalid state token: {state[:20] if state else 'None'}...")
+        logger.error("Invalid state token")
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=invalid_state"
         )
@@ -131,34 +130,26 @@ async def google_callback(
             )
 
         if token_resp.status_code != 200:
-            error_body = token_resp.text
             logger.error(
-                f"Token exchange failed ({token_resp.status_code}): {error_body}"
+                "Token exchange failed (%s): %s",
+                token_resp.status_code,
+                token_resp.text,
             )
-            # Extract Google's error description for debugging
-            try:
-                err_json = token_resp.json()
-                err_detail = err_json.get("error_description", err_json.get("error", ""))
-            except Exception:
-                err_detail = f"status_{token_resp.status_code}"
             return RedirectResponse(
                 f"{settings.frontend_url}/auth/callback/google?error=token_failed"
-                f"&detail={err_detail}"
             )
 
         token_data = token_resp.json()
         access_token = token_data.get("access_token")
         if not access_token:
-            logger.error(f"No access_token in response: {token_data}")
+            logger.error("No access_token in token response")
             return RedirectResponse(
                 f"{settings.frontend_url}/auth/callback/google?error=token_failed"
-                f"&detail=no_access_token"
             )
     except Exception as e:
-        logger.error(f"Token exchange exception: {e}", exc_info=True)
+        logger.error("Token exchange exception: %s", e, exc_info=True)
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=token_failed"
-            f"&detail=exception"
         )
 
     # Get user info from Google
@@ -170,14 +161,14 @@ async def google_callback(
             )
 
         if userinfo_resp.status_code != 200:
-            logger.error(f"Userinfo failed ({userinfo_resp.status_code})")
+            logger.error("Userinfo failed (%s)", userinfo_resp.status_code)
             return RedirectResponse(
                 f"{settings.frontend_url}/auth/callback/google?error=userinfo_failed"
             )
 
         userinfo = userinfo_resp.json()
     except Exception as e:
-        logger.error(f"Userinfo exception: {e}", exc_info=True)
+        logger.error("Userinfo exception: %s", e, exc_info=True)
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=userinfo_failed"
         )
@@ -192,7 +183,7 @@ async def google_callback(
             return RedirectResponse(
                 f"{settings.frontend_url}/auth/callback/google?error=email_not_verified"
             )
-        logger.error(f"Missing user info: sub={google_id}, email={email}")
+        logger.error("Missing user info: sub=%s, email=%s", google_id, email)
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=incomplete_profile"
         )
@@ -214,6 +205,17 @@ async def google_callback(
             existing = result.scalar_one_or_none()
 
             if existing:
+                # If user signed up with email/password, don't auto-merge
+                # to prevent account takeover
+                if existing.provider == "email" and existing.password_hash:
+                    logger.warning(
+                        "OAuth login blocked: email %s already registered via email/password",
+                        email,
+                    )
+                    return RedirectResponse(
+                        f"{settings.frontend_url}/auth/callback/google"
+                        f"?error=email_exists"
+                    )
                 existing.provider = "google"
                 existing.provider_id = google_id
                 existing.avatar_url = avatar
@@ -233,12 +235,15 @@ async def google_callback(
                 await session.refresh(user)
 
         jwt_token = create_access_token(user.id)
-        params = urlencode({"token": jwt_token})
-        return RedirectResponse(
-            f"{settings.frontend_url}/auth/callback/google?{params}"
+        refresh_token = create_refresh_token(user.id)
+        redirect = RedirectResponse(
+            f"{settings.frontend_url}/auth/callback/google?auth=success"
         )
+        set_auth_cookie(redirect, jwt_token)
+        set_refresh_cookie(redirect, refresh_token)
+        return redirect
     except Exception as e:
-        logger.error(f"DB error during user creation: {e}", exc_info=True)
+        logger.error("DB error during user creation: %s", e, exc_info=True)
         return RedirectResponse(
             f"{settings.frontend_url}/auth/callback/google?error=db_error"
         )

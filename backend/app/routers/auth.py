@@ -1,8 +1,11 @@
 import base64
 import io
+import logging
+import time
 import uuid
+from collections import defaultdict
 
-from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, UploadFile, status
 from PIL import Image
 from pydantic import BaseModel
 from sqlalchemy import delete, select
@@ -16,32 +19,65 @@ from app.models.user_hidden_category import UserHiddenCategory
 from app.models.user_mute import UserMute
 from app.models.video import Video
 from app.models.vote import Vote
+from app.schemas.common import StatusResponse, MessageResponse
 from app.schemas.user import AuthResponse, LoginRequest, SignupRequest, UserBriefResponse, UserResponse, UserUpdateRequest
 from app.services.auth import (
-    create_access_token,
+    REFRESH_COOKIE_NAME,
+    clear_auth_cookies,
     get_current_user,
     hash_password,
+    set_auth_cookies,
     verify_password,
+    verify_refresh_token,
 )
 from app.utils.limiter import limiter
 from app.utils.response import video_to_response
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+# --- Account lockout ---
+MAX_LOGIN_ATTEMPTS = 5
+LOCKOUT_DURATION = 900  # 15 minutes in seconds
+_login_attempts: dict[str, list[float]] = defaultdict(list)
+
+
+def _check_lockout(email: str) -> None:
+    """Raise 429 if the account is temporarily locked out."""
+    now = time.monotonic()
+    attempts = _login_attempts[email]
+    # Prune old attempts outside the lockout window
+    _login_attempts[email] = [t for t in attempts if now - t < LOCKOUT_DURATION]
+    if len(_login_attempts[email]) >= MAX_LOGIN_ATTEMPTS:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="ログイン試行回数が上限に達しました。15分後に再試行してください",
+        )
+
+
+def _record_failed_attempt(email: str) -> None:
+    _login_attempts[email].append(time.monotonic())
+
+
+def _clear_attempts(email: str) -> None:
+    _login_attempts.pop(email, None)
 
 
 @router.post("/signup", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
 async def signup(
     request: Request,
+    response: Response,
     body: SignupRequest,
     session: AsyncSession = Depends(get_session),
 ):
-    # Check if email already exists
+    # Check if email already exists (generic message to prevent enumeration)
     result = await session.execute(select(User).where(User.email == body.email))
     if result.scalar_one_or_none() is not None:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="このメールアドレスは既に登録されています",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="登録できませんでした。入力内容をご確認ください",
         )
 
     user = User(
@@ -55,9 +91,8 @@ async def signup(
     await session.commit()
     await session.refresh(user)
 
-    token = create_access_token(user.id)
+    set_auth_cookies(response, user.id)
     return AuthResponse(
-        access_token=token,
         user=UserResponse.model_validate(user),
     )
 
@@ -66,29 +101,75 @@ async def signup(
 @limiter.limit("10/minute")
 async def login(
     request: Request,
+    response: Response,
     body: LoginRequest,
     session: AsyncSession = Depends(get_session),
 ):
+    _check_lockout(body.email)
+
     result = await session.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
 
     if user is None or user.password_hash is None:
+        _record_failed_attempt(body.email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="メールアドレスまたはパスワードが正しくありません",
         )
 
     if not verify_password(body.password, user.password_hash):
+        _record_failed_attempt(body.email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="メールアドレスまたはパスワードが正しくありません",
         )
 
-    token = create_access_token(user.id)
+    _clear_attempts(body.email)
+    set_auth_cookies(response, user.id)
     return AuthResponse(
-        access_token=token,
         user=UserResponse.model_validate(user),
     )
+
+
+@router.post("/refresh", response_model=StatusResponse)
+async def refresh(
+    request: Request,
+    response: Response,
+    session: AsyncSession = Depends(get_session),
+):
+    """Issue a new access token using the refresh cookie."""
+    refresh_token = request.cookies.get(REFRESH_COOKIE_NAME)
+    if not refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="リフレッシュトークンがありません",
+        )
+
+    user_id = verify_refresh_token(refresh_token)
+    if user_id is None:
+        clear_auth_cookies(response)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="無効なリフレッシュトークンです",
+        )
+
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if user is None or not user.is_active:
+        clear_auth_cookies(response)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="ユーザーが見つかりません",
+        )
+
+    set_auth_cookies(response, user.id)
+    return {"status": "ok"}
+
+
+@router.post("/logout", response_model=StatusResponse)
+async def logout(response: Response):
+    clear_auth_cookies(response)
+    return {"status": "ok"}
 
 
 @router.get("/me", response_model=UserResponse)
@@ -157,6 +238,7 @@ async def upload_avatar(
     try:
         current_user.avatar_url = _process_avatar(data)
     except Exception:
+        logger.exception("Avatar processing failed")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="画像の処理に失敗しました",

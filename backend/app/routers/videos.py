@@ -69,7 +69,8 @@ async def submit_video(
     if comment:
         tag_names = list(dict.fromkeys(
             t.lower() for t in re.findall(r"#(\w+)", comment)
-        ))[:5]  # max 5 tags
+            if 1 <= len(t) <= 50
+        ))[:5]  # max 5 tags, each 1-50 chars
 
     # Resolve or create tags
     tags = []
@@ -104,7 +105,9 @@ async def submit_video(
 
 
 @router.get("", response_model=VideoListResponse)
+@limiter.limit("30/minute")
 async def list_videos(
+    request: Request,
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
     category: str | None = Query(None),

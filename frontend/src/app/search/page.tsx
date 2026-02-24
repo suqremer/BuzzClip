@@ -24,7 +24,7 @@ function SearchContent() {
   const [total, setTotal] = useState(0);
 
   const fetchResults = useCallback(
-    async (p: number, reset: boolean) => {
+    async (p: number, reset: boolean, signal?: AbortSignal) => {
       if (!query) return;
       setLoading(true);
       try {
@@ -35,12 +35,14 @@ function SearchContent() {
         });
         const data = await apiGet<PaginatedResponse<Video>>(
           `/api/videos?${params}`,
+          signal ? { signal } : undefined,
         );
         setVideos((prev) => (reset ? data.items : [...prev, ...data.items]));
         setHasMore(data.has_next);
         setTotal(data.total);
-      } catch {
-        // ignore
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "AbortError") return;
+        console.error("Failed to fetch search results:", e);
       } finally {
         setLoading(false);
       }
@@ -49,8 +51,10 @@ function SearchContent() {
   );
 
   useEffect(() => {
+    const controller = new AbortController();
     setPage(1);
-    fetchResults(1, true);
+    fetchResults(1, true, controller.signal);
+    return () => controller.abort();
   }, [fetchResults]);
 
   const loadMore = useCallback(() => {
@@ -121,7 +125,7 @@ function SearchContent() {
           {hasMore && (
             <div ref={sentinelRef} className="flex justify-center py-6">
               {loading && (
-                <div className="h-6 w-6 animate-spin rounded-full border-3 border-indigo-200 border-t-indigo-600" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
               )}
             </div>
           )}

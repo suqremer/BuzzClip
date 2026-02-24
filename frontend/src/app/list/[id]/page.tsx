@@ -65,8 +65,8 @@ export default function PlaylistDetailPage() {
     try {
       await apiDelete(`/api/playlists/${id}/videos/${videoId}`);
       fetchPlaylist();
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error("Failed to remove video from playlist:", e);
     }
   };
 
@@ -75,15 +75,15 @@ export default function PlaylistDetailPage() {
     try {
       await apiPatch(`/api/playlists/${id}`, { is_public: !playlist.is_public });
       fetchPlaylist();
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error("Failed to toggle playlist visibility:", e);
     }
   };
 
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
       </div>
     );
   }

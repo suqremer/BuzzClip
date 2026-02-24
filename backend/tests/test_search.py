@@ -1,5 +1,7 @@
 import pytest
 
+from tests.conftest import extract_token
+
 
 async def _signup_and_get_token(client, email="search@example.com") -> str:
     res = await client.post("/api/auth/signup", json={
@@ -7,7 +9,7 @@ async def _signup_and_get_token(client, email="search@example.com") -> str:
         "password": "password123",
         "display_name": "SearchUser",
     })
-    return res.json()["access_token"]
+    return extract_token(res)
 
 
 @pytest.mark.asyncio

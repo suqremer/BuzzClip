@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -20,7 +20,7 @@ class UserMute(Base):
         String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     created_at: Mapped[datetime] = mapped_column(
-        nullable=False, default=lambda: datetime.utcnow()
+        nullable=False, default=lambda: datetime.now(timezone.utc)
     )
 
     muted_user = relationship("User", foreign_keys=[muted_user_id], lazy="select")

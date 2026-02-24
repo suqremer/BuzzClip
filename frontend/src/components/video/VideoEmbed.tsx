@@ -18,21 +18,59 @@ interface VideoEmbedProps {
   platform?: "x" | "youtube" | "tiktok";
 }
 
+const ALLOWED_IFRAME_HOSTS = [
+  "www.youtube.com",
+  "youtube.com",
+  "www.youtube-nocookie.com",
+  "player.vimeo.com",
+  "www.tiktok.com",
+];
+
 const SANITIZE_CONFIG = {
   ADD_TAGS: ["blockquote", "iframe"],
   ADD_ATTR: [
     "data-tweet-id", "data-width", "data-dnt",
     "allowfullscreen", "frameborder",
     "src", "allow", "class", "cite", "data-video-id",
-    "width", "height", "title",
+    "width", "height", "title", "sandbox",
   ],
 };
+
+function sanitizeOembed(html: string): string {
+  // Hook: validate iframe src and add sandbox
+  DOMPurify.addHook("uponSanitizeElement", (node) => {
+    const el = node as Element;
+    if (el.tagName === "IFRAME") {
+      const src = el.getAttribute("src") || "";
+      try {
+        const url = new URL(src);
+        if (!ALLOWED_IFRAME_HOSTS.includes(url.hostname)) {
+          el.remove();
+          return;
+        }
+      } catch {
+        el.remove();
+        return;
+      }
+      // Sandbox: allow-scripts for embed functionality,
+      // allow-popups-to-escape-sandbox for link navigation.
+      // Deliberately omit allow-same-origin to prevent cookie access.
+      el.setAttribute(
+        "sandbox",
+        "allow-scripts allow-popups-to-escape-sandbox"
+      );
+    }
+  });
+  const clean = DOMPurify.sanitize(html, SANITIZE_CONFIG);
+  DOMPurify.removeAllHooks();
+  return clean;
+}
 
 export function VideoEmbed({ oembedHtml, platform = "x" }: VideoEmbedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const sanitizedHtml = useMemo(
-    () => DOMPurify.sanitize(oembedHtml, SANITIZE_CONFIG),
+    () => sanitizeOembed(oembedHtml),
     [oembedHtml],
   );
 

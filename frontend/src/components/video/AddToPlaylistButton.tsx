@@ -25,7 +25,7 @@ export function AddToPlaylistButton({ videoId }: AddToPlaylistButtonProps) {
     setLoading(true);
     apiGet<{ playlists: PlaylistStatus[] }>(`/api/playlists/video/${videoId}`)
       .then((data) => setPlaylists(data.playlists))
-      .catch(() => {})
+      .catch((e) => { console.error("Failed to fetch playlist status for video:", e); })
       .finally(() => setLoading(false));
   }, [open, videoId, user]);
 
@@ -41,8 +41,8 @@ export function AddToPlaylistButton({ videoId }: AddToPlaylistButtonProps) {
           p.playlist_id === playlistId ? { ...p, contains: !contains } : p
         )
       );
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error("Failed to toggle video in playlist:", e);
     }
   };
 
@@ -54,6 +54,7 @@ export function AddToPlaylistButton({ videoId }: AddToPlaylistButtonProps) {
         onClick={() => setOpen(!open)}
         className="rounded-full bg-gray-100 p-1.5 text-xs text-gray-500 transition hover:bg-gray-200"
         title="リストに追加"
+        aria-label="リストに追加"
       >
         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />

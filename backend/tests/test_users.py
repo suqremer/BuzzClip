@@ -1,20 +1,21 @@
 import pytest
 
+from tests.conftest import extract_token
 
-async def _signup(client, email="user@example.com", display_name="TestUser") -> dict:
+
+async def _signup(client, email="user@example.com", display_name="TestUser"):
     res = await client.post("/api/auth/signup", json={
         "email": email,
         "password": "password123",
         "display_name": display_name,
     })
-    return res.json()
+    return res.json(), extract_token(res)
 
 
 @pytest.mark.asyncio
 async def test_get_public_profile(client):
-    data = await _signup(client)
+    data, token = await _signup(client)
     user_id = data["user"]["id"]
-    token = data["access_token"]
 
     # Submit a video so the profile has content
     await client.post(

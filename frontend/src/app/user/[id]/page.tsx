@@ -65,7 +65,7 @@ export default function UserProfilePage() {
         setHasNext(data.has_next);
         setPage(nextPage);
       })
-      .catch(() => {})
+      .catch((e) => { console.error("Failed to load more user videos:", e); })
       .finally(() => setLoadingMore(false));
   }, [id, page, hasNext, loadingMore]);
 
@@ -76,7 +76,7 @@ export default function UserProfilePage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
       </div>
     );
   }

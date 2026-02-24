@@ -55,7 +55,7 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
           setPreferences((prev) => ({ ...prev, preferredPlatforms: platforms }));
         }
       }
-    } catch { /* ignore */ }
+    } catch (e) { console.error("Failed to parse stored platforms from localStorage:", e); }
   }, []);
 
   useEffect(() => {
@@ -67,7 +67,7 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
             const parsed = JSON.parse(stored);
             setPreferences((prev) => ({ ...prev, ...parsed }));
           }
-        } catch { /* ignore */ }
+        } catch (e) { console.error("Failed to parse stored preferences from localStorage:", e); }
       }
       return;
     }
@@ -81,13 +81,13 @@ export function PreferencesProvider({ children }: { children: React.ReactNode })
           mutedUserIds: data.muted_user_ids,
         }));
       })
-      .catch(() => {})
+      .catch((e) => { console.error("Failed to fetch user preferences:", e); })
       .finally(() => setLoading(false));
   }, [user]);
 
   const syncHiddenCategories = useCallback(async (slugs: string[]) => {
     if (user) {
-      await apiPut("/api/auth/me/hidden-categories", { category_slugs: slugs }).catch(() => {});
+      await apiPut("/api/auth/me/hidden-categories", { category_slugs: slugs }).catch((e) => { console.error("Failed to sync hidden categories:", e); });
     } else if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ hiddenCategorySlugs: slugs, mutedUserIds: [] }));
     }

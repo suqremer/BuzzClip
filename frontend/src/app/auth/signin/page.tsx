@@ -21,11 +21,11 @@ export default function SignInPage() {
     setError("");
     setLoading(true);
     try {
-      const data = await apiPost<AuthResponse>("/api/auth/login", {
+      await apiPost<AuthResponse>("/api/auth/login", {
         email,
         password,
       });
-      await login(data.access_token);
+      await login();
       router.push("/");
     } catch (err) {
       setError(
@@ -42,10 +42,11 @@ export default function SignInPage() {
         <h1 className="mb-8 text-center text-2xl font-bold">ログイン</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="signin-email" className="mb-1 block text-sm font-medium text-gray-700">
               メールアドレス
             </label>
             <input
+              id="signin-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -55,10 +56,11 @@ export default function SignInPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="signin-password" className="mb-1 block text-sm font-medium text-gray-700">
               パスワード
             </label>
             <input
+              id="signin-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

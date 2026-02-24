@@ -1,7 +1,9 @@
+import logging
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -23,6 +25,8 @@ from app.schemas.user import UserBriefResponse
 from app.services.auth import get_current_user, get_optional_user
 from app.utils.response import video_to_response
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/playlists", tags=["playlists"])
 
 DEFAULT_PLAYLIST_NAME = "お気に入り"
@@ -41,14 +45,19 @@ async def list_my_playlists(
     )).scalar() or 0
 
     if count == 0:
-        default = Playlist(
-            id=str(uuid.uuid4()),
-            user_id=current_user.id,
-            name=DEFAULT_PLAYLIST_NAME,
-            is_public=False,
-        )
-        session.add(default)
-        await session.commit()
+        try:
+            default = Playlist(
+                id=str(uuid.uuid4()),
+                user_id=current_user.id,
+                name=DEFAULT_PLAYLIST_NAME,
+                is_public=False,
+            )
+            session.add(default)
+            await session.commit()
+        except IntegrityError:
+            # Concurrent request already created the default playlist
+            await session.rollback()
+            logger.debug("Default playlist already created by concurrent request for user %s", current_user.id)
 
     # Fetch playlists with video counts
     result = await session.execute(

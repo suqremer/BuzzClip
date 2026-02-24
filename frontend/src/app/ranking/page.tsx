@@ -28,7 +28,7 @@ function RankingContent() {
   const [error, setError] = useState("");
 
   const fetchVideos = useCallback(
-    async (p: number, reset: boolean) => {
+    async (p: number, reset: boolean, signal?: AbortSignal) => {
       setLoading(true);
       setError("");
       try {
@@ -40,11 +40,13 @@ function RankingContent() {
         if (category) params.set("category", category);
         if (platforms.length > 0) params.set("platform", platforms.join(","));
         const data = await apiGet<PaginatedResponse<Video>>(
-          `/api/rankings?${params}`
+          `/api/rankings?${params}`,
+          signal ? { signal } : undefined,
         );
         setVideos((prev) => (reset ? data.items : [...prev, ...data.items]));
         setHasMore(data.has_next);
-      } catch {
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "AbortError") return;
         setError("ランキングの読み込みに失敗しました");
       } finally {
         setLoading(false);
@@ -54,8 +56,10 @@ function RankingContent() {
   );
 
   useEffect(() => {
+    const controller = new AbortController();
     setPage(1);
-    fetchVideos(1, true);
+    fetchVideos(1, true, controller.signal);
+    return () => controller.abort();
   }, [fetchVideos]);
 
   const loadMore = useCallback(() => {
@@ -120,7 +124,7 @@ function RankingContent() {
           {hasMore && (
             <div ref={sentinelRef} className="flex justify-center py-6">
               {loading && (
-                <div className="h-6 w-6 animate-spin rounded-full border-3 border-indigo-200 border-t-indigo-600" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
               )}
             </div>
           )}

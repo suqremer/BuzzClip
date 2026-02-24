@@ -8,6 +8,7 @@ from app.models.report import Report
 from app.models.user import User
 from app.models.video import Video
 from app.services.auth import get_current_user
+from app.schemas.common import MessageResponse
 from app.utils.limiter import limiter
 
 router = APIRouter(prefix="/api/reports", tags=["reports"])
@@ -21,7 +22,7 @@ class ReportRequest(BaseModel):
     detail: str | None = Field(None, max_length=500)
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=MessageResponse)
 @limiter.limit("5/minute")
 async def create_report(
     request: Request,

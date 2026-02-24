@@ -1,5 +1,7 @@
 import pytest
 
+from tests.conftest import extract_token
+
 
 @pytest.mark.asyncio
 async def test_signup_success(client):
@@ -10,7 +12,7 @@ async def test_signup_success(client):
     })
     assert res.status_code == 201
     data = res.json()
-    assert "access_token" in data
+    assert "buzzclip_session" in res.cookies
     assert data["user"]["email"] == "test@example.com"
     assert data["user"]["display_name"] == "テストユーザー"
 
@@ -27,7 +29,7 @@ async def test_signup_duplicate_email(client):
         "password": "password456",
         "display_name": "User2",
     })
-    assert res.status_code == 409
+    assert res.status_code == 400  # Generic error to prevent email enumeration
 
 
 @pytest.mark.asyncio
@@ -52,7 +54,7 @@ async def test_login_success(client):
         "password": "password123",
     })
     assert res.status_code == 200
-    assert "access_token" in res.json()
+    assert "buzzclip_session" in res.cookies
 
 
 @pytest.mark.asyncio
@@ -76,7 +78,7 @@ async def test_me_endpoint(client):
         "password": "password123",
         "display_name": "MeUser",
     })
-    token = signup.json()["access_token"]
+    token = extract_token(signup)
     res = await client.get("/api/auth/me", headers={
         "Authorization": f"Bearer {token}",
     })

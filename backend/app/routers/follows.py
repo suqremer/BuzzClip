@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -9,9 +9,10 @@ from app.database import get_session
 from app.models.notification import Notification
 from app.models.user import User
 from app.models.user_follow import UserFollow
-from app.schemas.follow import FollowActionResponse, FollowCountsResponse, FollowListResponse
+from app.schemas.follow import FollowActionResponse, FollowCountsResponse, FollowListResponse, FollowStatusResponse
 from app.schemas.user import UserBriefResponse
 from app.services.auth import get_current_user, get_optional_user
+from app.utils.limiter import limiter
 
 router = APIRouter(prefix="/api/follows", tags=["follows"])
 
@@ -82,7 +83,9 @@ async def unfollow_user(
 
 
 @router.get("/{user_id}/counts", response_model=FollowCountsResponse)
+@limiter.limit("30/minute")
 async def get_follow_counts(
+    request: Request,
     user_id: str,
     session: AsyncSession = Depends(get_session),
 ):
@@ -95,7 +98,7 @@ async def get_follow_counts(
     return FollowCountsResponse(followers_count=followers, following_count=following)
 
 
-@router.get("/{user_id}/status")
+@router.get("/{user_id}/status", response_model=FollowStatusResponse)
 async def get_follow_status(
     user_id: str,
     current_user: User = Depends(get_current_user),
@@ -111,7 +114,9 @@ async def get_follow_status(
 
 
 @router.get("/{user_id}/followers", response_model=FollowListResponse)
+@limiter.limit("20/minute")
 async def get_followers(
+    request: Request,
     user_id: str,
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
@@ -136,7 +141,9 @@ async def get_followers(
 
 
 @router.get("/{user_id}/following", response_model=FollowListResponse)
+@limiter.limit("20/minute")
 async def get_following(
+    request: Request,
     user_id: str,
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),

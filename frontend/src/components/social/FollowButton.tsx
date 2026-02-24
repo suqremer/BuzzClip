@@ -18,7 +18,7 @@ export function FollowButton({ userId }: FollowButtonProps) {
     if (!user || user.id === userId) return;
     apiGet<{ is_following: boolean }>(`/api/follows/${userId}/status`)
       .then((data) => setIsFollowing(data.is_following))
-      .catch(() => {})
+      .catch((e) => { console.error("Failed to fetch follow status:", e); })
       .finally(() => setChecked(true));
   }, [user, userId]);
 
@@ -34,8 +34,8 @@ export function FollowButton({ userId }: FollowButtonProps) {
         await apiPost(`/api/follows/${userId}`);
         setIsFollowing(true);
       }
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error("Failed to toggle follow status:", e);
     } finally {
       setLoading(false);
     }

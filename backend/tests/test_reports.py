@@ -1,5 +1,7 @@
 import pytest
 
+from tests.conftest import extract_token
+
 
 async def _signup_and_get_token(client, email="report@example.com") -> str:
     res = await client.post("/api/auth/signup", json={
@@ -7,7 +9,7 @@ async def _signup_and_get_token(client, email="report@example.com") -> str:
         "password": "password123",
         "display_name": "ReportUser",
     })
-    return res.json()["access_token"]
+    return extract_token(res)
 
 
 async def _create_video(client, token: str) -> str:
@@ -40,6 +42,8 @@ async def test_create_report_no_auth(client):
     token = await _signup_and_get_token(client)
     video_id = await _create_video(client, token)
 
+    # Clear cookies to simulate unauthenticated request
+    client.cookies.clear()
     res = await client.post(
         "/api/reports",
         json={"video_id": video_id, "reason": "spam"},

@@ -21,8 +21,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
       return [...staticPages, ...videoPages];
     }
-  } catch {
-    // ignore
+  } catch (e) {
+    console.error("Failed to fetch sitemap data from API:", e);
   }
   return staticPages;
 }

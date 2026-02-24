@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import type { Video } from "@/types/video";
 import { PLATFORMS } from "@/lib/constants";
@@ -12,7 +13,7 @@ interface VideoCardProps {
   video: Video;
 }
 
-export function VideoCard({ video }: VideoCardProps) {
+export const VideoCard = memo(function VideoCard({ video }: VideoCardProps) {
   const platformInfo = PLATFORMS.find((p) => p.value === video.platform);
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
@@ -68,7 +69,7 @@ export function VideoCard({ video }: VideoCardProps) {
         <div className="flex items-center justify-between border-t border-gray-100 px-4 py-2">
           <div className="flex items-center gap-1.5 text-xs text-gray-400">
             {video.submitted_by.avatar_url && (
-              <img src={video.submitted_by.avatar_url} alt="" className="h-4 w-4 rounded-full object-cover" />
+              <img src={video.submitted_by.avatar_url} alt={video.submitted_by.display_name} className="h-4 w-4 rounded-full object-cover" loading="lazy" />
             )}
             <span>投稿:</span>
             <Link
@@ -86,4 +87,4 @@ export function VideoCard({ video }: VideoCardProps) {
       )}
     </div>
   );
-}
+});

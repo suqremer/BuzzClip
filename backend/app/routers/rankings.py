@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
@@ -32,7 +32,7 @@ async def get_trending(
     current_user: User | None = Depends(get_optional_user),
     session: AsyncSession = Depends(get_session),
 ):
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     one_hour_ago = now - timedelta(hours=1)
     three_hours_ago = now - timedelta(hours=3)
 
@@ -197,7 +197,7 @@ async def get_rankings(
 
     if cutoff_delta is not None:
         # Time-windowed ranking: count votes within period
-        since = datetime.utcnow() - cutoff_delta
+        since = datetime.now(timezone.utc) - cutoff_delta
 
         query = (
             select(
@@ -281,7 +281,7 @@ async def get_rankings(
 async def get_contributor_ranking(
     session: AsyncSession = Depends(get_session),
 ):
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     week_ago = now - timedelta(weeks=1)
 
     query = (

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Integer, String, Table, Column, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -20,7 +20,7 @@ class Tag(Base):
     name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
     video_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(
-        nullable=False, default=lambda: datetime.utcnow()
+        nullable=False, default=lambda: datetime.now(timezone.utc)
     )
 
     videos = relationship("Video", secondary=video_tags, back_populates="tags", lazy="select")

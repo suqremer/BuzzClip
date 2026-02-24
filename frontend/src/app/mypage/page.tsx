@@ -237,7 +237,7 @@ export default function MyPage() {
   if (authLoading || loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
       </div>
     );
   }
@@ -356,7 +356,7 @@ function PlaylistManagement() {
     if (!user) return;
     apiGet<{ items: Playlist[] }>("/api/playlists")
       .then((data) => setPlaylists(data.items))
-      .catch(() => {})
+      .catch((e) => { console.error("Failed to fetch playlists:", e); })
       .finally(() => setLoading(false));
   }, [user]);
 
@@ -485,7 +485,7 @@ function MuteManagement() {
     setLoading(true);
     apiGet<{ muted_users: Array<{ id: string; display_name: string; avatar_url: string | null }> }>("/api/auth/me/mutes")
       .then((data) => setMutedUsers(data.muted_users))
-      .catch(() => {})
+      .catch((e) => { console.error("Failed to fetch muted users:", e); })
       .finally(() => setLoading(false));
   }, [preferences.mutedUserIds.length]);
 
@@ -514,7 +514,7 @@ function MuteManagement() {
             <div key={mu.id} className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3">
               <div className="flex items-center gap-3">
                 {mu.avatar_url ? (
-                  <img src={mu.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+                  <img src={mu.avatar_url} alt={mu.display_name} className="h-8 w-8 rounded-full object-cover" loading="lazy" />
                 ) : (
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
                     {mu.display_name.charAt(0).toUpperCase()}

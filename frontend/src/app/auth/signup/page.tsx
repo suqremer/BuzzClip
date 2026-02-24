@@ -26,12 +26,12 @@ export default function SignUpPage() {
     setError("");
     setLoading(true);
     try {
-      const data = await apiPost<AuthResponse>("/api/auth/signup", {
+      await apiPost<AuthResponse>("/api/auth/signup", {
         email,
         password,
         display_name: displayName,
       });
-      await login(data.access_token);
+      await login();
       router.push("/");
     } catch (err) {
       setError(
@@ -48,10 +48,11 @@ export default function SignUpPage() {
         <h1 className="mb-8 text-center text-2xl font-bold">新規登録</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="signup-display-name" className="mb-1 block text-sm font-medium text-gray-700">
               表示名
             </label>
             <input
+              id="signup-display-name"
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
@@ -61,10 +62,11 @@ export default function SignUpPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="signup-email" className="mb-1 block text-sm font-medium text-gray-700">
               メールアドレス
             </label>
             <input
+              id="signup-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -74,10 +76,11 @@ export default function SignUpPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="signup-password" className="mb-1 block text-sm font-medium text-gray-700">
               パスワード
             </label>
             <input
+              id="signup-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

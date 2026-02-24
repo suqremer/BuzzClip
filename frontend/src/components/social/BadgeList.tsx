@@ -14,7 +14,7 @@ export function BadgeList({ userId }: BadgeListProps) {
   useEffect(() => {
     apiGet<{ badges: Badge[] }>(`/api/badges/${userId}`)
       .then((data) => setBadges(data.badges))
-      .catch(() => {});
+      .catch((e) => { console.error("Failed to fetch user badges:", e); });
   }, [userId]);
 
   const earned = badges.filter((b) => b.earned);

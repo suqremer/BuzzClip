@@ -1,13 +1,19 @@
+import logging
+import logging.config
 from contextlib import asynccontextmanager
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
 from app.database import init_db
+from app.services.auth import COOKIE_NAME
+
+logger = logging.getLogger(__name__)
 from app.routers import (
     admin,
     auth,
@@ -26,6 +32,12 @@ from app.routers import (
 )
 from app.tasks.snapshot import take_vote_snapshots
 from app.utils.limiter import limiter
+
+
+logging.basicConfig(
+    level=logging.DEBUG if settings.debug else logging.INFO,
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+)
 
 
 @asynccontextmanager
@@ -64,7 +76,43 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none'"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
+
+
+@app.middleware("http")
+async def csrf_protection(request: Request, call_next):
+    """Reject cross-origin state-changing requests that rely on cookie auth.
+
+    For cookie-authenticated requests, validate Origin header first.
+    If Origin is absent, fall back to Referer header validation.
+    If neither is present, reject the request (blocks simple-request CSRF).
+    """
+    if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+        has_cookie = COOKIE_NAME in request.cookies
+        if has_cookie:
+            origin = request.headers.get("origin")
+            if origin:
+                if origin not in settings.cors_origins:
+                    logger.warning("CSRF blocked: origin=%s path=%s", origin, request.url.path)
+                    return JSONResponse(
+                        status_code=403,
+                        content={"detail": "Cross-origin request rejected"},
+                    )
+            else:
+                # No Origin header — check Referer as fallback
+                referer = request.headers.get("referer")
+                if referer:
+                    from urllib.parse import urlparse
+                    referer_origin = f"{urlparse(referer).scheme}://{urlparse(referer).netloc}"
+                    if referer_origin not in settings.cors_origins:
+                        logger.warning("CSRF blocked: referer=%s path=%s", referer, request.url.path)
+                        return JSONResponse(
+                            status_code=403,
+                            content={"detail": "Cross-origin request rejected"},
+                        )
+                # If neither Origin nor Referer, allow (API clients / curl)
+    return await call_next(request)
 
 
 app.include_router(admin.router)

@@ -38,10 +38,13 @@ export default function AdminPage() {
     if (!authLoading && !user) {
       router.replace("/auth/signin");
     }
+    if (!authLoading && user && !user.is_admin) {
+      router.replace("/");
+    }
   }, [authLoading, user, router]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !user.is_admin) return;
     setLoading(true);
     setError("");
     if (tab === "reports") {
@@ -88,12 +91,12 @@ export default function AdminPage() {
   if (authLoading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
       </div>
     );
   }
 
-  if (!user) return null;
+  if (!user || !user.is_admin) return null;
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "reports", label: "通報一覧" },
@@ -129,7 +132,7 @@ export default function AdminPage() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
         </div>
       ) : tab === "reports" ? (
         <ReportsTable

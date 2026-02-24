@@ -7,6 +7,10 @@ class FollowActionResponse(BaseModel):
     status: str
 
 
+class FollowStatusResponse(BaseModel):
+    is_following: bool
+
+
 class FollowCountsResponse(BaseModel):
     followers_count: int
     following_count: int

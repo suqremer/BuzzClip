@@ -1,7 +1,7 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import func, select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
@@ -56,11 +56,13 @@ async def upvote(
     session.add(vote)
     await session.flush()
 
-    # Update vote_count from actual count
-    count = (await session.execute(
-        select(func.count()).select_from(Vote).where(Vote.video_id == video_id)
-    )).scalar() or 0
-    video.vote_count = count
+    # Atomic increment to avoid race conditions
+    await session.execute(
+        update(Video).where(Video.id == video_id).values(
+            vote_count=Video.vote_count + 1
+        )
+    )
+    await session.refresh(video)
 
     # Notify video submitter (don't notify self)
     if current_user.id != video.submitted_by:
@@ -117,11 +119,16 @@ async def remove_vote(
     await session.delete(vote)
     await session.flush()
 
-    # Update vote_count from actual count
-    count = (await session.execute(
-        select(func.count()).select_from(Vote).where(Vote.video_id == video_id)
-    )).scalar() or 0
-    video.vote_count = count
+    # Atomic decrement to avoid race conditions
+    await session.execute(
+        update(Video).where(Video.id == video_id).values(
+            vote_count=Video.vote_count - 1
+        )
+    )
+    await session.refresh(video)
+    # Ensure vote_count doesn't go negative
+    if video.vote_count < 0:
+        video.vote_count = 0
     await session.commit()
 
     return VoteResponse(
