@@ -61,8 +61,14 @@ def post_tweet(tweet: dict) -> None:
         response = client.create_tweet(text=text)
         tweet_id = response.data["id"]
         print(f"Posted tweet {tweet['id']}: https://x.com/i/status/{tweet_id}")
+    except tweepy.HTTPException as e:
+        print(f"Tweet failed: {type(e).__name__} (status={e.response.status_code})")
+        for api_error in getattr(e, "api_messages", []):
+            print(f"  API message: {api_error}")
+        for api_error in getattr(e, "api_errors", []):
+            print(f"  API error: {api_error}")
+        sys.exit(1)
     except tweepy.TweepyException as e:
-        # Log error type only — never log credential values
         print(f"Tweet failed: {type(e).__name__}")
         sys.exit(1)
 
