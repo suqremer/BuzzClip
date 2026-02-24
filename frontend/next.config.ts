@@ -1,18 +1,11 @@
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${apiUrl}/api/:path*`,
-      },
-    ];
-  },
+  // API proxy is handled by src/app/api/[...path]/route.ts (Edge Route Handler)
+  // instead of rewrites(), giving full control over Set-Cookie and redirect headers.
   async headers() {
     return [
       {

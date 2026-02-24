@@ -6,7 +6,6 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
@@ -58,7 +57,21 @@ app = FastAPI(
 )
 
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+def _rate_limit_json_handler(request: Request, exc: RateLimitExceeded):
+    """Return JSON (not plain text) when rate limit is exceeded.
+
+    The default slowapi handler returns plain text, which causes
+    frontend res.json() to fail and show a generic error message.
+    """
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "リクエストが多すぎます。しばらくしてから再試行してください"},
+    )
+
+
+app.add_exception_handler(RateLimitExceeded, _rate_limit_json_handler)
 
 
 # --- Middleware ordering ---
