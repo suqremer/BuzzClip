@@ -16,8 +16,8 @@ export default function GuidePage() {
             <h2 className="text-lg font-bold">動画を見つけて投稿する</h2>
           </div>
           <div className="ml-11 mt-2 text-sm leading-relaxed text-gray-600">
-            <p>X(Twitter)、YouTube、TikTokでバズっている動画のURLをコピーして、BuzzClipの「投稿する」ページに貼り付けます。カテゴリを選んで送信すれば完了！</p>
-            <p className="mt-2">ひとことコメントも添えられます。「#おもしろ」のように#を付けるとタグになり、動画カードに表示されます。</p>
+            <p>X(Twitter)、YouTube、TikTokでバズっている動画のURLをコピーして投稿します。ヘッダーの「投稿」ボタンからサッと投稿するか、<Link href="/submit" className="text-indigo-600 hover:underline">投稿ページ</Link>からじっくり投稿できます。カテゴリを選んで送信すれば完了！</p>
+            <p className="mt-2">ひとことコメントも添えられます。「#おもしろ」のように#を付けるとタグになり、動画カードに表示されます。投稿した動画はマイページから編集・削除もできます。</p>
           </div>
         </section>
 
@@ -50,7 +50,7 @@ export default function GuidePage() {
             <h2 className="text-lg font-bold">リストを作る</h2>
           </div>
           <div className="ml-11 mt-2 text-sm leading-relaxed text-gray-600">
-            <p>お気に入りの動画をリスト（プレイリスト）にまとめられます。「あとで見る」リストが自動で作成されるほか、自分で好きなリストを作ることもできます。</p>
+            <p>お気に入りの動画をリスト（プレイリスト）にまとめられます。「お気に入り」リストが自動で作成されるほか、自分で好きなリストを作ることもできます。</p>
           </div>
         </section>
 
@@ -61,7 +61,7 @@ export default function GuidePage() {
             <h2 className="text-lg font-bold">フォロー & バッジ</h2>
           </div>
           <div className="ml-11 mt-2 text-sm leading-relaxed text-gray-600">
-            <p>気になる投稿者をフォローして、最新の投稿をチェック。たくさん投稿したりいいねを集めると、バッジが獲得できます！</p>
+            <p>気になる投稿者をフォローできます。たくさん投稿したりいいねを集めると、バッジが獲得できます！</p>
           </div>
         </section>
 
@@ -69,6 +69,17 @@ export default function GuidePage() {
         <section>
           <div className="flex items-center gap-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">6</span>
+            <h2 className="text-lg font-bold">検索する</h2>
+          </div>
+          <div className="ml-11 mt-2 text-sm leading-relaxed text-gray-600">
+            <p>ヘッダーの検索ボタンから、動画タイトル・投稿者名・タグで動画を探せます。「#猫」のようにタグ名で検索すると、そのタグが付いた動画が見つかります。</p>
+          </div>
+        </section>
+
+        {/* Step 7 */}
+        <section>
+          <div className="flex items-center gap-3">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">7</span>
             <h2 className="text-lg font-bold">シェアする</h2>
           </div>
           <div className="ml-11 mt-2 text-sm leading-relaxed text-gray-600">
@@ -76,10 +87,10 @@ export default function GuidePage() {
           </div>
         </section>
 
-        {/* Step 7: ホーム画面に追加 */}
+        {/* Step 8: ホーム画面に追加 */}
         <section id="homescreen">
           <div className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">7</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">8</span>
             <h2 className="text-lg font-bold">ホーム画面に追加（スマホ）</h2>
           </div>
           <div className="ml-11 mt-2 text-sm leading-relaxed text-gray-600">
