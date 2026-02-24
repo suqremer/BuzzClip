@@ -78,14 +78,6 @@ async function handler(
     // Read entire body as ArrayBuffer to avoid stream-forwarding issues.
     const resBody = await upstream.arrayBuffer();
 
-    // Build clean response headers.
-    const resHeaders: Record<string, string> = {};
-    upstream.headers.forEach((value, key) => {
-      if (!STRIP_RES_HEADERS.has(key)) {
-        resHeaders[key] = value;
-      }
-    });
-
     const resCT = upstream.headers.get("content-type") ?? "none";
     console.log(
       `[proxy] ← ${upstream.status} ${resCT} ${resBody.byteLength}B`,
@@ -99,11 +91,18 @@ async function handler(
       console.error(`[proxy] non-2xx body: ${preview}`);
     }
 
-    return new Response(resBody, {
+    // Build response with Headers object (not plain object) to preserve
+    // multiple Set-Cookie headers. A plain object would overwrite duplicates.
+    const res = new Response(resBody, {
       status: upstream.status,
       statusText: upstream.statusText,
-      headers: resHeaders,
     });
+    upstream.headers.forEach((value, key) => {
+      if (!STRIP_RES_HEADERS.has(key)) {
+        res.headers.append(key, value);
+      }
+    });
+    return res;
   } catch (err) {
     console.error(`[proxy] fetch error: ${request.method} ${target}`, err);
     return new Response(
