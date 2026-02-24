@@ -30,9 +30,17 @@ export function ContributorRanking() {
 
   return (
     <div className="rounded-xl border border-border-main bg-surface p-4">
-      <h3 className="mb-3 text-sm font-bold text-text-primary">
-        Weekly 投稿者ランキング
-      </h3>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-bold text-text-primary">
+          Weekly 投稿者ランキング
+        </h3>
+        <Link
+          href="/ranking/users"
+          className="text-xs text-text-muted hover:text-brand-text"
+        >
+          もっと見る →
+        </Link>
+      </div>
       <div className="space-y-2">
         {contributors.map((c) => (
           <Link

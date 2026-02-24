@@ -1,5 +1,6 @@
 import re
 import uuid
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func, or_, select
@@ -25,6 +26,25 @@ from app.utils.response import video_to_response
 from app.utils.url_validator import validate_video_url
 
 router = APIRouter(prefix="/api/videos", tags=["videos"])
+
+
+async def _check_mass_posting(session: AsyncSession, user: User) -> None:
+    """Alert via Discord webhook if a user posts excessively in 24h."""
+    from app.config import settings
+    from app.utils.discord import alert_mass_posting
+
+    threshold = settings.mass_post_threshold
+    cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=24)
+    result = await session.execute(
+        select(func.count()).select_from(Video).where(
+            Video.submitted_by == user.id,
+            Video.created_at >= cutoff,
+            Video.is_active == True,  # noqa: E712
+        )
+    )
+    count = result.scalar() or 0
+    if count >= threshold:
+        await alert_mass_posting(user.display_name, user.id, count)
 
 
 @router.post("", response_model=VideoResponse, status_code=status.HTTP_201_CREATED)
@@ -101,6 +121,9 @@ async def submit_video(
     session.add(video)
     await session.commit()
     await session.refresh(video, ["submitter", "categories", "tags"])
+
+    # Check for mass posting and alert via Discord
+    await _check_mass_posting(session, current_user)
 
     return video_to_response(video)
 

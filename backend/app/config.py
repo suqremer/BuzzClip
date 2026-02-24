@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     debug: bool = False
     cookie_secure: bool = True  # False for local dev (http)
     cookie_samesite: str = "none"  # "lax" when backend is on same domain (e.g. api.buzzclip.jp)
+    discord_webhook_url: str = ""  # Discord webhook for admin notifications
+    mass_post_threshold: int = 10  # alert if user posts more than this in 24h
 
     @property
     def effective_cookie_secure(self) -> bool:

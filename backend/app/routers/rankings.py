@@ -328,3 +328,73 @@ async def get_contributor_ranking(
             })
 
     return {"contributors": contributors, "period": "1w"}
+
+
+USERS_PERIOD_MAP = {
+    "1w": timedelta(weeks=1),
+    "1m": timedelta(days=30),
+    "all": None,
+}
+
+
+@router.get("/users")
+async def get_user_rankings(
+    sort: str = Query("likes", pattern="^(likes|posts)$"),
+    period: str = Query("1w", pattern="^(1w|1m|all)$"),
+    limit: int = Query(20, ge=1, le=50),
+    session: AsyncSession = Depends(get_session),
+):
+    cutoff_delta = USERS_PERIOD_MAP.get(period)
+    cutoff = _utcnow_naive() - cutoff_delta if cutoff_delta else None
+
+    if sort == "likes":
+        # Rank by received votes on their submitted videos
+        query = select(
+            Video.submitted_by,
+            func.count(Vote.id).label("count"),
+        ).join(Vote, Vote.video_id == Video.id)
+        if cutoff:
+            query = query.where(Vote.created_at >= cutoff)
+        query = (
+            query.where(Video.is_active == True, Video.submitted_by.isnot(None))  # noqa: E712
+            .group_by(Video.submitted_by)
+            .order_by(func.count(Vote.id).desc())
+            .limit(limit)
+        )
+    else:
+        # Rank by post count
+        query = select(
+            Video.submitted_by,
+            func.count(Video.id).label("count"),
+        )
+        if cutoff:
+            query = query.where(Video.created_at >= cutoff)
+        query = (
+            query.where(Video.is_active == True, Video.submitted_by.isnot(None))  # noqa: E712
+            .group_by(Video.submitted_by)
+            .order_by(func.count(Video.id).desc())
+            .limit(limit)
+        )
+
+    result = await session.execute(query)
+    rows = list(result.all())
+
+    user_ids = [row[0] for row in rows]
+    users_map = {}
+    if user_ids:
+        users_result = await session.execute(
+            select(User).where(User.id.in_(user_ids), User.is_active == True)  # noqa: E712
+        )
+        users_map = {u.id: u for u in users_result.scalars().all()}
+
+    rankings = []
+    for rank, (user_id, count) in enumerate(rows, 1):
+        user = users_map.get(user_id)
+        if user:
+            rankings.append({
+                "rank": rank,
+                "user": UserBriefResponse.model_validate(user),
+                "count": count,
+            })
+
+    return {"rankings": rankings, "sort": sort, "period": period}
