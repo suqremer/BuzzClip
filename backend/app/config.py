@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 _ALLOWED_FRONTEND_ORIGINS = frozenset([
     "https://buzzclip.jp",
     "https://www.buzzclip.jp",
+    "https://buzz-clip.vercel.app",
 ])
 
 
