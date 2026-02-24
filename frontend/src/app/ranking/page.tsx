@@ -108,12 +108,12 @@ function RankingContent() {
 
       {loading && filteredVideos.length === 0 ? (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
         </div>
       ) : error ? (
         <p className="py-12 text-center text-red-500">{error}</p>
       ) : filteredVideos.length === 0 ? (
-        <p className="py-12 text-center text-gray-400">
+        <p className="py-12 text-center text-text-muted">
           この条件に合う動画はまだありません。
         </p>
       ) : (
@@ -124,7 +124,7 @@ function RankingContent() {
           {hasMore && (
             <div ref={sentinelRef} className="flex justify-center py-6">
               {loading && (
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-medium border-t-brand" />
               )}
             </div>
           )}
@@ -144,7 +144,7 @@ export default function RankingPage() {
     <Suspense
       fallback={
         <div className="flex justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" />
         </div>
       }
     >

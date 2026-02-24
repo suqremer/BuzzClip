@@ -38,13 +38,13 @@ export function SearchPopover() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="text-sm font-medium text-gray-700 hover:text-indigo-600"
+        className="text-sm font-medium text-text-primary hover:text-brand-text"
       >
         検索
       </button>
 
       {open && (
-        <div className="absolute left-1/2 top-full z-50 mt-3 w-80 -translate-x-1/2 rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
+        <div className="absolute left-1/2 top-full z-50 mt-3 w-80 -translate-x-1/2 rounded-xl border border-border-main bg-surface p-4 shadow-lg">
           <form onSubmit={handleSearch}>
             <div className="flex gap-2">
               <input
@@ -53,12 +53,12 @@ export function SearchPopover() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="動画タイトル、投稿者名で検索..."
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="flex-1 rounded-lg border border-input-border px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
               <button
                 type="submit"
                 disabled={!query.trim()}
-                className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-50"
+                className="shrink-0 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover disabled:opacity-50"
               >
                 検索
               </button>

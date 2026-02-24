@@ -49,7 +49,7 @@ export function MuteButton({ userId, displayName }: MuteButtonProps) {
         className={`text-xs transition ${
           muted
             ? "font-medium text-orange-500 hover:text-orange-600"
-            : "text-gray-300 hover:text-gray-500"
+            : "text-text-muted hover:text-text-secondary"
         }`}
         title={muted ? `${displayName}のミュートを解除` : `${displayName}をミュート`}
       >
@@ -67,8 +67,8 @@ export function MuteButton({ userId, displayName }: MuteButtonProps) {
         )}
       </button>
       {showConfirm && (
-        <div className="absolute bottom-full right-0 z-10 mb-2 w-56 rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
-          <p className="mb-2 text-xs text-gray-600">
+        <div className="absolute bottom-full right-0 z-10 mb-2 w-56 rounded-lg border border-border-main bg-surface p-3 shadow-lg">
+          <p className="mb-2 text-xs text-text-primary">
             <strong>{displayName}</strong> をミュートしますか？この投稿者の動画がランキングに表示されなくなります。
           </p>
           <div className="flex gap-2">
@@ -80,7 +80,7 @@ export function MuteButton({ userId, displayName }: MuteButtonProps) {
             </button>
             <button
               onClick={() => setShowConfirm(false)}
-              className="flex-1 rounded border border-gray-300 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+              className="flex-1 rounded border border-input-border px-2 py-1 text-xs font-medium text-text-primary hover:bg-hover-bg"
             >
               キャンセル
             </button>

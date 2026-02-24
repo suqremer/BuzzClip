@@ -83,7 +83,7 @@ export function NotificationBell() {
         title="通知"
         aria-label="通知"
       >
-        <svg className="h-5 w-5 text-gray-600 hover:text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg className="h-5 w-5 text-text-primary hover:text-brand-text" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
         {count > 0 && (
@@ -94,13 +94,13 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2.5">
-            <span className="text-sm font-bold text-gray-800">通知</span>
+        <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-border-main bg-surface shadow-lg">
+          <div className="flex items-center justify-between border-b border-border-light px-4 py-2.5">
+            <span className="text-sm font-bold text-text-heading">通知</span>
             {notifications.some((n) => !n.is_read) && (
               <button
                 onClick={markAllRead}
-                className="text-xs font-medium text-indigo-600 hover:underline"
+                className="text-xs font-medium text-brand-text hover:underline"
               >
                 すべて既読
               </button>
@@ -110,31 +110,31 @@ export function NotificationBell() {
           <div className="max-h-80 overflow-y-auto">
             {loading && !fetched ? (
               <div className="flex justify-center py-8">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand-medium border-t-brand" />
               </div>
             ) : notifications.length === 0 ? (
-              <p className="py-8 text-center text-sm text-gray-400">通知はまだありません</p>
+              <p className="py-8 text-center text-sm text-text-muted">通知はまだありません</p>
             ) : (
               notifications.map((n) => (
                 <Link
                   key={n.id}
                   href={n.type === "vote" && n.video_id ? `/video/${n.video_id}` : `/user/${n.actor.id}`}
                   onClick={() => setOpen(false)}
-                  className={`flex items-start gap-2.5 px-4 py-2.5 transition hover:bg-gray-50 ${!n.is_read ? "bg-indigo-50/60" : ""}`}
+                  className={`flex items-start gap-2.5 px-4 py-2.5 transition hover:bg-hover-bg ${!n.is_read ? "bg-brand-light/60" : ""}`}
                 >
                   {n.actor.avatar_url ? (
                     <img src={n.actor.avatar_url} alt={n.actor.display_name} className="h-7 w-7 shrink-0 rounded-full object-cover" loading="lazy" />
                   ) : (
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-medium text-xs font-bold text-brand-text">
                       {n.actor.display_name.charAt(0).toUpperCase()}
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs text-gray-700">
+                    <p className="text-xs text-text-primary">
                       <span className="font-medium">{n.actor.display_name}</span>
                       {n.type === "vote" ? "がいいね" : "がフォロー"}
                     </p>
-                    <p className="mt-0.5 text-[10px] text-gray-400">
+                    <p className="mt-0.5 text-[10px] text-text-muted">
                       {new Date(n.created_at).toLocaleDateString("ja-JP", {
                         month: "short",
                         day: "numeric",
@@ -144,7 +144,7 @@ export function NotificationBell() {
                     </p>
                   </div>
                   {!n.is_read && (
-                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-indigo-600" />
+                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-brand" />
                   )}
                 </Link>
               ))
@@ -154,7 +154,7 @@ export function NotificationBell() {
           <Link
             href="/notifications"
             onClick={() => setOpen(false)}
-            className="block border-t border-gray-100 px-4 py-2.5 text-center text-xs font-medium text-indigo-600 hover:bg-gray-50"
+            className="block border-t border-border-light px-4 py-2.5 text-center text-xs font-medium text-brand-text hover:bg-hover-bg"
           >
             すべての通知を見る
           </Link>

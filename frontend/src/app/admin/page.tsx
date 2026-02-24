@@ -91,7 +91,7 @@ export default function AdminPage() {
   if (authLoading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
       </div>
     );
   }
@@ -108,15 +108,15 @@ export default function AdminPage() {
       <h1 className="mb-6 text-2xl font-bold">管理画面</h1>
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-1 rounded-lg bg-gray-100 p-1">
+      <div className="mb-6 flex gap-1 rounded-lg bg-chip-bg p-1">
         {tabs.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${
               tab === t.key
-                ? "bg-white text-indigo-600 shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
+                ? "bg-surface text-brand-text shadow-sm"
+                : "text-text-primary hover:text-text-heading"
             }`}
           >
             {t.label}
@@ -132,7 +132,7 @@ export default function AdminPage() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
         </div>
       ) : tab === "reports" ? (
         <ReportsTable
@@ -154,13 +154,13 @@ function ReportsTable({
   onAction: (id: string, action: string) => void;
 }) {
   if (reports.length === 0) {
-    return <p className="py-8 text-center text-gray-500">通報はありません</p>;
+    return <p className="py-8 text-center text-text-secondary">通報はありません</p>;
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
+    <div className="overflow-x-auto rounded-lg border border-border-main">
       <table className="w-full text-left text-sm">
-        <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+        <thead className="border-b bg-surface-secondary text-xs uppercase text-text-secondary">
           <tr>
             <th className="px-4 py-3">理由</th>
             <th className="px-4 py-3">動画</th>
@@ -171,12 +171,12 @@ function ReportsTable({
         </thead>
         <tbody className="divide-y">
           {reports.map((r) => (
-            <tr key={r.id} className="hover:bg-gray-50">
+            <tr key={r.id} className="hover:bg-hover-bg">
               <td className="px-4 py-3">{r.reason}</td>
               <td className="px-4 py-3">
                 <a
                   href={`/video/${r.video_id}`}
-                  className="text-indigo-600 hover:underline"
+                  className="text-brand-text hover:underline"
                 >
                   {r.video_id.slice(0, 8)}...
                 </a>
@@ -187,14 +187,14 @@ function ReportsTable({
                     r.status === "resolved"
                       ? "bg-green-100 text-green-700"
                       : r.status === "dismissed"
-                        ? "bg-gray-100 text-gray-600"
+                        ? "bg-chip-bg text-text-primary"
                         : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
                   {r.status}
                 </span>
               </td>
-              <td className="px-4 py-3 text-gray-500">
+              <td className="px-4 py-3 text-text-secondary">
                 {new Date(r.created_at).toLocaleDateString("ja-JP")}
               </td>
               <td className="px-4 py-3">
@@ -231,13 +231,13 @@ function VideosTable({
   onToggle: (id: string, isActive: boolean) => void;
 }) {
   if (videos.length === 0) {
-    return <p className="py-8 text-center text-gray-500">動画はありません</p>;
+    return <p className="py-8 text-center text-text-secondary">動画はありません</p>;
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
+    <div className="overflow-x-auto rounded-lg border border-border-main">
       <table className="w-full text-left text-sm">
-        <thead className="border-b bg-gray-50 text-xs uppercase text-gray-500">
+        <thead className="border-b bg-surface-secondary text-xs uppercase text-text-secondary">
           <tr>
             <th className="px-4 py-3">タイトル</th>
             <th className="px-4 py-3">投票数</th>
@@ -248,11 +248,11 @@ function VideosTable({
         </thead>
         <tbody className="divide-y">
           {videos.map((v) => (
-            <tr key={v.id} className="hover:bg-gray-50">
+            <tr key={v.id} className="hover:bg-hover-bg">
               <td className="px-4 py-3">
                 <a
                   href={`/video/${v.id}`}
-                  className="text-indigo-600 hover:underline"
+                  className="text-brand-text hover:underline"
                 >
                   {v.title || v.url.slice(0, 30) + "..."}
                 </a>
@@ -269,7 +269,7 @@ function VideosTable({
                   {v.is_active ? "公開中" : "非公開"}
                 </span>
               </td>
-              <td className="px-4 py-3 text-gray-500">
+              <td className="px-4 py-3 text-text-secondary">
                 {new Date(v.created_at).toLocaleDateString("ja-JP")}
               </td>
               <td className="px-4 py-3">

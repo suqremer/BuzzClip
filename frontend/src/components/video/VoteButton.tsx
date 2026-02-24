@@ -64,7 +64,7 @@ export function VoteButton({ videoId, initialCount, initialVoted }: VoteButtonPr
         className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
           voted
             ? "bg-pink-100 text-pink-600"
-            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            : "bg-chip-bg text-text-primary hover:bg-chip-hover"
         }`}
       >
         <svg

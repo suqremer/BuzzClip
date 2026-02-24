@@ -76,7 +76,7 @@ export default function UserProfilePage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
       </div>
     );
   }
@@ -84,12 +84,12 @@ export default function UserProfilePage() {
   if (error || !user) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <p className="text-lg text-gray-500">
+        <p className="text-lg text-text-secondary">
           {error || "ユーザーが見つかりません"}
         </p>
         <Link
           href="/ranking"
-          className="mt-4 inline-block text-sm font-medium text-indigo-600 hover:underline"
+          className="mt-4 inline-block text-sm font-medium text-brand-text hover:underline"
         >
           ランキングに戻る
         </Link>
@@ -103,7 +103,7 @@ export default function UserProfilePage() {
         {user.avatar_url ? (
           <img src={user.avatar_url} alt={user.display_name} className="h-14 w-14 rounded-full object-cover" />
         ) : (
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-xl font-bold text-indigo-600">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-medium text-xl font-bold text-brand-text">
             {user.display_name.charAt(0).toUpperCase()}
           </div>
         )}
@@ -116,7 +116,7 @@ export default function UserProfilePage() {
           <div className="mt-1">
             <BadgeList userId={user.id} />
           </div>
-          <div className="mt-1 flex items-center gap-4 text-sm text-gray-500">
+          <div className="mt-1 flex items-center gap-4 text-sm text-text-secondary">
             <span>投稿 {total}件</span>
             <span>フォロワー {followersCount}</span>
             <span>フォロー中 {followingCount}</span>
@@ -133,7 +133,7 @@ export default function UserProfilePage() {
             ))}
           </div>
         ) : (
-          <p className="py-8 text-center text-gray-400">
+          <p className="py-8 text-center text-text-muted">
             まだ動画を投稿していません。
           </p>
         )}
@@ -142,7 +142,7 @@ export default function UserProfilePage() {
       <div ref={sentinelRef} className="h-4" />
       {loadingMore && (
         <div className="flex justify-center py-4">
-          <div className="h-6 w-6 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+          <div className="h-6 w-6 animate-spin rounded-full border-4 border-brand-medium border-t-brand" />
         </div>
       )}
     </div>

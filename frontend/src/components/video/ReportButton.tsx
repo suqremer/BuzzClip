@@ -47,7 +47,7 @@ export function ReportButton({ videoId }: ReportButtonProps) {
 
   if (submitted) {
     return (
-      <p className="text-sm text-gray-500">通報を受け付けました。ご協力ありがとうございます。</p>
+      <p className="text-sm text-text-secondary">通報を受け付けました。ご協力ありがとうございます。</p>
     );
   }
 
@@ -55,17 +55,17 @@ export function ReportButton({ videoId }: ReportButtonProps) {
     <div>
       <button
         onClick={() => setOpen(!open)}
-        className="text-sm text-gray-400 transition hover:text-red-500"
+        className="text-sm text-text-muted transition hover:text-red-500"
       >
         通報する
       </button>
 
       {open && (
-        <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <p className="mb-3 text-sm font-medium text-gray-700">通報理由</p>
+        <div className="mt-3 rounded-lg border border-border-main bg-surface-secondary p-4">
+          <p className="mb-3 text-sm font-medium text-text-primary">通報理由</p>
           <div className="mb-3 space-y-2">
             {REASONS.map((r) => (
-              <label key={r.value} className="flex items-center gap-2 text-sm text-gray-600">
+              <label key={r.value} className="flex items-center gap-2 text-sm text-text-primary">
                 <input
                   type="radio"
                   name="reason"
@@ -84,7 +84,7 @@ export function ReportButton({ videoId }: ReportButtonProps) {
             placeholder="詳細（任意、500文字以内）"
             maxLength={500}
             rows={2}
-            className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            className="mb-3 w-full rounded-lg border border-input-border px-3 py-2 text-sm focus:border-brand focus:outline-none"
           />
           {error && <p className="mb-2 text-sm text-red-500">{error}</p>}
           <div className="flex gap-2">
@@ -97,7 +97,7 @@ export function ReportButton({ videoId }: ReportButtonProps) {
             </button>
             <button
               onClick={() => setOpen(false)}
-              className="rounded-lg border border-gray-300 px-4 py-1.5 text-sm text-gray-600 transition hover:bg-gray-100"
+              className="rounded-lg border border-input-border px-4 py-1.5 text-sm text-text-primary transition hover:bg-hover-bg"
             >
               キャンセル
             </button>

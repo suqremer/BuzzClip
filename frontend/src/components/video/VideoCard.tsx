@@ -18,27 +18,27 @@ interface VideoCardProps {
 export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit }: VideoCardProps) {
   const platformInfo = PLATFORMS.find((p) => p.value === video.platform);
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
-      <Link href={`/video/${video.id}`} className="flex items-center gap-3 px-4 py-3 transition hover:bg-gray-50">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xl">
+    <div className="overflow-hidden rounded-xl border border-border-main bg-surface shadow-sm transition hover:shadow-md">
+      <Link href={`/video/${video.id}`} className="flex items-center gap-3 px-4 py-3 transition hover:bg-hover-bg">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-chip-bg text-xl">
           {platformInfo?.icon ?? "𝕏"}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-gray-800">
+          <p className="truncate text-sm font-medium text-text-heading">
             {video.title || video.author_name || "動画を見る"}
           </p>
           {video.author_name && video.title && (
-            <p className="truncate text-xs text-gray-400">{video.author_name}</p>
+            <p className="truncate text-xs text-text-muted">{video.author_name}</p>
           )}
         </div>
-        <span className="shrink-0 text-xs text-gray-400">{platformInfo?.label}</span>
+        <span className="shrink-0 text-xs text-text-muted">{platformInfo?.label}</span>
       </Link>
-      <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
+      <div className="flex items-center justify-between border-t border-border-light px-4 py-3">
         <div className="flex flex-wrap items-center gap-1.5">
           {video.categories.map((cat) => (
             <span
               key={cat.slug}
-              className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-600"
+              className="rounded-full bg-brand-light px-2.5 py-0.5 text-xs font-medium text-brand-text"
             >
               {cat.icon} {cat.name_ja}
             </span>
@@ -63,12 +63,12 @@ export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit }: Vi
         </div>
       </div>
       {video.url && (
-        <div className="border-t border-gray-100 px-4 py-2">
+        <div className="border-t border-border-light px-4 py-2">
           <a
             href={video.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block truncate text-xs text-gray-400 hover:text-indigo-500"
+            className="block truncate text-xs text-text-muted hover:text-brand-text"
             onClick={(e) => e.stopPropagation()}
           >
             {video.url}
@@ -76,20 +76,20 @@ export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit }: Vi
         </div>
       )}
       {video.comment && (
-        <div className="border-t border-gray-100 px-4 py-2">
-          <p className="text-xs text-gray-500">{video.comment}</p>
+        <div className="border-t border-border-light px-4 py-2">
+          <p className="text-xs text-text-secondary">{video.comment}</p>
         </div>
       )}
       {video.submitted_by && (
-        <div className="flex items-center justify-between border-t border-gray-100 px-4 py-2">
-          <div className="flex items-center gap-1.5 text-xs text-gray-400">
+        <div className="flex items-center justify-between border-t border-border-light px-4 py-2">
+          <div className="flex items-center gap-1.5 text-xs text-text-muted">
             {video.submitted_by.avatar_url && (
               <img src={video.submitted_by.avatar_url} alt={video.submitted_by.display_name} className="h-4 w-4 rounded-full object-cover" loading="lazy" />
             )}
             <span>投稿:</span>
             <Link
               href={`/user/${video.submitted_by.id}`}
-              className="text-indigo-500 hover:underline"
+              className="text-brand-text hover:underline"
               onClick={(e) => e.stopPropagation()}
             >
               {video.submitted_by.display_name}
@@ -99,7 +99,7 @@ export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit }: Vi
             {onEdit && (
               <button
                 onClick={() => onEdit(video)}
-                className="text-xs text-gray-400 hover:text-indigo-500"
+                className="text-xs text-text-muted hover:text-brand-text"
               >
                 編集
               </button>
@@ -107,7 +107,7 @@ export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit }: Vi
             {onDelete && (
               <button
                 onClick={() => onDelete(video.id)}
-                className="text-xs text-gray-400 hover:text-red-500"
+                className="text-xs text-text-muted hover:text-red-500"
               >
                 削除
               </button>

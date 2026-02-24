@@ -82,27 +82,27 @@ export function SubmitPopover() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="text-sm font-medium text-gray-700 hover:text-indigo-600"
+        className="text-sm font-medium text-text-primary hover:text-brand-text"
       >
         投稿する
       </button>
 
       {open && (
-        <div className="absolute left-1/2 top-full z-50 mt-3 w-96 -translate-x-1/2 rounded-xl border border-gray-200 bg-white shadow-lg">
+        <div className="absolute left-1/2 top-full z-50 mt-3 w-96 -translate-x-1/2 rounded-xl border border-border-main bg-surface shadow-lg">
           {!user ? (
             <div className="p-6 text-center">
-              <p className="mb-3 text-sm text-gray-500">投稿するにはログインが必要です</p>
+              <p className="mb-3 text-sm text-text-secondary">投稿するにはログインが必要です</p>
               <Link
                 href="/auth/signin"
                 onClick={() => setOpen(false)}
-                className="inline-block rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                className="inline-block rounded-lg bg-brand px-5 py-2 text-sm font-medium text-white hover:bg-brand-hover"
               >
                 ログインする
               </Link>
             </div>
           ) : (
             <div className="p-4">
-              <p className="mb-3 text-sm font-bold text-gray-800">動画を投稿</p>
+              <p className="mb-3 text-sm font-bold text-text-heading">動画を投稿</p>
 
               {/* URL */}
               <div className="relative mb-3">
@@ -111,7 +111,7 @@ export function SubmitPopover() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="動画URLを貼り付け（X, YouTube, TikTok）"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-8 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full rounded-lg border border-input-border px-3 py-2 pr-8 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 />
                 {detectedPlatform && (
                   <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-base">
@@ -125,7 +125,7 @@ export function SubmitPopover() {
 
               {/* Categories */}
               <div className="mb-3">
-                <p className="mb-1.5 text-xs text-gray-500">カテゴリ（最大3つ）</p>
+                <p className="mb-1.5 text-xs text-text-secondary">カテゴリ（最大3つ）</p>
                 <div className="flex flex-wrap gap-1">
                   {CATEGORIES.map((cat) => (
                     <button
@@ -134,8 +134,8 @@ export function SubmitPopover() {
                       onClick={() => toggleCategory(cat.slug)}
                       className={`rounded-full px-2 py-0.5 text-xs font-medium transition ${
                         categories.includes(cat.slug)
-                          ? "bg-indigo-600 text-white"
-                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                          ? "bg-brand text-white"
+                          : "bg-chip-bg text-text-primary hover:bg-chip-hover"
                       }`}
                     >
                       {cat.icon} {cat.nameJa}
@@ -151,7 +151,7 @@ export function SubmitPopover() {
                 maxLength={200}
                 rows={2}
                 placeholder="ひとこと（任意）#タグも使えます"
-                className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="mb-3 w-full rounded-lg border border-input-border px-3 py-2 text-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
 
               {error && <p className="mb-2 text-xs text-red-500">{error}</p>}
@@ -159,7 +159,7 @@ export function SubmitPopover() {
               <button
                 onClick={handleSubmit}
                 disabled={!detectedPlatform || categories.length === 0 || submitting}
-                className="w-full rounded-lg bg-indigo-600 py-2 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+                className="w-full rounded-lg bg-brand py-2 text-sm font-bold text-white transition hover:bg-brand-hover disabled:opacity-50"
               >
                 {submitting ? "投稿中..." : "投稿する"}
               </button>

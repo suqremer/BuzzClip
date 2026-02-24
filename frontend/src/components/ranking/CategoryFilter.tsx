@@ -19,8 +19,8 @@ export function CategoryFilter({ activeCategory, onCategoryChange }: CategoryFil
         onClick={() => onCategoryChange(null)}
         className={`shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
           activeCategory === null
-            ? "bg-indigo-600 text-white"
-            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            ? "bg-brand text-white"
+            : "bg-chip-bg text-text-primary hover:bg-chip-hover"
         }`}
       >
         すべて
@@ -31,8 +31,8 @@ export function CategoryFilter({ activeCategory, onCategoryChange }: CategoryFil
           onClick={() => onCategoryChange(cat.slug)}
           className={`shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
             activeCategory === cat.slug
-              ? "bg-indigo-600 text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-brand text-white"
+              : "bg-chip-bg text-text-primary hover:bg-chip-hover"
           }`}
         >
           {cat.icon} {cat.nameJa}

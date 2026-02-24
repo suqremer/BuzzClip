@@ -49,7 +49,7 @@ export function ShareButtons({ videoId, title }: ShareButtonsProps) {
       )}
       <button
         onClick={shareX}
-        className="rounded-full bg-gray-100 p-1.5 text-xs text-gray-500 transition hover:bg-gray-200"
+        className="rounded-full bg-chip-bg p-1.5 text-xs text-text-secondary transition hover:bg-chip-hover"
         title="Xでシェア"
         aria-label="Xでシェア"
       >
@@ -57,7 +57,7 @@ export function ShareButtons({ videoId, title }: ShareButtonsProps) {
       </button>
       <button
         onClick={shareLine}
-        className="rounded-full bg-gray-100 p-1.5 text-xs text-gray-500 transition hover:bg-green-100 hover:text-green-600"
+        className="rounded-full bg-chip-bg p-1.5 text-xs text-text-secondary transition hover:bg-green-100 hover:text-green-600"
         title="LINEでシェア"
         aria-label="LINEでシェア"
       >
@@ -67,7 +67,7 @@ export function ShareButtons({ videoId, title }: ShareButtonsProps) {
       </button>
       <button
         onClick={copyLink}
-        className="rounded-full bg-gray-100 p-1.5 text-xs text-gray-500 transition hover:bg-gray-200"
+        className="rounded-full bg-chip-bg p-1.5 text-xs text-text-secondary transition hover:bg-chip-hover"
         title="リンクをコピー"
         aria-label="リンクをコピー"
       >

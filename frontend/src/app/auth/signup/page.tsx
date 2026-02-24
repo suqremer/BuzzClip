@@ -45,20 +45,20 @@ export default function SignUpPage() {
   return (
     <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <div className="mb-6 flex rounded-lg bg-gray-100 p-1">
+        <div className="mb-6 flex rounded-lg bg-chip-bg p-1">
           <Link
             href="/auth/signin"
-            className="flex-1 rounded-md px-4 py-2 text-center text-sm font-medium text-gray-500 transition hover:text-gray-700"
+            className="flex-1 rounded-md px-4 py-2 text-center text-sm font-medium text-text-secondary transition hover:text-text-primary"
           >
             ログイン
           </Link>
-          <div className="flex-1 rounded-md bg-white px-4 py-2 text-center text-sm font-bold text-gray-900 shadow-sm">
+          <div className="flex-1 rounded-md bg-surface px-4 py-2 text-center text-sm font-bold text-text-heading shadow-sm">
             新規登録
           </div>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="signup-display-name" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="signup-display-name" className="mb-1 block text-sm font-medium text-text-primary">
               表示名
             </label>
             <input
@@ -67,13 +67,13 @@ export default function SignUpPage() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-input-border px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               placeholder="BuzzClipユーザー"
             />
-            <p className="mt-1 text-xs text-gray-400">あとからでも変更できます</p>
+            <p className="mt-1 text-xs text-text-muted">あとからでも変更できます</p>
           </div>
           <div>
-            <label htmlFor="signup-email" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="signup-email" className="mb-1 block text-sm font-medium text-text-primary">
               メールアドレス
             </label>
             <input
@@ -82,12 +82,12 @@ export default function SignUpPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-input-border px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               placeholder="mail@example.com"
             />
           </div>
           <div>
-            <label htmlFor="signup-password" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="signup-password" className="mb-1 block text-sm font-medium text-text-primary">
               パスワード
             </label>
             <input
@@ -97,7 +97,7 @@ export default function SignUpPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-input-border px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               placeholder="8文字以上"
             />
           </div>
@@ -105,25 +105,25 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+            className="w-full rounded-lg bg-brand py-2.5 text-sm font-bold text-white transition hover:bg-brand-hover disabled:opacity-50"
           >
             {loading ? "登録中..." : "アカウントを作成"}
           </button>
         </form>
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200" />
+            <div className="w-full border-t border-border-main" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-4 text-gray-400">または</span>
+            <span className="bg-background px-4 text-text-muted">または</span>
           </div>
         </div>
         <GoogleLoginButton />
-        <p className="mt-4 text-center text-sm text-gray-500">
+        <p className="mt-4 text-center text-sm text-text-secondary">
           既にアカウントがある？{" "}
           <Link
             href="/auth/signin"
-            className="font-medium text-indigo-600 hover:underline"
+            className="font-medium text-brand-text hover:underline"
           >
             ログイン
           </Link>

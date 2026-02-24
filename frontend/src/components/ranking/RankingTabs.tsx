@@ -16,8 +16,8 @@ export function RankingTabs({ activePeriod, onPeriodChange }: RankingTabsProps) 
           onClick={() => onPeriodChange(p.value)}
           className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             activePeriod === p.value
-              ? "bg-indigo-600 text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-brand text-white"
+              : "bg-chip-bg text-text-primary hover:bg-chip-hover"
           }`}
         >
           {p.label}

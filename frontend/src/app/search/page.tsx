@@ -88,11 +88,11 @@ function SearchContent() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="動画タイトル、投稿者名で検索..."
-            className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="flex-1 rounded-lg border border-input-border px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
           <button
             type="submit"
-            className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700"
+            className="rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover"
           >
             検索
           </button>
@@ -100,7 +100,7 @@ function SearchContent() {
       </form>
 
       {query && (
-        <p className="mb-4 text-sm text-gray-500">
+        <p className="mb-4 text-sm text-text-secondary">
           「{query}」の検索結果: {total}件
         </p>
       )}
@@ -108,13 +108,13 @@ function SearchContent() {
       {loading && videos.length === 0 ? (
         <div className="flex justify-center py-12">
           <div
-            className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"
+            className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand"
             role="status"
             aria-label="検索中"
           />
         </div>
       ) : videos.length === 0 && query ? (
-        <p className="py-12 text-center text-gray-400">
+        <p className="py-12 text-center text-text-muted">
           該当する動画が見つかりませんでした。
         </p>
       ) : (
@@ -125,7 +125,7 @@ function SearchContent() {
           {hasMore && (
             <div ref={sentinelRef} className="flex justify-center py-6">
               {loading && (
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-medium border-t-brand" />
               )}
             </div>
           )}
@@ -140,7 +140,7 @@ export default function SearchPage() {
     <Suspense
       fallback={
         <div className="flex justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" />
         </div>
       }
     >

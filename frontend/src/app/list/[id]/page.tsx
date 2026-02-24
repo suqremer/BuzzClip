@@ -83,7 +83,7 @@ export default function PlaylistDetailPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
       </div>
     );
   }
@@ -91,8 +91,8 @@ export default function PlaylistDetailPage() {
   if (error || !playlist) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <p className="text-lg text-gray-500">{error || "リストが見つかりません"}</p>
-        <Link href="/mypage" className="mt-4 inline-block text-sm font-medium text-indigo-600 hover:underline">
+        <p className="text-lg text-text-secondary">{error || "リストが見つかりません"}</p>
+        <Link href="/mypage" className="mt-4 inline-block text-sm font-medium text-brand-text hover:underline">
           マイページに戻る
         </Link>
       </div>
@@ -101,7 +101,7 @@ export default function PlaylistDetailPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <Link href="/mypage" className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-indigo-600">
+      <Link href="/mypage" className="mb-4 inline-flex items-center gap-1 text-sm text-text-secondary hover:text-brand-text">
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
@@ -115,24 +115,24 @@ export default function PlaylistDetailPage() {
               type="text"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              className="rounded border border-gray-300 px-2 py-1 text-lg font-bold focus:border-indigo-500 focus:outline-none"
+              className="rounded border border-input-border px-2 py-1 text-lg font-bold focus:border-brand focus:outline-none"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleRename();
                 if (e.key === "Escape") setEditing(false);
               }}
             />
-            <button onClick={handleRename} className="rounded bg-indigo-600 px-3 py-1 text-sm text-white hover:bg-indigo-700">
+            <button onClick={handleRename} className="rounded bg-brand px-3 py-1 text-sm text-white hover:bg-brand-hover">
               保存
             </button>
-            <button onClick={() => setEditing(false)} className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-600">
+            <button onClick={() => setEditing(false)} className="rounded border border-input-border px-3 py-1 text-sm text-text-primary">
               取消
             </button>
           </div>
         ) : (
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold">{playlist.name}</h1>
-            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+            <span className="rounded-full bg-chip-bg px-2 py-0.5 text-xs text-text-secondary">
               {playlist.is_public ? "公開" : "非公開"}
             </span>
           </div>
@@ -141,13 +141,13 @@ export default function PlaylistDetailPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleTogglePublic}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+              className="rounded-lg border border-input-border px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-hover-bg"
             >
               {playlist.is_public ? "非公開にする" : "公開する"}
             </button>
             <button
               onClick={() => setEditing(true)}
-              className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+              className="rounded-lg border border-input-border px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-hover-bg"
             >
               名前変更
             </button>
@@ -165,7 +165,7 @@ export default function PlaylistDetailPage() {
         <p className="mb-4 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">{actionError}</p>
       )}
 
-      <p className="mb-4 text-sm text-gray-400">{playlist.video_count}件の動画</p>
+      <p className="mb-4 text-sm text-text-muted">{playlist.video_count}件の動画</p>
 
       {playlist.videos.length > 0 ? (
         <div className="space-y-4">
@@ -175,7 +175,7 @@ export default function PlaylistDetailPage() {
               {isOwner && (
                 <button
                   onClick={() => handleRemoveVideo(video.id)}
-                  className="absolute right-2 top-2 rounded-full bg-white/80 p-1 text-gray-400 shadow hover:text-red-500"
+                  className="absolute right-2 top-2 rounded-full bg-surface/80 p-1 text-text-muted shadow hover:text-red-500"
                   title="リストから削除"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -187,7 +187,7 @@ export default function PlaylistDetailPage() {
           ))}
         </div>
       ) : (
-        <p className="py-12 text-center text-gray-400">
+        <p className="py-12 text-center text-text-muted">
           このリストにはまだ動画がありません。
         </p>
       )}

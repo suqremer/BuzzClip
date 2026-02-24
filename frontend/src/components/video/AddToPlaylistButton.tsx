@@ -52,7 +52,7 @@ export function AddToPlaylistButton({ videoId }: AddToPlaylistButtonProps) {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="rounded-full bg-gray-100 p-1.5 text-xs text-gray-500 transition hover:bg-gray-200"
+        className="rounded-full bg-chip-bg p-1.5 text-xs text-text-secondary transition hover:bg-chip-hover"
         title="リストに追加"
         aria-label="リストに追加"
       >
@@ -63,23 +63,23 @@ export function AddToPlaylistButton({ videoId }: AddToPlaylistButtonProps) {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-8 z-50 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg">
-            <p className="px-3 pb-2 text-xs font-medium text-gray-500">リストに追加</p>
+          <div className="absolute right-0 top-8 z-50 w-56 rounded-lg border border-border-main bg-surface py-2 shadow-lg">
+            <p className="px-3 pb-2 text-xs font-medium text-text-secondary">リストに追加</p>
             {loading ? (
               <div className="flex justify-center py-3">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-medium border-t-brand" />
               </div>
             ) : playlists.length === 0 ? (
-              <p className="px-3 py-2 text-xs text-gray-400">リストがありません</p>
+              <p className="px-3 py-2 text-xs text-text-muted">リストがありません</p>
             ) : (
               playlists.map((p) => (
                 <button
                   key={p.playlist_id}
                   onClick={() => toggle(p.playlist_id, p.contains)}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-hover-bg"
                 >
                   <span className={`flex h-4 w-4 items-center justify-center rounded border ${
-                    p.contains ? "border-indigo-600 bg-indigo-600 text-white" : "border-gray-300"
+                    p.contains ? "border-brand bg-brand text-white" : "border-input-border"
                   }`}>
                     {p.contains && (
                       <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>

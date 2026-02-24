@@ -54,7 +54,7 @@ export default function NotificationsPage() {
   if (authLoading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
       </div>
     );
   }
@@ -62,10 +62,10 @@ export default function NotificationsPage() {
   if (!user) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold text-gray-800">ログインが必要です</h1>
+        <h1 className="text-2xl font-bold text-text-heading">ログインが必要です</h1>
         <Link
           href="/auth/signin"
-          className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700"
+          className="mt-6 inline-block rounded-lg bg-brand px-6 py-3 text-sm font-medium text-white hover:bg-brand-hover"
         >
           ログインする
         </Link>
@@ -80,7 +80,7 @@ export default function NotificationsPage() {
         {notifications.some((n) => !n.is_read) && (
           <button
             onClick={markAllRead}
-            className="text-sm font-medium text-indigo-600 hover:underline"
+            className="text-sm font-medium text-brand-text hover:underline"
           >
             すべて既読にする
           </button>
@@ -89,27 +89,27 @@ export default function NotificationsPage() {
 
       {loading && notifications.length === 0 ? (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
         </div>
       ) : notifications.length === 0 ? (
-        <p className="py-12 text-center text-gray-400">通知はまだありません。</p>
+        <p className="py-12 text-center text-text-muted">通知はまだありません。</p>
       ) : (
         <div className="space-y-1">
           {notifications.map((n) => (
             <div
               key={n.id}
-              className={`rounded-lg px-4 py-3 ${n.is_read ? "bg-white" : "bg-indigo-50"}`}
+              className={`rounded-lg px-4 py-3 ${n.is_read ? "bg-surface" : "bg-brand-light"}`}
             >
               <div className="flex items-start gap-3">
                 {n.actor.avatar_url ? (
                   <img src={n.actor.avatar_url} alt={n.actor.display_name} className="h-8 w-8 rounded-full object-cover" loading="lazy" />
                 ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-medium text-sm font-bold text-brand-text">
                     {n.actor.display_name.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div className="flex-1">
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-text-primary">
                     <Link href={`/user/${n.actor.id}`} className="font-medium hover:underline">
                       {n.actor.display_name}
                     </Link>
@@ -117,7 +117,7 @@ export default function NotificationsPage() {
                       <>
                         さんがあなたの動画にいいねしました
                         {n.video_id && (
-                          <Link href={`/video/${n.video_id}`} className="ml-1 text-indigo-600 hover:underline">
+                          <Link href={`/video/${n.video_id}`} className="ml-1 text-brand-text hover:underline">
                             {n.video_title || "動画を見る"}
                           </Link>
                         )}
@@ -125,7 +125,7 @@ export default function NotificationsPage() {
                     )}
                     {n.type === "follow" && "さんがあなたをフォローしました"}
                   </p>
-                  <p className="mt-0.5 text-xs text-gray-400">
+                  <p className="mt-0.5 text-xs text-text-muted">
                     {new Date(n.created_at).toLocaleDateString("ja-JP", {
                       month: "short",
                       day: "numeric",
@@ -135,7 +135,7 @@ export default function NotificationsPage() {
                   </p>
                 </div>
                 {!n.is_read && (
-                  <span className="mt-1.5 h-2 w-2 rounded-full bg-indigo-600" />
+                  <span className="mt-1.5 h-2 w-2 rounded-full bg-brand" />
                 )}
               </div>
             </div>
@@ -145,7 +145,7 @@ export default function NotificationsPage() {
               <button
                 onClick={loadMore}
                 disabled={loading}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-lg border border-input-border px-4 py-2 text-sm font-medium text-text-primary hover:bg-hover-bg disabled:opacity-50"
               >
                 {loading ? "読み込み中..." : "もっと見る"}
               </button>

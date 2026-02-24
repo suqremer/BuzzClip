@@ -83,10 +83,10 @@ function AvatarEditor({
           <img
             src={avatarUrl}
             alt={displayName}
-            className="h-20 w-20 rounded-full object-cover ring-2 ring-gray-200 group-hover:ring-indigo-400"
+            className="h-20 w-20 rounded-full object-cover ring-2 ring-border-main group-hover:ring-brand"
           />
         ) : (
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-100 text-2xl font-bold text-indigo-600 ring-2 ring-gray-200 group-hover:ring-indigo-400">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-medium text-2xl font-bold text-brand-text ring-2 ring-border-main group-hover:ring-brand">
             {displayName.charAt(0).toUpperCase()}
           </div>
         )}
@@ -111,7 +111,7 @@ function AvatarEditor({
         <button
           onClick={handleDelete}
           disabled={uploading}
-          className="text-xs text-gray-400 hover:text-red-500"
+          className="text-xs text-text-muted hover:text-red-500"
         >
           画像を削除
         </button>
@@ -159,13 +159,13 @@ function DisplayNameEditor({
   if (!editing) {
     return (
       <div className="flex items-center gap-2">
-        <p className="text-gray-500">{currentName}</p>
+        <p className="text-text-secondary">{currentName}</p>
         <button
           onClick={() => {
             setName(currentName);
             setEditing(true);
           }}
-          className="text-gray-400 hover:text-indigo-600"
+          className="text-text-muted hover:text-brand-text"
           title="名前を変更"
         >
           <svg
@@ -190,7 +190,7 @@ function DisplayNameEditor({
           onChange={(e) => setName(e.target.value)}
           maxLength={50}
           autoFocus
-          className="rounded border border-gray-300 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="rounded border border-input-border px-2 py-1 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           onKeyDown={(e) => {
             if (e.key === "Enter") handleSave();
             if (e.key === "Escape") setEditing(false);
@@ -199,13 +199,13 @@ function DisplayNameEditor({
         <button
           onClick={handleSave}
           disabled={saving}
-          className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+          className="rounded bg-brand px-3 py-1 text-xs font-medium text-white hover:bg-brand-hover disabled:opacity-50"
         >
           {saving ? "..." : "保存"}
         </button>
         <button
           onClick={() => setEditing(false)}
-          className="rounded border border-gray-300 px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50"
+          className="rounded border border-input-border px-3 py-1 text-xs font-medium text-text-primary hover:bg-hover-bg"
         >
           取消
         </button>
@@ -258,21 +258,21 @@ function VideoEditForm({
   };
 
   return (
-    <div className="rounded-xl border border-indigo-200 bg-indigo-50/30 p-4">
-      <p className="mb-3 text-sm font-medium text-gray-700">投稿を編集</p>
+    <div className="rounded-xl border border-brand-medium bg-brand-light/30 p-4">
+      <p className="mb-3 text-sm font-medium text-text-primary">投稿を編集</p>
       <div className="mb-3">
-        <label className="mb-1 block text-xs text-gray-500">コメント（200文字以内）</label>
+        <label className="mb-1 block text-xs text-text-secondary">コメント（200文字以内）</label>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           maxLength={200}
           rows={2}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="w-full rounded-lg border border-input-border px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           placeholder="コメントを入力..."
         />
       </div>
       <div className="mb-4">
-        <label className="mb-1 block text-xs text-gray-500">カテゴリ（最大3つ）</label>
+        <label className="mb-1 block text-xs text-text-secondary">カテゴリ（最大3つ）</label>
         <div className="flex flex-wrap gap-1.5">
           {CATEGORIES.map((cat) => {
             const selected = selectedSlugs.includes(cat.slug);
@@ -283,8 +283,8 @@ function VideoEditForm({
                 onClick={() => toggleCategory(cat.slug)}
                 className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
                   selected
-                    ? "bg-indigo-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    ? "bg-brand text-white"
+                    : "bg-chip-bg text-text-primary hover:bg-chip-hover"
                 }`}
               >
                 {cat.icon} {cat.nameJa}
@@ -298,13 +298,13 @@ function VideoEditForm({
         <button
           onClick={handleSave}
           disabled={saving}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+          className="rounded-lg bg-brand px-4 py-2 text-xs font-medium text-white hover:bg-brand-hover disabled:opacity-50"
         >
           {saving ? "保存中..." : "保存"}
         </button>
         <button
           onClick={onCancel}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50"
+          className="rounded-lg border border-input-border px-4 py-2 text-xs font-medium text-text-primary hover:bg-hover-bg"
         >
           キャンセル
         </button>
@@ -368,7 +368,7 @@ export default function MyPage() {
   if (authLoading || loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
       </div>
     );
   }
@@ -384,13 +384,13 @@ export default function MyPage() {
   if (!user) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold text-gray-800">ログインが必要です</h1>
-        <p className="mt-3 text-gray-500">
+        <h1 className="text-2xl font-bold text-text-heading">ログインが必要です</h1>
+        <p className="mt-3 text-text-secondary">
           マイページを表示するにはログインしてください。
         </p>
         <Link
           href="/auth/signin"
-          className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700"
+          className="mt-6 inline-block rounded-lg bg-brand px-6 py-3 text-sm font-medium text-white hover:bg-brand-hover"
         >
           ログインする
         </Link>
@@ -440,7 +440,7 @@ export default function MyPage() {
             ))}
           </div>
         ) : (
-          <p className="py-8 text-center text-gray-400">
+          <p className="py-8 text-center text-text-muted">
             まだ動画を投稿していません。
           </p>
         )}
@@ -456,7 +456,7 @@ export default function MyPage() {
             ))}
           </div>
         ) : (
-          <p className="py-8 text-center text-gray-400">
+          <p className="py-8 text-center text-text-muted">
             まだ動画にいいねしていません。
           </p>
         )}
@@ -472,7 +472,7 @@ export default function MyPage() {
       <section className="mt-10">
         <Link
           href="/feedback"
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50"
+          className="inline-flex items-center gap-2 rounded-lg border border-border-main px-4 py-2.5 text-sm font-medium text-text-primary transition hover:bg-hover-bg"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -527,7 +527,7 @@ function PlaylistManagement() {
           onChange={(e) => setNewName(e.target.value)}
           placeholder="新しいリスト名"
           maxLength={100}
-          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="flex-1 rounded-lg border border-input-border px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           onKeyDown={(e) => {
             if (e.key === "Enter") handleCreate();
           }}
@@ -535,7 +535,7 @@ function PlaylistManagement() {
         <button
           onClick={handleCreate}
           disabled={creating || !newName.trim()}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+          className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50"
         >
           作成
         </button>
@@ -545,7 +545,7 @@ function PlaylistManagement() {
       )}
       {loading ? (
         <div className="flex justify-center py-4">
-          <div className="h-6 w-6 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+          <div className="h-6 w-6 animate-spin rounded-full border-4 border-brand-medium border-t-brand" />
         </div>
       ) : playlists.length === 0 ? (
         <p className="py-4 text-center text-sm text-gray-400">リストはまだありません。</p>
@@ -555,13 +555,13 @@ function PlaylistManagement() {
             <Link
               key={pl.id}
               href={`/list/${pl.id}`}
-              className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3 transition hover:bg-gray-50"
+              className="flex items-center justify-between rounded-lg border border-border-main px-4 py-3 transition hover:bg-hover-bg"
             >
               <div>
-                <span className="text-sm font-medium text-gray-700">{pl.name}</span>
-                <span className="ml-2 text-xs text-gray-400">{pl.video_count}件</span>
+                <span className="text-sm font-medium text-text-primary">{pl.name}</span>
+                <span className="ml-2 text-xs text-text-muted">{pl.video_count}件</span>
               </div>
-              <span className="text-xs text-gray-400">{pl.is_public ? "公開" : "非公開"}</span>
+              <span className="text-xs text-text-muted">{pl.is_public ? "公開" : "非公開"}</span>
             </Link>
           ))}
         </div>
@@ -576,7 +576,7 @@ function CategoryVisibilitySettings() {
   return (
     <section className="mt-10">
       <h2 className="mb-2 text-lg font-bold">カテゴリ表示設定</h2>
-      <p className="mb-4 text-sm text-gray-500">
+      <p className="mb-4 text-sm text-text-secondary">
         苦手なジャンルを非表示にできます。非表示にしたカテゴリはランキングのタブから消え、「すべて」表示でもフィルタされます。
       </p>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -588,14 +588,14 @@ function CategoryVisibilitySettings() {
               onClick={() => toggleHiddenCategory(cat.slug)}
               className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition ${
                 hidden
-                  ? "border-gray-200 bg-gray-50 text-gray-400 line-through"
-                  : "border-indigo-200 bg-white text-gray-700 hover:border-indigo-400"
+                  ? "border-border-main bg-surface-secondary text-text-muted line-through"
+                  : "border-brand-medium bg-surface text-text-primary hover:border-brand"
               }`}
             >
               <span className="text-base">{cat.icon}</span>
               <span className="flex-1 text-left">{cat.nameJa}</span>
               {hidden ? (
-                <svg className="h-4 w-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="h-4 w-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.11 6.11m3.769 3.769l4.242 4.242M6.11 6.11L3 3m3.11 3.11l4.243 4.243m4.242 4.242L21 21" />
                 </svg>
               ) : (
@@ -637,12 +637,12 @@ function MuteManagement() {
   return (
     <section className="mt-10">
       <h2 className="mb-2 text-lg font-bold">ミュート中のユーザー</h2>
-      <p className="mb-4 text-sm text-gray-500">
+      <p className="mb-4 text-sm text-text-secondary">
         ミュートしたユーザーの投稿はランキングに表示されなくなります。
       </p>
       {loading ? (
         <div className="flex justify-center py-4">
-          <div className="h-6 w-6 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+          <div className="h-6 w-6 animate-spin rounded-full border-4 border-brand-medium border-t-brand" />
         </div>
       ) : mutedUsers.length === 0 ? (
         <p className="py-4 text-center text-sm text-gray-400">
@@ -651,20 +651,20 @@ function MuteManagement() {
       ) : (
         <div className="space-y-2">
           {mutedUsers.map((mu) => (
-            <div key={mu.id} className="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3">
+            <div key={mu.id} className="flex items-center justify-between rounded-lg border border-border-main px-4 py-3">
               <div className="flex items-center gap-3">
                 {mu.avatar_url ? (
                   <img src={mu.avatar_url} alt={mu.display_name} className="h-8 w-8 rounded-full object-cover" loading="lazy" />
                 ) : (
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-medium text-sm font-bold text-brand-text">
                     {mu.display_name.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="text-sm font-medium text-gray-700">{mu.display_name}</span>
+                <span className="text-sm font-medium text-text-primary">{mu.display_name}</span>
               </div>
               <button
                 onClick={() => handleUnmute(mu.id)}
-                className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-medium text-gray-600 transition hover:bg-gray-50"
+                className="rounded-lg border border-input-border px-3 py-1 text-xs font-medium text-text-primary transition hover:bg-hover-bg"
               >
                 ミュート解除
               </button>

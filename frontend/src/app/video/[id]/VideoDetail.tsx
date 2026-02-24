@@ -47,7 +47,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
       </div>
     );
   }
@@ -55,10 +55,10 @@ export default function VideoDetail({ id }: VideoDetailProps) {
   if (error || !video) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <p className="text-lg text-gray-500">{error || "動画が見つかりません"}</p>
+        <p className="text-lg text-text-secondary">{error || "動画が見つかりません"}</p>
         <Link
           href="/ranking"
-          className="mt-4 inline-block text-sm font-medium text-indigo-600 hover:underline"
+          className="mt-4 inline-block text-sm font-medium text-brand-text hover:underline"
         >
           ランキングに戻る
         </Link>
@@ -70,7 +70,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
     <div className="mx-auto max-w-3xl px-4 py-8">
       <Link
         href="/ranking"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-indigo-600"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-text-secondary hover:text-brand-text"
       >
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -79,21 +79,21 @@ export default function VideoDetail({ id }: VideoDetailProps) {
       </Link>
 
       {/* Video Embed */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-border-main bg-surface shadow-sm">
         {video.oembed_html && (
           <div className="p-4">
             <VideoEmbed oembedHtml={video.oembed_html} platform={video.platform} />
           </div>
         )}
 
-        <div className="border-t border-gray-100 px-5 py-4">
+        <div className="border-t border-border-light px-5 py-4">
           {/* Categories */}
           <div className="mb-3 flex flex-wrap gap-2">
             {video.categories.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/ranking?category=${cat.slug}`}
-                className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-600 transition hover:bg-indigo-100"
+                className="rounded-full bg-brand-light px-3 py-1 text-sm font-medium text-brand-text transition hover:bg-brand-medium"
               >
                 {cat.icon} {cat.name_ja}
               </Link>
@@ -116,7 +116,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
 
           {/* Comment */}
           {video.comment && (
-            <p className="mb-3 text-sm text-gray-600">{video.comment}</p>
+            <p className="mb-3 text-sm text-text-primary">{video.comment}</p>
           )}
 
           {/* Vote Button (large) */}
@@ -133,7 +133,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
             {video.submitted_by && (
               <Link
                 href={`/user/${video.submitted_by.id}`}
-                className="text-sm text-gray-400 hover:text-indigo-500 hover:underline"
+                className="text-sm text-text-muted hover:text-brand-text hover:underline"
               >
                 投稿: {video.submitted_by.display_name}
               </Link>
@@ -141,7 +141,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
           </div>
 
           {/* Report */}
-          <div className="border-t border-gray-100 px-5 py-3">
+          <div className="border-t border-border-light px-5 py-3">
             <ReportButton videoId={video.id} />
           </div>
         </div>

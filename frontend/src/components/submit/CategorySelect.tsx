@@ -18,7 +18,7 @@ export function CategorySelect({ selected, onChange }: CategorySelectProps) {
 
   return (
     <div>
-      <p className="mb-2 text-sm font-medium text-gray-700">
+      <p className="mb-2 text-sm font-medium text-text-primary">
         カテゴリを選択（最大3つ）
       </p>
       <div className="flex flex-wrap gap-2">
@@ -28,8 +28,8 @@ export function CategorySelect({ selected, onChange }: CategorySelectProps) {
             onClick={() => toggle(cat.slug)}
             className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
               selected.includes(cat.slug)
-                ? "bg-indigo-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-brand text-white"
+                : "bg-chip-bg text-text-primary hover:bg-chip-hover"
             }`}
           >
             {cat.icon} {cat.nameJa}

@@ -39,20 +39,20 @@ export default function SignInPage() {
   return (
     <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <div className="mb-6 flex rounded-lg bg-gray-100 p-1">
-          <div className="flex-1 rounded-md bg-white px-4 py-2 text-center text-sm font-bold text-gray-900 shadow-sm">
+        <div className="mb-6 flex rounded-lg bg-chip-bg p-1">
+          <div className="flex-1 rounded-md bg-surface px-4 py-2 text-center text-sm font-bold text-text-heading shadow-sm">
             ログイン
           </div>
           <Link
             href="/auth/signup"
-            className="flex-1 rounded-md px-4 py-2 text-center text-sm font-medium text-gray-500 transition hover:text-gray-700"
+            className="flex-1 rounded-md px-4 py-2 text-center text-sm font-medium text-text-secondary transition hover:text-text-primary"
           >
             新規登録
           </Link>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="signin-email" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="signin-email" className="mb-1 block text-sm font-medium text-text-primary">
               メールアドレス
             </label>
             <input
@@ -61,12 +61,12 @@ export default function SignInPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-input-border px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               placeholder="mail@example.com"
             />
           </div>
           <div>
-            <label htmlFor="signin-password" className="mb-1 block text-sm font-medium text-gray-700">
+            <label htmlFor="signin-password" className="mb-1 block text-sm font-medium text-text-primary">
               パスワード
             </label>
             <input
@@ -75,7 +75,7 @@ export default function SignInPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="w-full rounded-lg border border-input-border px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               placeholder="••••••••"
             />
           </div>
@@ -83,25 +83,25 @@ export default function SignInPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+            className="w-full rounded-lg bg-brand py-2.5 text-sm font-bold text-white transition hover:bg-brand-hover disabled:opacity-50"
           >
             {loading ? "ログイン中..." : "ログイン"}
           </button>
         </form>
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200" />
+            <div className="w-full border-t border-border-main" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-white px-4 text-gray-400">または</span>
+            <span className="bg-background px-4 text-text-muted">または</span>
           </div>
         </div>
         <GoogleLoginButton />
-        <p className="mt-4 text-center text-sm text-gray-500">
+        <p className="mt-4 text-center text-sm text-text-secondary">
           アカウントがない？{" "}
           <Link
             href="/auth/signup"
-            className="font-medium text-indigo-600 hover:underline"
+            className="font-medium text-brand-text hover:underline"
           >
             新規登録
           </Link>

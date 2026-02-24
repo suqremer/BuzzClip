@@ -42,7 +42,7 @@ export function UrlInput({ onValidUrl }: UrlInputProps) {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="動画のURLを貼り付け（X, YouTube, TikTok）"
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="w-full rounded-lg border border-input-border px-4 py-2.5 pr-10 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
         {detectedPlatform && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-lg" title={detectedPlatform.platform}>

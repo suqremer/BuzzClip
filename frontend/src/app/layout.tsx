@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PreferencesProvider } from "@/contexts/PreferencesContext";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { AdSense } from "@/components/AdSense";
 import "./globals.css";
@@ -38,18 +39,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" suppressHydrationWarning>
       <GoogleAnalytics />
       <AdSense />
       <body className={`${notoSansJP.variable} font-sans antialiased`}>
-        <AuthProvider>
-          <PreferencesProvider>
-            <Header />
-            <main className="min-h-screen pb-16 md:pb-0">{children}</main>
-            <Footer />
-            <BottomNav />
-          </PreferencesProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <PreferencesProvider>
+              <Header />
+              <main className="min-h-screen pb-16 md:pb-0">{children}</main>
+              <Footer />
+              <BottomNav />
+            </PreferencesProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

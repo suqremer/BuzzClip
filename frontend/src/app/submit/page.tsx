@@ -24,7 +24,7 @@ export default function SubmitPage() {
   if (authLoading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" role="status" aria-label="読み込み中" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
       </div>
     );
   }
@@ -32,13 +32,13 @@ export default function SubmitPage() {
   if (!user) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold text-gray-800">ログインが必要です</h1>
-        <p className="mt-3 text-gray-500">
+        <h1 className="text-2xl font-bold text-text-heading">ログインが必要です</h1>
+        <p className="mt-3 text-text-secondary">
           動画を投稿するにはログインしてください。
         </p>
         <Link
           href="/auth/signin"
-          className="mt-6 inline-block rounded-lg bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700"
+          className="mt-6 inline-block rounded-lg bg-brand px-6 py-3 text-sm font-medium text-white hover:bg-brand-hover"
         >
           ログインする
         </Link>
@@ -73,15 +73,15 @@ export default function SubmitPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="mb-2 text-2xl font-bold">動画を投稿</h1>
-      <p className="mb-8 text-sm text-gray-500">
+      <p className="mb-8 text-sm text-text-secondary">
         X, YouTube, TikTokの動画URLを貼り付けて、カテゴリを選んで投稿しよう。
       </p>
 
       <div className="space-y-6">
         {/* Step 1: URL */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-border-main bg-surface p-5 shadow-sm">
           <div className="mb-3 flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               1
             </span>
             <span className="font-medium">動画URLを入力</span>
@@ -95,9 +95,9 @@ export default function SubmitPage() {
         </div>
 
         {/* Step 2: Category */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-border-main bg-surface p-5 shadow-sm">
           <div className="mb-3 flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               2
             </span>
             <span className="font-medium">カテゴリを選択</span>
@@ -106,9 +106,9 @@ export default function SubmitPage() {
         </div>
 
         {/* Step 3: Comment */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-border-main bg-surface p-5 shadow-sm">
           <div className="mb-3 flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               3
             </span>
             <label htmlFor="comment-input" className="font-medium">ひとこと（任意）</label>
@@ -120,9 +120,9 @@ export default function SubmitPage() {
             maxLength={200}
             rows={2}
             placeholder="おすすめポイントなど #タグ も使えます"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-input-border px-3 py-2 text-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-text-muted">
             {comment.length}/200　#を付けるとタグになります（最大5つ）
           </p>
         </div>
@@ -134,7 +134,7 @@ export default function SubmitPage() {
         <button
           onClick={handleSubmit}
           disabled={!url || categories.length === 0 || submitting}
-          className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-white shadow-lg transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? "投稿中..." : "投稿する"}
         </button>

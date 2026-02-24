@@ -38,20 +38,20 @@ export default function HomePage() {
           <h2 className="text-center text-2xl font-bold sm:text-3xl">
             かんたん3ステップ
           </h2>
-          <p className="mt-3 text-center text-gray-500">
+          <p className="mt-3 text-center text-text-secondary">
             バズ動画をみんなでシェアして、ランキングをつくろう
           </p>
           <div className="mt-14 grid gap-10 sm:grid-cols-3 sm:gap-8">
             {/* Step 1 */}
             <div className="text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100 text-3xl">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-medium text-3xl">
                 🔍
               </div>
-              <div className="mt-2 text-sm font-bold text-indigo-600">
+              <div className="mt-2 text-sm font-bold text-brand-text">
                 Step 1
               </div>
               <h3 className="mt-2 text-lg font-bold">見つける</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-500">
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
                 バズっている動画の
                 <br />
                 URLをコピー
@@ -59,14 +59,14 @@ export default function HomePage() {
             </div>
             {/* Step 2 */}
             <div className="text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100 text-3xl">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-medium text-3xl">
                 📋
               </div>
-              <div className="mt-2 text-sm font-bold text-indigo-600">
+              <div className="mt-2 text-sm font-bold text-brand-text">
                 Step 2
               </div>
               <h3 className="mt-2 text-lg font-bold">投稿する</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-500">
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
                 BuzzClipにURLを貼るだけ
                 <br />
                 カテゴリを選択
@@ -74,14 +74,14 @@ export default function HomePage() {
             </div>
             {/* Step 3 */}
             <div className="text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-100 text-3xl">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-medium text-3xl">
                 🚀
               </div>
-              <div className="mt-2 text-sm font-bold text-indigo-600">
+              <div className="mt-2 text-sm font-bold text-brand-text">
                 Step 3
               </div>
               <h3 className="mt-2 text-lg font-bold">みんなで育てる</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-500">
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
                 いいねで動画が
                 <br />
                 ランキングUP
@@ -92,12 +92,12 @@ export default function HomePage() {
       </section>
 
       {/* Category Showcase */}
-      <section className="bg-gray-50 px-4 py-20 sm:py-24">
+      <section className="bg-surface-secondary px-4 py-20 sm:py-24">
         <div className="mx-auto max-w-4xl">
           <h2 className="text-center text-2xl font-bold sm:text-3xl">
             カテゴリから探す
           </h2>
-          <p className="mt-3 text-center text-gray-500">
+          <p className="mt-3 text-center text-text-secondary">
             気になるジャンルのバズ動画をチェック
           </p>
           <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
@@ -105,12 +105,12 @@ export default function HomePage() {
               <Link
                 key={cat.slug}
                 href={`/ranking?category=${cat.slug}`}
-                className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
+                className="flex items-center gap-3 rounded-xl bg-surface p-4 shadow-sm transition hover:shadow-md hover:-translate-y-0.5"
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-xl">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-light text-xl">
                   {cat.icon}
                 </span>
-                <span className="text-sm font-semibold text-gray-700">
+                <span className="text-sm font-semibold text-text-primary">
                   {cat.nameJa}
                 </span>
               </Link>
@@ -124,19 +124,19 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold sm:text-3xl">
           今すぐバズ動画を探そう
         </h2>
-        <p className="mx-auto mt-4 max-w-md text-gray-500">
+        <p className="mx-auto mt-4 max-w-md text-text-secondary">
           毎日更新されるランキングで、話題の動画を見逃さない。
         </p>
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/ranking"
-            className="inline-block rounded-full bg-indigo-600 px-10 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-indigo-700"
+            className="inline-block rounded-full bg-brand px-10 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-brand-hover"
           >
             ランキングを見る
           </Link>
           <Link
             href="/guide"
-            className="inline-block rounded-full border-2 border-gray-300 px-8 py-3.5 text-base font-bold text-gray-600 transition hover:border-indigo-400 hover:text-indigo-600"
+            className="inline-block rounded-full border-2 border-input-border px-8 py-3.5 text-base font-bold text-text-primary transition hover:border-brand hover:text-brand-text"
           >
             使い方を見る
           </Link>

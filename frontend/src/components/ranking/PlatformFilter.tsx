@@ -28,8 +28,8 @@ export function PlatformFilter({
         onClick={() => onPlatformsChange([])}
         className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
           isAll
-            ? "bg-indigo-600 text-white"
-            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            ? "bg-brand text-white"
+            : "bg-chip-bg text-text-primary hover:bg-chip-hover"
         }`}
       >
         すべて
@@ -40,8 +40,8 @@ export function PlatformFilter({
           onClick={() => handleToggle(p.value)}
           className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
             selectedPlatforms.includes(p.value)
-              ? "bg-indigo-600 text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-brand text-white"
+              : "bg-chip-bg text-text-primary hover:bg-chip-hover"
           }`}
         >
           {p.icon} {p.label}

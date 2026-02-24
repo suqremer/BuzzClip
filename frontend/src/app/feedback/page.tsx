@@ -42,7 +42,7 @@ export default function FeedbackPage() {
           ✓
         </div>
         <h1 className="mt-4 text-2xl font-bold">ありがとうございます！</h1>
-        <p className="mt-2 text-gray-500">
+        <p className="mt-2 text-text-secondary">
           フィードバックを受け付けました。今後の改善に活用させていただきます。
         </p>
         <button
@@ -50,7 +50,7 @@ export default function FeedbackPage() {
             setSubmitted(false);
             setBody("");
           }}
-          className="mt-6 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-indigo-700"
+          className="mt-6 rounded-lg bg-brand px-6 py-2.5 text-sm font-medium text-white hover:bg-brand-hover"
         >
           もう一件送る
         </button>
@@ -61,13 +61,13 @@ export default function FeedbackPage() {
   return (
     <div className="mx-auto max-w-lg px-4 py-12">
       <h1 className="text-2xl font-bold">フィードバック</h1>
-      <p className="mt-2 text-sm text-gray-500">
+      <p className="mt-2 text-sm text-text-secondary">
         BuzzClipの改善にご協力ください。バグ報告や機能リクエストなど、なんでもお気軽にどうぞ。
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-5">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">カテゴリ</label>
+          <label className="mb-1 block text-sm font-medium text-text-primary">カテゴリ</label>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => (
               <button
@@ -76,8 +76,8 @@ export default function FeedbackPage() {
                 onClick={() => setCategory(cat.value)}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                   category === cat.value
-                    ? "bg-indigo-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    ? "bg-brand text-white"
+                    : "bg-chip-bg text-text-primary hover:bg-chip-hover"
                 }`}
               >
                 {cat.label}
@@ -87,7 +87,7 @@ export default function FeedbackPage() {
         </div>
 
         <div>
-          <label htmlFor="body" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="body" className="mb-1 block text-sm font-medium text-text-primary">
             内容
           </label>
           <textarea
@@ -97,9 +97,9 @@ export default function FeedbackPage() {
             rows={5}
             maxLength={2000}
             placeholder="詳しく教えてください..."
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-input-border px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
-          <p className="mt-1 text-right text-xs text-gray-400">{body.length}/2000</p>
+          <p className="mt-1 text-right text-xs text-text-muted">{body.length}/2000</p>
         </div>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
@@ -107,7 +107,7 @@ export default function FeedbackPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-lg bg-indigo-600 py-3 text-sm font-bold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+          className="w-full rounded-lg bg-brand py-3 text-sm font-bold text-white transition hover:bg-brand-hover disabled:opacity-50"
         >
           {submitting ? "送信中..." : "送信する"}
         </button>
