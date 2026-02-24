@@ -39,16 +39,18 @@ export function Header() {
           ) : user ? (
             <div className="flex items-center gap-3">
               <NotificationBell />
-              {user.avatar_url ? (
-                <img src={user.avatar_url} alt={user.display_name} className="h-7 w-7 rounded-full object-cover" />
-              ) : (
-                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
-                  {user.display_name.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <span className="text-sm font-medium text-gray-700">
-                {user.display_name}
-              </span>
+              <Link href="/mypage" className="flex items-center gap-2 rounded-lg px-2 py-1 transition hover:bg-gray-100">
+                {user.avatar_url ? (
+                  <img src={user.avatar_url} alt={user.display_name} className="h-7 w-7 rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
+                    {user.display_name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span className="text-sm font-medium text-gray-700">
+                  {user.display_name}
+                </span>
+              </Link>
               <button
                 onClick={logout}
                 className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-600 transition hover:bg-gray-50"
@@ -107,7 +109,7 @@ export function Header() {
           )}
           {user ? (
             <>
-              <div className="flex items-center gap-2 border-t border-gray-100 py-2 text-sm text-gray-500">
+              <Link href="/mypage" className="flex items-center gap-2 border-t border-gray-100 py-2 text-sm text-gray-500" onClick={() => setMenuOpen(false)}>
                 {user.avatar_url ? (
                   <img src={user.avatar_url} alt={user.display_name} className="h-6 w-6 rounded-full object-cover" />
                 ) : (
@@ -116,7 +118,7 @@ export function Header() {
                   </div>
                 )}
                 {user.display_name}
-              </div>
+              </Link>
               <button
                 onClick={() => { logout(); setMenuOpen(false); }}
                 className="block w-full py-2 text-left text-red-500"
