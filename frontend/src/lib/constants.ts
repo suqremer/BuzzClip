@@ -1,5 +1,6 @@
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// All API requests go through Next.js rewrites (same-origin proxy).
+// This avoids cross-origin cookie issues on mobile Safari (ITP).
+export const API_URL = "";
 
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://buzzclip.jp";

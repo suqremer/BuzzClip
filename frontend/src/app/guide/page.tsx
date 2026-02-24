@@ -75,6 +75,37 @@ export default function GuidePage() {
             <p>お気に入りの動画はX(Twitter)やLINEでシェアできます。リンクコピーボタンで簡単にURLを共有！</p>
           </div>
         </section>
+
+        {/* Step 7: ホーム画面に追加 */}
+        <section id="homescreen">
+          <div className="flex items-center gap-3">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">7</span>
+            <h2 className="text-lg font-bold">ホーム画面に追加（スマホ）</h2>
+          </div>
+          <div className="ml-11 mt-2 text-sm leading-relaxed text-gray-600">
+            <p>スマホのホーム画面にBuzzClipを追加すると、アプリのようにワンタップで開けます。</p>
+
+            <div className="mt-4 rounded-lg bg-gray-50 p-4">
+              <p className="mb-2 font-bold text-gray-700">iPhoneの場合（Safari）</p>
+              <ol className="list-inside list-decimal space-y-1 text-gray-600">
+                <li>Safariで <span className="font-medium">buzzclip.jp</span> を開く</li>
+                <li>下部の共有ボタン（□に↑のアイコン）をタップ</li>
+                <li>「ホーム画面に追加」を選択</li>
+                <li>「追加」をタップして完了！</li>
+              </ol>
+            </div>
+
+            <div className="mt-3 rounded-lg bg-gray-50 p-4">
+              <p className="mb-2 font-bold text-gray-700">Androidの場合（Chrome）</p>
+              <ol className="list-inside list-decimal space-y-1 text-gray-600">
+                <li>Chromeで <span className="font-medium">buzzclip.jp</span> を開く</li>
+                <li>右上の「︙」メニューをタップ</li>
+                <li>「ホーム画面に追加」を選択</li>
+                <li>「追加」をタップして完了！</li>
+              </ol>
+            </div>
+          </div>
+        </section>
       </div>
 
       <div className="mt-12 rounded-xl bg-indigo-50 p-6 text-center">

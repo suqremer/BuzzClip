@@ -45,7 +45,17 @@ export default function SignUpPage() {
   return (
     <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="mb-8 text-center text-2xl font-bold">新規登録</h1>
+        <div className="mb-6 flex rounded-lg bg-gray-100 p-1">
+          <Link
+            href="/auth/signin"
+            className="flex-1 rounded-md px-4 py-2 text-center text-sm font-medium text-gray-500 transition hover:text-gray-700"
+          >
+            ログイン
+          </Link>
+          <div className="flex-1 rounded-md bg-white px-4 py-2 text-center text-sm font-bold text-gray-900 shadow-sm">
+            新規登録
+          </div>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="signup-display-name" className="mb-1 block text-sm font-medium text-gray-700">
@@ -60,6 +70,7 @@ export default function SignUpPage() {
               className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               placeholder="BuzzClipユーザー"
             />
+            <p className="mt-1 text-xs text-gray-400">あとからでも変更できます</p>
           </div>
           <div>
             <label htmlFor="signup-email" className="mb-1 block text-sm font-medium text-gray-700">

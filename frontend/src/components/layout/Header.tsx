@@ -13,12 +13,12 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-        <Link href="/" className="text-xl font-bold text-indigo-600">
+      <div className="mx-auto flex h-14 max-w-5xl items-center px-4">
+        <Link href="/" className="shrink-0 text-xl font-bold text-indigo-600">
           BuzzClip
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden flex-1 items-center justify-center gap-6 md:flex">
           <Link href="/ranking" className="text-sm font-medium text-gray-700 hover:text-indigo-600">
             ランキング
           </Link>
@@ -26,7 +26,7 @@ export function Header() {
           <SubmitPopover />
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden shrink-0 md:block">
           {loading ? (
             <div className="h-8 w-16" />
           ) : user ? (
@@ -70,7 +70,7 @@ export function Header() {
         </div>
 
         <button
-          className="md:hidden"
+          className="ml-auto md:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="メニュー"
         >

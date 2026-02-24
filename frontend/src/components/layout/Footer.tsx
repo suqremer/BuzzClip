@@ -6,6 +6,7 @@ export function Footer() {
       <div className="mx-auto max-w-5xl px-4">
         <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500">
           <Link href="/guide" className="hover:text-indigo-600">使い方</Link>
+          <Link href="/guide#homescreen" className="hover:text-indigo-600">ホーム画面に追加</Link>
           <Link href="/feedback" className="hover:text-indigo-600">フィードバック</Link>
         </div>
         <p className="mt-3 text-center text-sm text-gray-400">

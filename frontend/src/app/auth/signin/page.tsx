@@ -39,7 +39,17 @@ export default function SignInPage() {
   return (
     <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="mb-8 text-center text-2xl font-bold">ログイン</h1>
+        <div className="mb-6 flex rounded-lg bg-gray-100 p-1">
+          <div className="flex-1 rounded-md bg-white px-4 py-2 text-center text-sm font-bold text-gray-900 shadow-sm">
+            ログイン
+          </div>
+          <Link
+            href="/auth/signup"
+            className="flex-1 rounded-md px-4 py-2 text-center text-sm font-medium text-gray-500 transition hover:text-gray-700"
+          >
+            新規登録
+          </Link>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="signin-email" className="mb-1 block text-sm font-medium text-gray-700">

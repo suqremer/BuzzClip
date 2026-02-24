@@ -31,7 +31,10 @@ def _google_configured() -> bool:
 
 
 def _redirect_uri() -> str:
-    return f"{settings.backend_url}/api/auth/google/callback"
+    # Use frontend URL so the callback goes through the Next.js proxy.
+    # This ensures cookies are set on the frontend domain (first-party),
+    # avoiding Safari ITP / third-party cookie blocking.
+    return f"{settings.frontend_url}/api/auth/google/callback"
 
 
 def _create_state_token() -> str:
