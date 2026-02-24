@@ -56,7 +56,7 @@ function GoogleCallbackContent() {
     return (
       <div className="text-center">
         <p className="mb-4 text-red-500">{error}</p>
-        <a href="/auth/signin" className="text-indigo-600 hover:underline">
+        <a href="/auth/signin" className="text-brand-text hover:underline">
           ログインページに戻る
         </a>
       </div>
@@ -66,11 +66,11 @@ function GoogleCallbackContent() {
   return (
     <div className="text-center">
       <div
-        className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"
+        className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand"
         role="status"
         aria-label="認証中"
       />
-      <p className="text-gray-500">Google認証中...</p>
+      <p className="text-text-secondary">Google認証中...</p>
     </div>
   );
 }
@@ -81,8 +81,8 @@ export default function GoogleCallbackPage() {
       <Suspense
         fallback={
           <div className="text-center">
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
-            <p className="text-gray-500">読み込み中...</p>
+            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" />
+            <p className="text-text-secondary">読み込み中...</p>
           </div>
         }
       >

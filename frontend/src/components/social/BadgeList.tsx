@@ -26,7 +26,7 @@ export function BadgeList({ userId }: BadgeListProps) {
         <span
           key={badge.key}
           title={badge.description}
-          className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700"
+          className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
         >
           <span>{badge.icon}</span>
           {badge.label}

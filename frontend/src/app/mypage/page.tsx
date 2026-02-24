@@ -548,7 +548,7 @@ function PlaylistManagement() {
           <div className="h-6 w-6 animate-spin rounded-full border-4 border-brand-medium border-t-brand" />
         </div>
       ) : playlists.length === 0 ? (
-        <p className="py-4 text-center text-sm text-gray-400">リストはまだありません。</p>
+        <p className="py-4 text-center text-sm text-text-muted">リストはまだありません。</p>
       ) : (
         <div className="space-y-2">
           {playlists.map((pl) => (
@@ -645,7 +645,7 @@ function MuteManagement() {
           <div className="h-6 w-6 animate-spin rounded-full border-4 border-brand-medium border-t-brand" />
         </div>
       ) : mutedUsers.length === 0 ? (
-        <p className="py-4 text-center text-sm text-gray-400">
+        <p className="py-4 text-center text-sm text-text-muted">
           ミュート中のユーザーはいません。
         </p>
       ) : (
