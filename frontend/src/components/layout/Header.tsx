@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/social/NotificationBell";
+import { SearchPopover } from "./SearchPopover";
+import { SubmitPopover } from "./SubmitPopover";
 
 export function Header() {
   const { user, logout, loading } = useAuth();
@@ -16,21 +18,12 @@ export function Header() {
           BuzzClip
         </Link>
 
-        <nav className="hidden gap-6 md:flex">
+        <nav className="hidden items-center gap-6 md:flex">
           <Link href="/ranking" className="text-sm font-medium text-gray-700 hover:text-indigo-600">
             ランキング
           </Link>
-          <Link href="/search" className="text-sm font-medium text-gray-700 hover:text-indigo-600">
-            検索
-          </Link>
-          <Link href="/submit" className="text-sm font-medium text-gray-700 hover:text-indigo-600">
-            投稿する
-          </Link>
-          {user && (
-            <Link href="/mypage" className="text-sm font-medium text-gray-700 hover:text-indigo-600">
-              マイページ
-            </Link>
-          )}
+          <SearchPopover />
+          <SubmitPopover />
         </nav>
 
         <div className="hidden md:block">
