@@ -1,7 +1,7 @@
 "use client";
 
 import DOMPurify from "dompurify";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
@@ -39,7 +39,6 @@ const SANITIZE_CONFIG = {
 };
 
 function sanitizeOembed(html: string): string {
-  // Hook: validate iframe src and add sandbox
   DOMPurify.addHook("uponSanitizeElement", (node) => {
     const el = node as Element;
     if (el.tagName === "IFRAME") {
@@ -54,9 +53,6 @@ function sanitizeOembed(html: string): string {
         el.remove();
         return;
       }
-      // Sandbox: allow-scripts for embed functionality,
-      // allow-popups-to-escape-sandbox for link navigation.
-      // Deliberately omit allow-same-origin to prevent cookie access.
       el.setAttribute(
         "sandbox",
         "allow-scripts allow-popups-to-escape-sandbox"
@@ -88,25 +84,35 @@ function buildFallbackEmbed(platform: string, url?: string, externalId?: string)
 
 export function VideoEmbed({ oembedHtml, platform = "x", url, externalId }: VideoEmbedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const insertedRef = useRef(false);
 
-  const sanitizedHtml = useMemo(() => {
-    if (oembedHtml) return sanitizeOembed(oembedHtml);
-    const fallback = buildFallbackEmbed(platform, url, externalId);
-    return fallback || "";
-  }, [oembedHtml, platform, url, externalId]);
-
+  // Insert HTML via ref once, so React re-renders don't overwrite
+  // the DOM that Twitter/TikTok widgets modify.
   useEffect(() => {
-    if (!sanitizedHtml) return;
+    const el = containerRef.current;
+    if (!el || insertedRef.current) return;
+
+    let html: string;
+    if (oembedHtml) {
+      html = sanitizeOembed(oembedHtml);
+    } else {
+      const fallback = buildFallbackEmbed(platform, url, externalId);
+      if (!fallback) return;
+      html = fallback;
+    }
+
+    el.innerHTML = html;
+    insertedRef.current = true;
+
     if (platform === "x") {
-      loadTwitterWidgets(containerRef.current);
+      loadTwitterWidgets(el);
     } else if (platform === "tiktok") {
       loadTikTokEmbed();
     }
-    // YouTube uses <iframe> — no script needed
-  }, [sanitizedHtml, platform]);
+  }, [oembedHtml, platform, url, externalId]);
 
-  if (!sanitizedHtml) {
-    // Final fallback: show link
+  // If absolutely nothing to show, render a link fallback
+  if (!oembedHtml && !buildFallbackEmbed(platform, url, externalId)) {
     if (url) {
       return (
         <a
@@ -122,13 +128,7 @@ export function VideoEmbed({ oembedHtml, platform = "x", url, externalId }: Vide
     return null;
   }
 
-  return (
-    <div
-      ref={containerRef}
-      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-      className="mx-auto max-w-[550px]"
-    />
-  );
+  return <div ref={containerRef} className="mx-auto max-w-[550px]" />;
 }
 
 function loadTwitterWidgets(container: HTMLElement | null) {
