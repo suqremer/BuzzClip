@@ -93,6 +93,43 @@ async def update_report_status(
     }
 
 
+@router.get("/videos")
+async def list_videos(
+    page: int = Query(1, ge=1),
+    per_page: int = Query(50, ge=1, le=100),
+    admin: User = Depends(get_admin_user),
+    session: AsyncSession = Depends(get_session),
+):
+    query = select(Video)
+
+    count_query = select(func.count()).select_from(query.subquery())
+    total = (await session.execute(count_query)).scalar() or 0
+
+    query = query.order_by(Video.created_at.desc())
+    query = query.offset((page - 1) * per_page).limit(per_page)
+    result = await session.execute(query)
+    videos = list(result.scalars().all())
+
+    return {
+        "items": [
+            {
+                "id": v.id,
+                "title": v.title,
+                "url": v.url,
+                "platform": v.platform,
+                "is_active": v.is_active,
+                "vote_count": v.vote_count,
+                "created_at": v.created_at.isoformat(),
+            }
+            for v in videos
+        ],
+        "total": total,
+        "page": page,
+        "per_page": per_page,
+        "has_next": (page * per_page) < total,
+    }
+
+
 @router.patch("/videos/{video_id}")
 async def update_video_status(
     video_id: str,

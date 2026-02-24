@@ -1,5 +1,10 @@
 from datetime import datetime, timedelta, timezone
 
+
+def _utcnow_naive() -> datetime:
+    """Return current UTC time without tzinfo (for TIMESTAMP WITHOUT TIME ZONE columns)."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,7 +37,7 @@ async def get_trending(
     current_user: User | None = Depends(get_optional_user),
     session: AsyncSession = Depends(get_session),
 ):
-    now = datetime.now(timezone.utc)
+    now = _utcnow_naive()
     one_hour_ago = now - timedelta(hours=1)
     three_hours_ago = now - timedelta(hours=3)
 
@@ -197,7 +202,7 @@ async def get_rankings(
 
     if cutoff_delta is not None:
         # Time-windowed ranking: count votes within period
-        since = datetime.now(timezone.utc) - cutoff_delta
+        since = _utcnow_naive() - cutoff_delta
 
         query = (
             select(
@@ -281,7 +286,7 @@ async def get_rankings(
 async def get_contributor_ranking(
     session: AsyncSession = Depends(get_session),
 ):
-    now = datetime.now(timezone.utc)
+    now = _utcnow_naive()
     week_ago = now - timedelta(weeks=1)
 
     query = (

@@ -29,6 +29,11 @@ class VideoSubmitRequest(BaseModel):
     comment: str | None = Field(default=None, max_length=200)
 
 
+class VideoUpdateRequest(BaseModel):
+    comment: str | None = Field(default=None, max_length=200)
+    category_slugs: list[str] | None = Field(default=None, max_length=3)
+
+
 class VideoResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

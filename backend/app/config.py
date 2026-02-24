@@ -44,7 +44,8 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins(self) -> list[str]:
-        origins = [self.frontend_url]
+        origins = list(_ALLOWED_FRONTEND_ORIGINS)
+        origins.append(self.frontend_url)
         if self.debug:
             origins.append("http://localhost:3000")
         return list(set(origins))

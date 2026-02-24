@@ -10,6 +10,7 @@ YOUTUBE_PATTERNS = [
     re.compile(r"^https?://(www\.)?youtube\.com/shorts/([A-Za-z0-9_-]+)"),
     re.compile(r"^https?://youtu\.be/([A-Za-z0-9_-]+)"),
     re.compile(r"^https?://m\.youtube\.com/watch"),
+    re.compile(r"^https?://m\.youtube\.com/shorts/([A-Za-z0-9_-]+)"),
 ]
 
 TIKTOK_PATTERNS = [
@@ -71,9 +72,10 @@ def _extract_youtube_id(url: str, parsed, match) -> str | None:
     if "youtu.be" in parsed.netloc:
         return match.group(1)
 
-    # youtube.com/shorts/ID
+    # youtube.com/shorts/ID or m.youtube.com/shorts/ID
     if "/shorts/" in parsed.path:
-        return match.group(2)
+        # Mobile shorts pattern has group(1), desktop has group(2)
+        return match.group(match.lastindex)
 
     # youtube.com/watch?v=ID
     qs = parse_qs(parsed.query)

@@ -19,7 +19,7 @@ async def take_vote_snapshots():
             rows = (await session.execute(
                 select(Video.id, Video.vote_count).where(Video.is_active == True)  # noqa: E712
             )).all()
-            now = datetime.now(timezone.utc)
+            now = datetime.now(timezone.utc).replace(tzinfo=None)
             for video_id, vote_count in rows:
                 snapshot = VoteSnapshot(
                     video_id=video_id,

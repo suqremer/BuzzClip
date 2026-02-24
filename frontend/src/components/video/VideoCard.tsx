@@ -11,9 +11,11 @@ import { AddToPlaylistButton } from "./AddToPlaylistButton";
 
 interface VideoCardProps {
   video: Video;
+  onDelete?: (videoId: string) => void;
+  onEdit?: (video: Video) => void;
 }
 
-export const VideoCard = memo(function VideoCard({ video }: VideoCardProps) {
+export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit }: VideoCardProps) {
   const platformInfo = PLATFORMS.find((p) => p.value === video.platform);
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
@@ -60,6 +62,19 @@ export const VideoCard = memo(function VideoCard({ video }: VideoCardProps) {
           />
         </div>
       </div>
+      {video.url && (
+        <div className="border-t border-gray-100 px-4 py-2">
+          <a
+            href={video.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block truncate text-xs text-gray-400 hover:text-indigo-500"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {video.url}
+          </a>
+        </div>
+      )}
       {video.comment && (
         <div className="border-t border-gray-100 px-4 py-2">
           <p className="text-xs text-gray-500">{video.comment}</p>
@@ -80,7 +95,23 @@ export const VideoCard = memo(function VideoCard({ video }: VideoCardProps) {
               {video.submitted_by.display_name}
             </Link>
           </div>
-          <div onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            {onEdit && (
+              <button
+                onClick={() => onEdit(video)}
+                className="text-xs text-gray-400 hover:text-indigo-500"
+              >
+                編集
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(video.id)}
+                className="text-xs text-gray-400 hover:text-red-500"
+              >
+                削除
+              </button>
+            )}
             <MuteButton userId={video.submitted_by.id} displayName={video.submitted_by.display_name} />
           </div>
         </div>

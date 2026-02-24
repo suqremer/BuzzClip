@@ -48,13 +48,13 @@ export default function AdminPage() {
     setLoading(true);
     setError("");
     if (tab === "reports") {
-      apiGet<Report[]>("/api/admin/reports")
-        .then(setReports)
+      apiGet<{ items: Report[] }>("/api/admin/reports")
+        .then((data) => setReports(data.items))
         .catch((e) => setError(e.message || "通報一覧の取得に失敗しました"))
         .finally(() => setLoading(false));
     } else {
-      apiGet<AdminVideo[]>("/api/admin/videos")
-        .then(setVideos)
+      apiGet<{ items: AdminVideo[] }>("/api/admin/videos")
+        .then((data) => setVideos(data.items))
         .catch((e) => setError(e.message || "動画一覧の取得に失敗しました"))
         .finally(() => setLoading(false));
     }

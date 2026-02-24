@@ -16,6 +16,7 @@ from app.schemas.video import (
     VideoListResponse,
     VideoResponse,
     VideoSubmitRequest,
+    VideoUpdateRequest,
 )
 from app.services.auth import get_current_user, get_optional_user
 from app.services.oembed import fetch_oembed
@@ -91,7 +92,7 @@ async def submit_video(
         author_name=oembed_data.get("author_name") if oembed_data else None,
         author_url=oembed_data.get("author_url") if oembed_data else None,
         oembed_html=oembed_data.get("html") if oembed_data else None,
-        title=body.title,
+        title=body.title or (oembed_data.get("title") if oembed_data else None),
         comment=comment,
         submitted_by=current_user.id,
         categories=categories,
@@ -231,3 +232,69 @@ async def get_video(
         user_voted = vote_result.scalar_one_or_none() is not None
 
     return video_to_response(video, user_voted=user_voted)
+
+
+@router.delete("/{video_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_video(
+    video_id: str,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(
+        select(Video).where(Video.id == video_id, Video.is_active == True)  # noqa: E712
+    )
+    video = result.scalar_one_or_none()
+    if video is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="動画が見つかりません",
+        )
+    if video.submitted_by != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="自分が投稿した動画のみ削除できます",
+        )
+    video.is_active = False
+    await session.commit()
+
+
+@router.patch("/{video_id}", response_model=VideoResponse)
+async def update_video(
+    video_id: str,
+    body: VideoUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(
+        select(Video)
+        .where(Video.id == video_id, Video.is_active == True)  # noqa: E712
+        .options(
+            selectinload(Video.submitter),
+            selectinload(Video.categories),
+            selectinload(Video.tags),
+        )
+    )
+    video = result.scalar_one_or_none()
+    if video is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="動画が見つかりません",
+        )
+    if video.submitted_by != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="自分が投稿した動画のみ編集できます",
+        )
+
+    if body.comment is not None:
+        video.comment = body.comment.strip()[:200] or None
+
+    if body.category_slugs is not None:
+        cats_result = await session.execute(
+            select(Category).where(Category.slug.in_(body.category_slugs[:3]))
+        )
+        video.categories = list(cats_result.scalars().all())
+
+    await session.commit()
+    await session.refresh(video, ["submitter", "categories", "tags"])
+    return video_to_response(video)

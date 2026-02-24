@@ -149,8 +149,8 @@ function DisplayNameEditor({
       await apiPatch("/api/auth/me", { display_name: trimmed });
       await onSaved();
       setEditing(false);
-    } catch {
-      setError("名前の変更に失敗しました");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "名前の変更に失敗しました");
     } finally {
       setSaving(false);
     }
@@ -215,11 +215,110 @@ function DisplayNameEditor({
   );
 }
 
+function VideoEditForm({
+  video,
+  onSave,
+  onCancel,
+}: {
+  video: Video;
+  onSave: (updated: Video) => void;
+  onCancel: () => void;
+}) {
+  const [comment, setComment] = useState(video.comment ?? "");
+  const [selectedSlugs, setSelectedSlugs] = useState<string[]>(
+    video.categories.map((c) => c.slug),
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const toggleCategory = (slug: string) => {
+    setSelectedSlugs((prev) =>
+      prev.includes(slug)
+        ? prev.filter((s) => s !== slug)
+        : prev.length < 3
+          ? [...prev, slug]
+          : prev,
+    );
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    setError("");
+    try {
+      const updated = await apiPatch<Video>(`/api/videos/${video.id}`, {
+        comment: comment.trim() || null,
+        category_slugs: selectedSlugs,
+      });
+      onSave(updated);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "編集に失敗しました");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-indigo-200 bg-indigo-50/30 p-4">
+      <p className="mb-3 text-sm font-medium text-gray-700">投稿を編集</p>
+      <div className="mb-3">
+        <label className="mb-1 block text-xs text-gray-500">コメント（200文字以内）</label>
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          maxLength={200}
+          rows={2}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          placeholder="コメントを入力..."
+        />
+      </div>
+      <div className="mb-4">
+        <label className="mb-1 block text-xs text-gray-500">カテゴリ（最大3つ）</label>
+        <div className="flex flex-wrap gap-1.5">
+          {CATEGORIES.map((cat) => {
+            const selected = selectedSlugs.includes(cat.slug);
+            return (
+              <button
+                key={cat.slug}
+                type="button"
+                onClick={() => toggleCategory(cat.slug)}
+                className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
+                  selected
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {cat.icon} {cat.nameJa}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      {error && <p className="mb-2 text-xs text-red-500">{error}</p>}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+        >
+          {saving ? "保存中..." : "保存"}
+        </button>
+        <button
+          onClick={onCancel}
+          className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50"
+        >
+          キャンセル
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function MyPage() {
   const { user, loading: authLoading, refreshUser } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [editingVideoId, setEditingVideoId] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -233,6 +332,38 @@ export default function MyPage() {
       .catch(() => setError("プロフィールの取得に失敗しました"))
       .finally(() => setLoading(false));
   }, [user, authLoading]);
+
+  const handleDeleteVideo = async (videoId: string) => {
+    if (!confirm("この投稿を削除しますか？")) return;
+    try {
+      await apiDelete(`/api/videos/${videoId}`);
+      setProfile((prev) =>
+        prev
+          ? { ...prev, submitted_videos: prev.submitted_videos.filter((v) => v.id !== videoId) }
+          : prev,
+      );
+    } catch {
+      alert("削除に失敗しました");
+    }
+  };
+
+  const handleEditVideo = (video: Video) => {
+    setEditingVideoId(video.id);
+  };
+
+  const handleEditSave = (updated: Video) => {
+    setProfile((prev) =>
+      prev
+        ? {
+            ...prev,
+            submitted_videos: prev.submitted_videos.map((v) =>
+              v.id === updated.id ? updated : v,
+            ),
+          }
+        : prev,
+    );
+    setEditingVideoId(null);
+  };
 
   if (authLoading || loading) {
     return (
@@ -296,7 +427,16 @@ export default function MyPage() {
         {profile && profile.submitted_videos.length > 0 ? (
           <div className="space-y-4">
             {profile.submitted_videos.map((video) => (
-              <VideoCard key={video.id} video={video} />
+              <div key={video.id} className="space-y-2">
+                <VideoCard video={video} onDelete={handleDeleteVideo} onEdit={handleEditVideo} />
+                {editingVideoId === video.id && (
+                  <VideoEditForm
+                    video={video}
+                    onSave={handleEditSave}
+                    onCancel={() => setEditingVideoId(null)}
+                  />
+                )}
+              </div>
             ))}
           </div>
         ) : (
