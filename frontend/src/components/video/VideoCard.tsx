@@ -13,9 +13,10 @@ interface VideoCardProps {
   video: Video;
   onDelete?: (videoId: string) => void;
   onEdit?: (video: Video) => void;
+  onTagClick?: (tagName: string) => void;
 }
 
-export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit }: VideoCardProps) {
+export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit, onTagClick }: VideoCardProps) {
   const platformInfo = PLATFORMS.find((p) => p.value === video.platform);
   return (
     <div className="overflow-hidden rounded-xl border border-border-main bg-surface shadow-sm transition hover:shadow-md">
@@ -43,14 +44,30 @@ export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit }: Vi
               {cat.icon} {cat.name_ja}
             </span>
           ))}
-          {video.tags?.map((tag) => (
-            <span
-              key={tag.id}
-              className="rounded-full bg-purple-50 px-2.5 py-0.5 text-xs font-medium text-purple-600"
-            >
-              #{tag.name}
-            </span>
-          ))}
+          {video.tags?.map((tag) =>
+            onTagClick ? (
+              <button
+                key={tag.id}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onTagClick(tag.name);
+                }}
+                className="rounded-full bg-purple-50 px-2.5 py-0.5 text-xs font-medium text-purple-600 transition hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+              >
+                #{tag.name}
+              </button>
+            ) : (
+              <Link
+                key={tag.id}
+                href={`/ranking?tag=${encodeURIComponent(tag.name)}`}
+                onClick={(e) => e.stopPropagation()}
+                className="rounded-full bg-purple-50 px-2.5 py-0.5 text-xs font-medium text-purple-600 transition hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+              >
+                #{tag.name}
+              </Link>
+            )
+          )}
         </div>
         <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <ShareButtons videoId={video.id} title={video.title ?? undefined} />

@@ -115,6 +115,7 @@ async def list_videos(
     q: str | None = Query(None, max_length=100),
     sort: str = Query("new", pattern="^(new|hot)$"),
     platform: str | None = Query(None),
+    tag: str | None = Query(None, max_length=50),
     current_user: User | None = Depends(get_optional_user),
     session: AsyncSession = Depends(get_session),
 ):
@@ -153,6 +154,10 @@ async def list_videos(
         query = query.join(video_categories).join(Category).where(
             Category.slug == category
         )
+
+    # Tag filter
+    if tag:
+        query = query.join(video_tags).join(Tag).where(Tag.name == tag)
 
     # Count total
     count_query = select(func.count()).select_from(query.subquery())

@@ -104,12 +104,13 @@ export default function VideoDetail({ id }: VideoDetailProps) {
           {video.tags && video.tags.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-2">
               {video.tags.map((tag) => (
-                <span
+                <Link
                   key={tag.id}
-                  className="rounded-full bg-purple-50 px-3 py-1 text-sm font-medium text-purple-600"
+                  href={`/ranking?tag=${encodeURIComponent(tag.name)}`}
+                  className="rounded-full bg-purple-50 px-3 py-1 text-sm font-medium text-purple-600 transition hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
                 >
                   #{tag.name}
-                </span>
+                </Link>
               ))}
             </div>
           )}

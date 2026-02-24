@@ -6,6 +6,7 @@ import { apiGet } from "@/lib/api";
 import type { Video } from "@/types/video";
 import type { PaginatedResponse } from "@/types/api";
 import { VideoCard } from "@/components/video/VideoCard";
+import { SortToggle } from "@/components/ranking/SortToggle";
 import { RankingTabs } from "@/components/ranking/RankingTabs";
 import { CategoryFilter } from "@/components/ranking/CategoryFilter";
 import { PlatformFilter } from "@/components/ranking/PlatformFilter";
@@ -16,11 +17,14 @@ import { ContributorRanking } from "@/components/social/ContributorRanking";
 function RankingContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category");
+  const initialTag = searchParams.get("tag");
   const { preferences, setPreferredPlatforms } = usePreferences();
 
+  const [sortMode, setSortMode] = useState<"hot" | "new">("hot");
   const [period, setPeriod] = useState("24h");
   const [platforms, setPlatforms] = useState<string[]>(preferences.preferredPlatforms);
   const [category, setCategory] = useState<string | null>(initialCategory);
+  const [activeTag, setActiveTag] = useState<string | null>(initialTag);
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -33,14 +37,24 @@ function RankingContent() {
       setError("");
       try {
         const params = new URLSearchParams({
-          period,
           page: String(p),
           per_page: "20",
         });
         if (category) params.set("category", category);
         if (platforms.length > 0) params.set("platform", platforms.join(","));
+        if (activeTag) params.set("tag", activeTag);
+
+        let endpoint: string;
+        if (sortMode === "hot") {
+          params.set("period", period);
+          endpoint = `/api/rankings?${params}`;
+        } else {
+          params.set("sort", "new");
+          endpoint = `/api/videos?${params}`;
+        }
+
         const data = await apiGet<PaginatedResponse<Video>>(
-          `/api/rankings?${params}`,
+          endpoint,
           signal ? { signal } : undefined,
         );
         setVideos((prev) => (reset ? data.items : [...prev, ...data.items]));
@@ -52,7 +66,7 @@ function RankingContent() {
         setLoading(false);
       }
     },
-    [period, category, platforms]
+    [sortMode, period, category, platforms, activeTag]
   );
 
   useEffect(() => {
@@ -89,22 +103,46 @@ function RankingContent() {
     });
   }, [videos, preferences.mutedUserIds, preferences.hiddenCategorySlugs, category]);
 
+  const handleTagClick = useCallback((tagName: string) => {
+    setActiveTag(tagName);
+  }, []);
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold">ランキング</h1>
-
-      <div className="mb-4">
-        <RankingTabs activePeriod={period} onPeriodChange={setPeriod} />
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold">ランキング</h1>
+        <SortToggle activeSort={sortMode} onSortChange={setSortMode} />
       </div>
+
+      {sortMode === "hot" && (
+        <div className="mb-4">
+          <RankingTabs activePeriod={period} onPeriodChange={setPeriod} />
+        </div>
+      )}
       <div className="mb-4">
         <PlatformFilter selectedPlatforms={platforms} onPlatformsChange={(p) => { setPlatforms(p); setPreferredPlatforms(p); }} />
       </div>
-      <div className="mb-6">
+      <div className={activeTag ? "mb-4" : "mb-6"}>
         <CategoryFilter
           activeCategory={category}
           onCategoryChange={setCategory}
         />
       </div>
+
+      {activeTag && (
+        <div className="mb-6 flex items-center gap-2">
+          <span className="text-sm text-text-secondary">タグ:</span>
+          <button
+            onClick={() => setActiveTag(null)}
+            className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700 transition hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
+          >
+            #{activeTag}
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {loading && filteredVideos.length === 0 ? (
         <div className="flex justify-center py-12">
@@ -119,7 +157,7 @@ function RankingContent() {
       ) : (
         <div className="space-y-4">
           {filteredVideos.map((video) => (
-            <VideoCard key={video.id} video={video} />
+            <VideoCard key={video.id} video={video} onTagClick={handleTagClick} />
           ))}
           {hasMore && (
             <div ref={sentinelRef} className="flex justify-center py-6">

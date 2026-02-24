@@ -13,6 +13,7 @@ from sqlalchemy.orm import selectinload
 from app.database import get_session
 from app.models.category import Category
 from app.models.user import User
+from app.models.tag import Tag, video_tags
 from app.models.video import Video, video_categories
 from app.models.vote import Vote
 from app.models.vote_snapshot import VoteSnapshot
@@ -193,6 +194,7 @@ async def get_rankings(
     period: str = Query("24h", pattern="^(24h|1w|1m|all)$"),
     category: str | None = Query(None),
     platform: str | None = Query(None),
+    tag: str | None = Query(None, max_length=50),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
     current_user: User | None = Depends(get_optional_user),
@@ -246,6 +248,10 @@ async def get_rankings(
         query = query.join(video_categories).join(Category).where(
             Category.slug == category
         )
+
+    # Tag filter
+    if tag:
+        query = query.join(video_tags).join(Tag).where(Tag.name == tag)
 
     # Count total
     count_query = select(func.count()).select_from(query.subquery())
