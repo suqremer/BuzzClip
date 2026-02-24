@@ -81,7 +81,7 @@ async def submit_video(
         if not tag:
             tag = Tag(id=str(uuid.uuid4()), name=name)
             session.add(tag)
-        tag.video_count += 1
+        tag.video_count = (tag.video_count or 0) + 1
         tags.append(tag)
 
     video = Video(
