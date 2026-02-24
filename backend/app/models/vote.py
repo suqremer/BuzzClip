@@ -1,9 +1,9 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.database import Base, utcnow
 
 
 class Vote(Base):
@@ -20,7 +20,7 @@ class Vote(Base):
         String(36), ForeignKey("videos.id", ondelete="CASCADE"), nullable=False, index=True
     )
     created_at: Mapped[datetime] = mapped_column(
-        nullable=False, default=lambda: datetime.now(timezone.utc), index=True
+        nullable=False, default=utcnow, index=True
     )
 
     user = relationship("User", back_populates="votes", lazy="select")

@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timezone
 
 from sqlalchemy import event, func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -34,6 +35,15 @@ async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit
 
 class Base(DeclarativeBase):
     pass
+
+
+def utcnow() -> datetime:
+    """Return current UTC as naive datetime (PostgreSQL TIMESTAMP compatible).
+
+    PostgreSQL TIMESTAMP WITHOUT TIME ZONE columns reject timezone-aware
+    datetimes via asyncpg. This helper strips tzinfo after computing UTC.
+    """
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 async def get_session() -> AsyncSession:
