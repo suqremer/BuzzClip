@@ -246,6 +246,79 @@ async def get_video(
     return video_to_response(video, user_voted=user_voted)
 
 
+@router.get("/{video_id}/related", response_model=VideoListResponse)
+async def get_related_videos(
+    video_id: str,
+    limit: int = Query(6, ge=1, le=20),
+    current_user: User | None = Depends(get_optional_user),
+    session: AsyncSession = Depends(get_session),
+):
+    # Fetch the source video with categories and tags
+    result = await session.execute(
+        select(Video)
+        .where(Video.id == video_id, Video.is_active == True)  # noqa: E712
+        .options(selectinload(Video.categories), selectinload(Video.tags))
+    )
+    video = result.scalar_one_or_none()
+    if video is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="動画が見つかりません",
+        )
+
+    cat_ids = [c.id for c in video.categories]
+    tag_ids = [t.id for t in video.tags]
+
+    if not cat_ids and not tag_ids:
+        return VideoListResponse(items=[], total=0, page=1, per_page=limit, has_next=False)
+
+    # Build OR conditions: videos sharing any category or any tag
+    conditions = []
+    if cat_ids:
+        cat_match = (
+            select(video_categories.c.video_id)
+            .where(video_categories.c.category_id.in_(cat_ids))
+            .correlate(None)
+        )
+        conditions.append(Video.id.in_(cat_match))
+    if tag_ids:
+        tag_match = (
+            select(video_tags.c.video_id)
+            .where(video_tags.c.tag_id.in_(tag_ids))
+            .correlate(None)
+        )
+        conditions.append(Video.id.in_(tag_match))
+
+    query = (
+        select(Video)
+        .where(Video.id != video_id, Video.is_active == True)  # noqa: E712
+        .where(or_(*conditions))
+        .options(
+            selectinload(Video.submitter),
+            selectinload(Video.categories),
+            selectinload(Video.tags),
+        )
+        .order_by(Video.vote_count.desc(), Video.created_at.desc())
+        .limit(limit)
+    )
+    result = await session.execute(query)
+    videos = list(result.scalars().all())
+
+    # Check user votes
+    voted_video_ids = set()
+    if current_user and videos:
+        vote_result = await session.execute(
+            select(Vote.video_id).where(
+                Vote.user_id == current_user.id,
+                Vote.video_id.in_([v.id for v in videos]),
+            )
+        )
+        voted_video_ids = {row[0] for row in vote_result}
+
+    items = [video_to_response(v, user_voted=v.id in voted_video_ids) for v in videos]
+    return VideoListResponse(items=items, total=len(items), page=1, per_page=limit, has_next=False)
+
+
 @router.delete("/{video_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_video(
     video_id: str,

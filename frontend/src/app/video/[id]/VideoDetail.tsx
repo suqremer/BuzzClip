@@ -28,17 +28,10 @@ export default function VideoDetail({ id }: VideoDetailProps) {
     apiGet<Video>(`/api/videos/${id}`)
       .then((data) => {
         setVideo(data);
-        // Fetch related videos from same category
-        if (data.categories.length > 0) {
-          const catSlug = data.categories[0].slug;
-          apiGet<PaginatedResponse<Video>>(
-            `/api/rankings?period=24h&category=${catSlug}&limit=5`
-          )
-            .then((rel) =>
-              setRelated(rel.items.filter((v) => v.id !== data.id).slice(0, 4))
-            )
-            .catch((e) => { console.error("Failed to fetch related videos:", e); });
-        }
+        // Fetch related videos by shared categories & tags
+        apiGet<PaginatedResponse<Video>>(`/api/videos/${id}/related?limit=6`)
+          .then((rel) => setRelated(rel.items))
+          .catch((e) => { console.error("Failed to fetch related videos:", e); });
       })
       .catch(() => setError("動画が見つかりませんでした"))
       .finally(() => setLoading(false));
@@ -151,7 +144,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
       {/* Related Videos */}
       {related.length > 0 && (
         <section className="mt-10">
-          <h2 className="mb-4 text-lg font-bold">他のバズ動画</h2>
+          <h2 className="mb-4 text-lg font-bold">関連動画</h2>
           <div className="space-y-4">
             {related.map((v) => (
               <VideoCard key={v.id} video={v} />
