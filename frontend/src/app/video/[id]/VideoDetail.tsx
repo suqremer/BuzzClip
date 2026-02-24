@@ -73,11 +73,14 @@ export default function VideoDetail({ id }: VideoDetailProps) {
 
       {/* Video Embed */}
       <div className="overflow-hidden rounded-xl border border-border-main bg-surface shadow-sm">
-        {video.oembed_html && (
-          <div className="p-4">
-            <VideoEmbed oembedHtml={video.oembed_html} platform={video.platform} />
-          </div>
-        )}
+        <div className="p-4">
+          <VideoEmbed
+            oembedHtml={video.oembed_html}
+            platform={video.platform}
+            url={video.url}
+            externalId={video.external_id}
+          />
+        </div>
 
         <div className="border-t border-border-light px-5 py-4">
           {/* Categories */}

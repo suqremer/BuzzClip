@@ -14,8 +14,10 @@ declare global {
 }
 
 interface VideoEmbedProps {
-  oembedHtml: string;
+  oembedHtml: string | null;
   platform?: "x" | "youtube" | "tiktok";
+  url?: string;
+  externalId?: string;
 }
 
 const ALLOWED_IFRAME_HOSTS = [
@@ -66,15 +68,35 @@ function sanitizeOembed(html: string): string {
   return clean;
 }
 
-export function VideoEmbed({ oembedHtml, platform = "x" }: VideoEmbedProps) {
+function buildFallbackEmbed(platform: string, url?: string, externalId?: string): string | null {
+  if (!url && !externalId) return null;
+
+  if (platform === "youtube" && externalId) {
+    return `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${externalId}" frameborder="0" allowfullscreen title="YouTube video"></iframe>`;
+  }
+
+  if (platform === "x" && url) {
+    return `<blockquote class="twitter-tweet" data-dnt="true"><a href="${url}"></a></blockquote>`;
+  }
+
+  if (platform === "tiktok" && url) {
+    return `<blockquote class="tiktok-embed" cite="${url}" data-video-id="${externalId || ""}"><a href="${url}"></a></blockquote>`;
+  }
+
+  return null;
+}
+
+export function VideoEmbed({ oembedHtml, platform = "x", url, externalId }: VideoEmbedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const sanitizedHtml = useMemo(
-    () => sanitizeOembed(oembedHtml),
-    [oembedHtml],
-  );
+  const sanitizedHtml = useMemo(() => {
+    if (oembedHtml) return sanitizeOembed(oembedHtml);
+    const fallback = buildFallbackEmbed(platform, url, externalId);
+    return fallback || "";
+  }, [oembedHtml, platform, url, externalId]);
 
   useEffect(() => {
+    if (!sanitizedHtml) return;
     if (platform === "x") {
       loadTwitterWidgets(containerRef.current);
     } else if (platform === "tiktok") {
@@ -82,6 +104,23 @@ export function VideoEmbed({ oembedHtml, platform = "x" }: VideoEmbedProps) {
     }
     // YouTube uses <iframe> — no script needed
   }, [sanitizedHtml, platform]);
+
+  if (!sanitizedHtml) {
+    // Final fallback: show link
+    if (url) {
+      return (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block rounded-lg bg-surface-secondary p-4 text-center text-sm text-brand-text transition hover:bg-hover-bg"
+        >
+          元の動画を見る &rarr;
+        </a>
+      );
+    }
+    return null;
+  }
 
   return (
     <div
