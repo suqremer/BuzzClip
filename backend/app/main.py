@@ -1,5 +1,6 @@
 import logging
 import logging.config
+import traceback
 from contextlib import asynccontextmanager
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -72,6 +73,24 @@ def _rate_limit_json_handler(request: Request, exc: RateLimitExceeded):
 
 
 app.add_exception_handler(RateLimitExceeded, _rate_limit_json_handler)
+
+
+async def _unhandled_exception_handler(request: Request, exc: Exception):
+    """Return JSON (not text/plain) for unhandled exceptions.
+
+    Starlette's default handler returns plain text "Internal Server Error",
+    which causes frontend res.json() to fail. This returns JSON and logs
+    the full traceback for diagnosis.
+    """
+    tb = traceback.format_exception(type(exc), exc, exc.__traceback__)
+    logger.error("Unhandled exception on %s %s:\n%s", request.method, request.url.path, "".join(tb))
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"サーバー内部エラー: {type(exc).__name__}: {exc}"},
+    )
+
+
+app.add_exception_handler(Exception, _unhandled_exception_handler)
 
 
 # --- Middleware ordering ---
