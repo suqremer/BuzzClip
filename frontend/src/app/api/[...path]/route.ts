@@ -9,18 +9,27 @@
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 /**
- * Hop-by-hop and encoding headers that must NOT be forwarded verbatim.
- *
- * The Edge Runtime's fetch() automatically decompresses gzip/br responses,
- * but the original content-encoding and content-length headers remain on
- * the Response object.  Forwarding them causes the browser to either
- * truncate or double-decompress the body, breaking JSON parsing.
+ * Headers to strip from the upstream RESPONSE before forwarding to the browser.
+ * The Edge Runtime's fetch() may decompress the body, making the original
+ * content-encoding / content-length stale.
  */
-const STRIP_RESPONSE_HEADERS = [
+const STRIP_RES_HEADERS = new Set([
   "content-encoding",
   "transfer-encoding",
   "content-length",
-];
+]);
+
+/**
+ * Headers to strip from the forwarded REQUEST to the backend.
+ * - host: backend has its own hostname
+ * - accept-encoding: prevent upstream from compressing (we handle that)
+ * - content-length: let fetch recalculate from actual body to avoid mismatch
+ */
+const STRIP_REQ_HEADERS = new Set([
+  "host",
+  "accept-encoding",
+  "content-length",
+]);
 
 async function handler(
   request: Request,
@@ -30,19 +39,20 @@ async function handler(
   const url = new URL(request.url);
   const target = `${BACKEND_URL}/api/${path.join("/")}${url.search}`;
 
-  // Forward request headers (drop host — the backend has its own)
+  // Forward request headers, stripping problematic ones
   const headers = new Headers(request.headers);
-  headers.delete("host");
+  for (const h of STRIP_REQ_HEADERS) {
+    headers.delete(h);
+  }
 
   const init: RequestInit = {
     method: request.method,
     headers,
-    redirect: "manual", // Don't follow redirects — forward them to the browser
+    redirect: "manual",
   };
 
   // Forward body for state-changing methods.
-  // Consume as ArrayBuffer to avoid ReadableStream forwarding issues
-  // in the Edge Runtime (stream can only be consumed once).
+  // Consume as ArrayBuffer so fetch() can set correct content-length.
   if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
     const body = await request.arrayBuffer();
     if (body.byteLength > 0) {
@@ -53,19 +63,30 @@ async function handler(
   try {
     const upstream = await fetch(target, init);
 
-    // Clone headers and strip encoding/length headers that the Edge
-    // Runtime already processed — prevents content-length mismatch.
+    // Read entire response body to avoid stream-forwarding issues
+    const responseBody = await upstream.arrayBuffer();
+
+    // Build clean response headers
     const responseHeaders = new Headers(upstream.headers);
-    for (const h of STRIP_RESPONSE_HEADERS) {
+    for (const h of STRIP_RES_HEADERS) {
       responseHeaders.delete(h);
     }
 
-    return new Response(upstream.body, {
+    // Log errors for debugging (visible in Vercel Runtime Logs)
+    if (!upstream.ok && upstream.status >= 400) {
+      const preview = new TextDecoder().decode(responseBody).substring(0, 500);
+      console.error(
+        `[proxy] ${request.method} ${target} → ${upstream.status}: ${preview}`,
+      );
+    }
+
+    return new Response(responseBody, {
       status: upstream.status,
       statusText: upstream.statusText,
       headers: responseHeaders,
     });
-  } catch {
+  } catch (err) {
+    console.error(`[proxy] fetch failed: ${request.method} ${target}`, err);
     return new Response(
       JSON.stringify({ detail: "バックエンドに接続できません" }),
       {
