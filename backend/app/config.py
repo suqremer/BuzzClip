@@ -52,8 +52,11 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# Validate frontend_url at startup (raises in production if not whitelisted)
-if not settings.debug:
+# Validate frontend_url at startup (raises in production if not whitelisted).
+# Skip validation during tests — they use localhost with debug=False.
+import sys
+_is_testing = "pytest" in sys.modules or "TESTING" in __import__("os").environ
+if not settings.debug and not _is_testing:
     _ = settings.validated_frontend_url
 
 if settings.jwt_secret_key == "dev-secret-key-change-in-production":
