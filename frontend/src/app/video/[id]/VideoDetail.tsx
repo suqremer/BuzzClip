@@ -125,12 +125,19 @@ export default function VideoDetail({ id }: VideoDetailProps) {
               <AddToPlaylistButton videoId={video.id} />
             </div>
             {video.submitted_by && (
-              <Link
-                href={`/user/${video.submitted_by.id}`}
-                className="text-sm text-text-muted hover:text-brand-text hover:underline"
-              >
-                投稿: {video.submitted_by.display_name}
-              </Link>
+              <div className="flex items-center gap-2 text-sm text-text-muted">
+                <Link
+                  href={`/user/${video.submitted_by.id}`}
+                  className="hover:text-brand-text hover:underline"
+                >
+                  投稿: {video.submitted_by.display_name}
+                </Link>
+                {video.created_at && (
+                  <time dateTime={video.created_at}>
+                    {new Date(video.created_at).toLocaleString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  </time>
+                )}
+              </div>
             )}
           </div>
 

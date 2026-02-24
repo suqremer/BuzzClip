@@ -9,6 +9,16 @@ import { MuteButton } from "./MuteButton";
 import { ShareButtons } from "./ShareButtons";
 import { AddToPlaylistButton } from "./AddToPlaylistButton";
 
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const h = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${y}/${m}/${day} ${h}:${min}`;
+}
+
 interface VideoCardProps {
   video: Video;
   onDelete?: (videoId: string) => void;
@@ -111,6 +121,11 @@ export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit, onTa
             >
               {video.submitted_by.display_name}
             </Link>
+            {video.created_at && (
+              <time dateTime={video.created_at} className="ml-1">
+                {formatDate(video.created_at)}
+              </time>
+            )}
           </div>
           <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             {onEdit && (
