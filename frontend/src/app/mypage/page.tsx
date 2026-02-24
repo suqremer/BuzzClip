@@ -494,8 +494,8 @@ function PlaylistManagement() {
 
   useEffect(() => {
     if (!user) return;
-    apiGet<{ items: Playlist[] }>("/api/playlists")
-      .then((data) => setPlaylists(data.items))
+    apiGet<{ playlists: Playlist[] }>("/api/playlists")
+      .then((data) => setPlaylists(data.playlists))
       .catch((e) => { console.error("Failed to fetch playlists:", e); })
       .finally(() => setLoading(false));
   }, [user]);
