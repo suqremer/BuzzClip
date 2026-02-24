@@ -1,13 +1,11 @@
 name: Auto Tweet
 
 on:
-  schedule:
-    # 8:00 JST (UTC 23:00 previous day) - Morning
-    - cron: "0 23 * * *"
-    # 12:00 JST (UTC 03:00) - Lunch
-    - cron: "0 3 * * *"
-    # 20:00 JST (UTC 11:00) - Evening
-    - cron: "0 11 * * *"
+  # schedule disabled — X API Pay-Per-Use requires credits ($0.00).
+  # Uncomment when credits are available.
+  # schedule:
+  #   - cron: "0 3 * * 1,3,5"   # Mon/Wed/Fri 12:00 JST
+  #   - cron: "0 11 * * 2,4,6"  # Tue/Thu/Sat 20:00 JST
   workflow_dispatch:
     inputs:
       session:
