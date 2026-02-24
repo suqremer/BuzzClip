@@ -60,7 +60,7 @@ if not settings.debug and not _is_testing:
     _ = settings.validated_frontend_url
 
 if settings.jwt_secret_key == "dev-secret-key-change-in-production":
-    if not settings.debug:
+    if not settings.debug and not _is_testing:
         raise RuntimeError(
             "JWT_SECRET_KEY must be set in production. "
             "Set a strong secret via environment variable."
