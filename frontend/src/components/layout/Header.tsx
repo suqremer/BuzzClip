@@ -118,9 +118,17 @@ export function Header() {
               {t("mypage")}
             </Link>
           )}
-          <div className="flex items-center gap-2 border-t border-border-light py-2">
+          <div className="flex items-center gap-3 border-t border-border-light py-2">
             <ThemeToggle />
             <span className="text-xs text-text-muted">{locale === "ja" ? "テーマ切替" : "Theme"}</span>
+            <span className="text-border-light">|</span>
+            <button
+              onClick={() => changeLocale(locale === "ja" ? "en" : "ja")}
+              className="rounded-md px-2 py-1 text-xs font-medium text-text-muted transition hover:bg-hover-bg hover:text-text-primary"
+            >
+              {locale === "ja" ? "EN" : "JA"}
+            </button>
+            <span className="text-xs text-text-muted">{locale === "ja" ? "言語切替" : "Language"}</span>
           </div>
           {user ? (
             <>
