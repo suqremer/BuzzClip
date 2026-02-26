@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiGet, apiPost, apiDelete } from "@/lib/api";
+import { useT } from "@/hooks/useTranslation";
 
 interface PlaylistStatus {
   playlist_id: string;
@@ -16,6 +17,7 @@ interface AddToPlaylistButtonProps {
 
 export function AddToPlaylistButton({ videoId }: AddToPlaylistButtonProps) {
   const { user } = useAuth();
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [playlists, setPlaylists] = useState<PlaylistStatus[]>([]);
   const [loading, setLoading] = useState(false);
@@ -53,8 +55,8 @@ export function AddToPlaylistButton({ videoId }: AddToPlaylistButtonProps) {
       <button
         onClick={() => setOpen(!open)}
         className="rounded-full bg-chip-bg p-1.5 text-xs text-text-secondary transition hover:bg-chip-hover"
-        title="リストに追加"
-        aria-label="リストに追加"
+        title={t("addToList")}
+        aria-label={t("addToList")}
       >
         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -64,13 +66,13 @@ export function AddToPlaylistButton({ videoId }: AddToPlaylistButtonProps) {
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-8 z-50 w-56 rounded-lg border border-border-main bg-surface py-2 shadow-lg">
-            <p className="px-3 pb-2 text-xs font-medium text-text-secondary">リストに追加</p>
+            <p className="px-3 pb-2 text-xs font-medium text-text-secondary">{t("addToList")}</p>
             {loading ? (
               <div className="flex justify-center py-3">
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-brand-medium border-t-brand" />
               </div>
             ) : playlists.length === 0 ? (
-              <p className="px-3 py-2 text-xs text-text-muted">リストがありません</p>
+              <p className="px-3 py-2 text-xs text-text-muted">{t("noListsAvailable")}</p>
             ) : (
               playlists.map((p) => (
                 <button

@@ -7,10 +7,12 @@ import { NotificationBell } from "@/components/social/NotificationBell";
 import { SearchPopover } from "./SearchPopover";
 import { SubmitPopover } from "./SubmitPopover";
 import { ThemeToggle } from "./ThemeToggle";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function Header() {
   const { user, logout, loading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t, locale, changeLocale } = useTranslation();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border-main bg-surface/80 backdrop-blur-md">
@@ -21,7 +23,7 @@ export function Header() {
 
         <nav className="hidden flex-1 items-center justify-center gap-6 md:flex">
           <Link href="/ranking" className="text-sm font-medium text-text-primary hover:text-brand-text">
-            ランキング
+            {t("ranking")}
           </Link>
           <SearchPopover />
           <SubmitPopover />
@@ -33,6 +35,13 @@ export function Header() {
           ) : user ? (
             <div className="flex items-center gap-3">
               <ThemeToggle />
+              <button
+                onClick={() => changeLocale(locale === "ja" ? "en" : "ja")}
+                className="rounded-md px-1.5 py-1 text-xs font-medium text-text-muted transition hover:bg-hover-bg hover:text-text-primary"
+                title={locale === "ja" ? "Switch to English" : "日本語に切替"}
+              >
+                {locale === "ja" ? "EN" : "JA"}
+              </button>
               <NotificationBell />
               <Link href="/mypage" className="flex items-center gap-2 rounded-lg px-2 py-1 transition hover:bg-hover-bg">
                 {user.avatar_url ? (
@@ -50,23 +59,29 @@ export function Header() {
                 onClick={logout}
                 className="rounded-lg border border-input-border px-3 py-1.5 text-sm text-text-primary transition hover:bg-hover-bg"
               >
-                ログアウト
+                {locale === "ja" ? "ログアウト" : "Logout"}
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <ThemeToggle />
+              <button
+                onClick={() => changeLocale(locale === "ja" ? "en" : "ja")}
+                className="rounded-md px-1.5 py-1 text-xs font-medium text-text-muted transition hover:bg-hover-bg hover:text-text-primary"
+              >
+                {locale === "ja" ? "EN" : "JA"}
+              </button>
               <Link
                 href="/auth/signin"
                 className="rounded-lg border border-input-border px-4 py-2 text-sm font-medium text-text-primary hover:bg-hover-bg"
               >
-                ログイン
+                {t("signin")}
               </Link>
               <Link
                 href="/auth/signup"
                 className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-hover"
               >
-                新規登録
+                {locale === "ja" ? "新規登録" : "Sign Up"}
               </Link>
             </div>
           )}
@@ -90,22 +105,22 @@ export function Header() {
       {menuOpen && (
         <div className="border-t border-border-light bg-surface px-4 py-3 md:hidden">
           <Link href="/ranking" className="block py-2 text-text-primary" onClick={() => setMenuOpen(false)}>
-            ランキング
+            {t("ranking")}
           </Link>
           <Link href="/search" className="block py-2 text-text-primary" onClick={() => setMenuOpen(false)}>
-            検索
+            {t("search")}
           </Link>
           <Link href="/submit" className="block py-2 text-text-primary" onClick={() => setMenuOpen(false)}>
-            投稿する
+            {t("submit")}
           </Link>
           {user && (
             <Link href="/mypage" className="block py-2 text-text-primary" onClick={() => setMenuOpen(false)}>
-              マイページ
+              {t("mypage")}
             </Link>
           )}
           <div className="flex items-center gap-2 border-t border-border-light py-2">
             <ThemeToggle />
-            <span className="text-xs text-text-muted">テーマ切替</span>
+            <span className="text-xs text-text-muted">{locale === "ja" ? "テーマ切替" : "Theme"}</span>
           </div>
           {user ? (
             <>
@@ -123,16 +138,16 @@ export function Header() {
                 onClick={() => { logout(); setMenuOpen(false); }}
                 className="block w-full py-2 text-left text-red-500"
               >
-                ログアウト
+                {locale === "ja" ? "ログアウト" : "Logout"}
               </button>
             </>
           ) : (
             <>
               <Link href="/auth/signin" className="block py-2 font-medium text-text-primary" onClick={() => setMenuOpen(false)}>
-                ログイン
+                {t("signin")}
               </Link>
               <Link href="/auth/signup" className="block py-2 font-medium text-brand-text" onClick={() => setMenuOpen(false)}>
-                新規登録
+                {locale === "ja" ? "新規登録" : "Sign Up"}
               </Link>
             </>
           )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { PLATFORMS } from "@/lib/constants";
+import { useT } from "@/hooks/useTranslation";
 
 interface PlatformFilterProps {
   selectedPlatforms: string[];
@@ -12,6 +13,7 @@ export function PlatformFilter({
   onPlatformsChange,
 }: PlatformFilterProps) {
   const isAll = selectedPlatforms.length === 0;
+  const t = useT();
 
   const handleToggle = (value: string) => {
     if (selectedPlatforms.includes(value)) {
@@ -32,7 +34,7 @@ export function PlatformFilter({
             : "bg-chip-bg text-text-primary hover:bg-chip-hover"
         }`}
       >
-        すべて
+        {t("allPlatforms")}
       </button>
       {PLATFORMS.map((p) => (
         <button

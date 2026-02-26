@@ -7,6 +7,7 @@ import { apiPost } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { UrlInput } from "@/components/submit/UrlInput";
 import { CategorySelect } from "@/components/submit/CategorySelect";
+import { useT } from "@/hooks/useTranslation";
 
 interface SubmitResponse {
   id: string;
@@ -15,6 +16,7 @@ interface SubmitResponse {
 export default function SubmitPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const t = useT();
   const [url, setUrl] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
   const [comment, setComment] = useState("");
@@ -24,7 +26,7 @@ export default function SubmitPage() {
   if (authLoading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label={t("loading")} />
       </div>
     );
   }
@@ -32,15 +34,15 @@ export default function SubmitPage() {
   if (!user) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold text-text-heading">ログインが必要です</h1>
+        <h1 className="text-2xl font-bold text-text-heading">{t("loginRequired")}</h1>
         <p className="mt-3 text-text-secondary">
-          動画を投稿するにはログインしてください。
+          {t("loginRequiredSubmit")}
         </p>
         <Link
           href="/auth/signin"
           className="mt-6 inline-block rounded-lg bg-brand px-6 py-3 text-sm font-medium text-white hover:bg-brand-hover"
         >
-          ログインする
+          {t("loginButton")}
         </Link>
       </div>
     );
@@ -49,7 +51,7 @@ export default function SubmitPage() {
   const handleSubmit = async () => {
     if (!url) return;
     if (categories.length === 0) {
-      setError("カテゴリを1つ以上選択してください");
+      setError(t("selectCategoryError"));
       return;
     }
     setError("");
@@ -63,7 +65,7 @@ export default function SubmitPage() {
       router.push("/ranking");
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "投稿に失敗しました"
+        e instanceof Error ? e.message : t("submitFailed")
       );
     } finally {
       setSubmitting(false);
@@ -72,9 +74,9 @@ export default function SubmitPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-2 text-2xl font-bold">動画を投稿</h1>
+      <h1 className="mb-2 text-2xl font-bold">{t("submitVideo")}</h1>
       <p className="mb-8 text-sm text-text-secondary">
-        X, YouTube, TikTokの動画URLを貼り付けて、カテゴリを選んで投稿しよう。
+        {t("submitDesc")}
       </p>
 
       <div className="space-y-6">
@@ -84,12 +86,12 @@ export default function SubmitPage() {
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               1
             </span>
-            <span className="font-medium">動画URLを入力</span>
+            <span className="font-medium">{t("enterUrl")}</span>
           </div>
           <UrlInput onValidUrl={setUrl} />
           {url && (
             <p className="mt-2 text-sm text-green-600">
-              URL確認済み
+              {t("urlVerified")}
             </p>
           )}
         </div>
@@ -100,7 +102,7 @@ export default function SubmitPage() {
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               2
             </span>
-            <span className="font-medium">カテゴリを選択</span>
+            <span className="font-medium">{t("selectCategory")}</span>
           </div>
           <CategorySelect selected={categories} onChange={setCategories} />
         </div>
@@ -111,7 +113,7 @@ export default function SubmitPage() {
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
               3
             </span>
-            <label htmlFor="comment-input" className="font-medium">ひとこと（任意）</label>
+            <label htmlFor="comment-input" className="font-medium">{t("oneComment")}</label>
           </div>
           <textarea
             id="comment-input"
@@ -119,11 +121,11 @@ export default function SubmitPage() {
             onChange={(e) => setComment(e.target.value)}
             maxLength={200}
             rows={2}
-            placeholder="おすすめポイントなど #タグ も使えます"
+            placeholder={t("commentPlaceholder")}
             className="w-full rounded-lg border border-input-border px-3 py-2 text-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
           <p className="mt-1 text-xs text-text-muted">
-            {comment.length}/200　#を付けるとタグになります（最大5つ）
+            {comment.length}/200 {t("hashtagNote")}
           </p>
         </div>
 
@@ -136,7 +138,7 @@ export default function SubmitPage() {
           disabled={!url || categories.length === 0 || submitting}
           className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-white shadow-lg transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {submitting ? "投稿中..." : "投稿する"}
+          {submitting ? t("submitting") : t("submitButton")}
         </button>
       </div>
     </div>

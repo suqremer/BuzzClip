@@ -1,6 +1,6 @@
 "use client";
 
-import { PERIODS } from "@/lib/constants";
+import { useT } from "@/hooks/useTranslation";
 
 interface RankingTabsProps {
   activePeriod: string;
@@ -8,9 +8,18 @@ interface RankingTabsProps {
 }
 
 export function RankingTabs({ activePeriod, onPeriodChange }: RankingTabsProps) {
+  const t = useT();
+
+  const periods = [
+    { value: "24h", label: t("period24h") },
+    { value: "1w", label: t("period1w") },
+    { value: "1m", label: t("period1m") },
+    { value: "all", label: t("periodAll") },
+  ];
+
   return (
     <div className="flex gap-2">
-      {PERIODS.map((p) => (
+      {periods.map((p) => (
         <button
           key={p.value}
           onClick={() => onPeriodChange(p.value)}

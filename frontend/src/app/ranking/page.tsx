@@ -14,12 +14,14 @@ import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { ContributorRanking } from "@/components/social/ContributorRanking";
 import { AdUnit, InFeedAd } from "@/components/AdUnit";
+import { useT } from "@/hooks/useTranslation";
 
 function RankingContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category");
   const initialTag = searchParams.get("tag");
   const { preferences, setPreferredPlatforms } = usePreferences();
+  const t = useT();
 
   const [sortMode, setSortMode] = useState<"hot" | "new">("hot");
   const [period, setPeriod] = useState("24h");
@@ -62,7 +64,7 @@ function RankingContent() {
         setHasMore(data.has_next);
       } catch (e) {
         if (e instanceof DOMException && e.name === "AbortError") return;
-        setError("ランキングの読み込みに失敗しました");
+        setError(t("loadError"));
       } finally {
         setLoading(false);
       }
@@ -117,13 +119,13 @@ function RankingContent() {
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold">ランキング</h1>
+          <h1 className="text-2xl font-bold">{t("ranking")}</h1>
           <button
             onClick={handleRefresh}
             disabled={loading && videos.length === 0}
             className="rounded-full p-1.5 text-text-muted transition hover:bg-hover-bg hover:text-text-primary disabled:opacity-50"
-            title="更新"
-            aria-label="更新"
+            title={t("refresh")}
+            aria-label={t("refresh")}
           >
             <svg className={`h-5 w-5 ${loading && videos.length === 0 ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -150,7 +152,7 @@ function RankingContent() {
 
       {activeTag && (
         <div className="mb-6 flex items-center gap-2">
-          <span className="text-sm text-text-secondary">タグ:</span>
+          <span className="text-sm text-text-secondary">{t("tag")}:</span>
           <button
             onClick={() => setActiveTag(null)}
             className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700 transition hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
@@ -165,13 +167,13 @@ function RankingContent() {
 
       {loading && filteredVideos.length === 0 ? (
         <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label={t("loading")} />
         </div>
       ) : error ? (
         <p className="py-12 text-center text-red-500">{error}</p>
       ) : filteredVideos.length === 0 ? (
         <p className="py-12 text-center text-text-muted">
-          この条件に合う動画はまだありません。
+          {t("noVideos")}
         </p>
       ) : (
         <div className="space-y-4">

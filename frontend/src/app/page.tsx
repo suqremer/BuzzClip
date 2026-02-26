@@ -1,33 +1,39 @@
+"use client";
+
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/constants";
+import { useTranslation } from "@/hooks/useTranslation";
+import type { TranslationKey } from "@/lib/i18n";
 
 export default function HomePage() {
+  const { t } = useTranslation();
+
   return (
     <div>
       {/* Hero */}
       <section className="bg-gradient-to-br from-indigo-600 to-purple-700 px-4 py-24 text-center text-white sm:py-32">
         <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-          バズった動画、
+          {t("heroTitle1")}
           <br />
-          ぜんぶここに。
+          {t("heroTitle2")}
         </h1>
         <p className="mx-auto mt-6 max-w-lg text-lg leading-relaxed text-indigo-100 sm:text-xl">
-          みんなで見つけて、みんなで育てる
+          {t("heroSub1")}
           <br className="sm:hidden" />
-          動画ランキング
+          {t("heroSub2")}
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/ranking"
             className="w-full rounded-full bg-white px-8 py-3.5 text-base font-bold text-indigo-600 shadow-lg transition hover:bg-indigo-50 sm:w-auto"
           >
-            ランキングを見る
+            {t("viewRanking")}
           </Link>
           <Link
             href="/submit"
             className="w-full rounded-full border-2 border-white px-8 py-3.5 text-base font-bold text-white transition hover:bg-white/10 sm:w-auto"
           >
-            動画を投稿する
+            {t("submitVideoBtn")}
           </Link>
         </div>
       </section>
@@ -36,55 +42,40 @@ export default function HomePage() {
       <section className="px-4 py-20 sm:py-24">
         <div className="mx-auto max-w-4xl">
           <h2 className="text-center text-2xl font-bold sm:text-3xl">
-            かんたん3ステップ
+            {t("howItWorks")}
           </h2>
           <p className="mt-3 text-center text-text-secondary">
-            バズ動画をみんなでシェアして、ランキングをつくろう
+            {t("howItWorksSub")}
           </p>
           <div className="mt-14 grid gap-10 sm:grid-cols-3 sm:gap-8">
-            {/* Step 1 */}
             <div className="text-center">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-medium text-3xl">
                 🔍
               </div>
-              <div className="mt-2 text-sm font-bold text-brand-text">
-                Step 1
-              </div>
-              <h3 className="mt-2 text-lg font-bold">見つける</h3>
+              <div className="mt-2 text-sm font-bold text-brand-text">Step 1</div>
+              <h3 className="mt-2 text-lg font-bold">{t("step1Title")}</h3>
               <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                バズっている動画の
-                <br />
-                URLをコピー
+                {t("step1Desc")}
               </p>
             </div>
-            {/* Step 2 */}
             <div className="text-center">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-medium text-3xl">
                 📋
               </div>
-              <div className="mt-2 text-sm font-bold text-brand-text">
-                Step 2
-              </div>
-              <h3 className="mt-2 text-lg font-bold">投稿する</h3>
+              <div className="mt-2 text-sm font-bold text-brand-text">Step 2</div>
+              <h3 className="mt-2 text-lg font-bold">{t("step2Title")}</h3>
               <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                BuzzClipにURLを貼るだけ
-                <br />
-                カテゴリを選択
+                {t("step2Desc")}
               </p>
             </div>
-            {/* Step 3 */}
             <div className="text-center">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-medium text-3xl">
                 🚀
               </div>
-              <div className="mt-2 text-sm font-bold text-brand-text">
-                Step 3
-              </div>
-              <h3 className="mt-2 text-lg font-bold">みんなで育てる</h3>
+              <div className="mt-2 text-sm font-bold text-brand-text">Step 3</div>
+              <h3 className="mt-2 text-lg font-bold">{t("step3Title")}</h3>
               <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                いいねで動画が
-                <br />
-                ランキングUP
+                {t("step3Desc")}
               </p>
             </div>
           </div>
@@ -95,10 +86,10 @@ export default function HomePage() {
       <section className="bg-surface-secondary px-4 py-20 sm:py-24">
         <div className="mx-auto max-w-4xl">
           <h2 className="text-center text-2xl font-bold sm:text-3xl">
-            カテゴリから探す
+            {t("browseCategory")}
           </h2>
           <p className="mt-3 text-center text-text-secondary">
-            気になるジャンルのバズ動画をチェック
+            {t("browseCategorySub")}
           </p>
           <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {CATEGORIES.map((cat) => (
@@ -111,7 +102,7 @@ export default function HomePage() {
                   {cat.icon}
                 </span>
                 <span className="text-sm font-semibold text-text-primary">
-                  {cat.nameJa}
+                  {t(cat.slug as TranslationKey)}
                 </span>
               </Link>
             ))}
@@ -122,23 +113,23 @@ export default function HomePage() {
       {/* Bottom CTA */}
       <section className="px-4 py-20 text-center sm:py-24">
         <h2 className="text-2xl font-bold sm:text-3xl">
-          今すぐバズ動画を探そう
+          {t("ctaTitle")}
         </h2>
         <p className="mx-auto mt-4 max-w-md text-text-secondary">
-          毎日更新されるランキングで、話題の動画を見逃さない。
+          {t("ctaSub")}
         </p>
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/ranking"
             className="inline-block rounded-full bg-brand px-10 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-brand-hover"
           >
-            ランキングを見る
+            {t("viewRanking")}
           </Link>
           <Link
             href="/guide"
             className="inline-block rounded-full border-2 border-input-border px-8 py-3.5 text-base font-bold text-text-primary transition hover:border-brand hover:text-brand-text"
           >
-            使い方を見る
+            {t("howToUse")}
           </Link>
         </div>
       </section>

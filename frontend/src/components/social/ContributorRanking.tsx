@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { apiGet } from "@/lib/api";
 import type { Contributor } from "@/types/badge";
+import { useT } from "@/hooks/useTranslation";
 
 export function ContributorRanking() {
   const [contributors, setContributors] = useState<Contributor[]>([]);
@@ -24,6 +25,8 @@ export function ContributorRanking() {
     );
   }
 
+  const t = useT();
+
   if (contributors.length === 0) return null;
 
   const rankColors = ["text-yellow-500", "text-gray-400", "text-amber-600"];
@@ -32,13 +35,13 @@ export function ContributorRanking() {
     <div className="rounded-xl border border-border-main bg-surface p-4">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-bold text-text-primary">
-          Weekly 投稿者ランキング
+          {t("contributorRanking")}
         </h3>
         <Link
           href="/ranking/users"
           className="text-xs text-text-muted hover:text-brand-text"
         >
-          もっと見る →
+          {t("moreUsers")}
         </Link>
       </div>
       <div className="space-y-2">

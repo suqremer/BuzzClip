@@ -12,6 +12,7 @@ import { ShareButtons } from "@/components/video/ShareButtons";
 import { AddToPlaylistButton } from "@/components/video/AddToPlaylistButton";
 import { VideoCard } from "@/components/video/VideoCard";
 import { AdUnit } from "@/components/AdUnit";
+import { useT } from "@/hooks/useTranslation";
 
 interface VideoDetailProps {
   id: string;
@@ -22,6 +23,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
   const [related, setRelated] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const t = useT();
 
   useEffect(() => {
     if (!id) return;
@@ -34,7 +36,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
           .then((rel) => setRelated(rel.items))
           .catch((e) => { console.error("Failed to fetch related videos:", e); });
       })
-      .catch(() => setError("動画が見つかりませんでした"))
+      .catch(() => setError(t("videoNotFound")))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -49,12 +51,12 @@ export default function VideoDetail({ id }: VideoDetailProps) {
   if (error || !video) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <p className="text-lg text-text-secondary">{error || "動画が見つかりません"}</p>
+        <p className="text-lg text-text-secondary">{error || t("videoNotFoundShort")}</p>
         <Link
           href="/ranking"
           className="mt-4 inline-block text-sm font-medium text-brand-text hover:underline"
         >
-          ランキングに戻る
+          {t("backToRanking")}
         </Link>
       </div>
     );
@@ -69,7 +71,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        ランキングに戻る
+        {t("backToRanking")}
       </Link>
 
       {/* Video Embed */}
@@ -134,7 +136,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
                   href={`/user/${video.submitted_by.id}`}
                   className="hover:text-brand-text hover:underline"
                 >
-                  投稿: {video.submitted_by.display_name}
+                  {t("postedBy")} {video.submitted_by.display_name}
                 </Link>
                 {video.created_at && (
                   <time dateTime={video.created_at}>
@@ -158,7 +160,7 @@ export default function VideoDetail({ id }: VideoDetailProps) {
       {/* Related Videos */}
       {related.length > 0 && (
         <section className="mt-10">
-          <h2 className="mb-4 text-lg font-bold">関連動画</h2>
+          <h2 className="mb-4 text-lg font-bold">{t("relatedVideos")}</h2>
           <div className="space-y-4">
             {related.map((v) => (
               <VideoCard key={v.id} video={v} />

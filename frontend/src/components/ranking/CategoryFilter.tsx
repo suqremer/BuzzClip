@@ -2,6 +2,8 @@
 
 import { CATEGORIES } from "@/lib/constants";
 import { usePreferences } from "@/contexts/PreferencesContext";
+import { useT } from "@/hooks/useTranslation";
+import type { TranslationKey } from "@/lib/i18n";
 
 interface CategoryFilterProps {
   activeCategory: string | null;
@@ -10,6 +12,7 @@ interface CategoryFilterProps {
 
 export function CategoryFilter({ activeCategory, onCategoryChange }: CategoryFilterProps) {
   const { isCategoryHidden } = usePreferences();
+  const t = useT();
 
   const visibleCategories = CATEGORIES.filter((cat) => !isCategoryHidden(cat.slug));
 
@@ -23,7 +26,7 @@ export function CategoryFilter({ activeCategory, onCategoryChange }: CategoryFil
             : "bg-chip-bg text-text-primary hover:bg-chip-hover"
         }`}
       >
-        すべて
+        {t("allCategories")}
       </button>
       {visibleCategories.map((cat) => (
         <button
@@ -35,7 +38,7 @@ export function CategoryFilter({ activeCategory, onCategoryChange }: CategoryFil
               : "bg-chip-bg text-text-primary hover:bg-chip-hover"
           }`}
         >
-          {cat.icon} {cat.nameJa}
+          {cat.icon} {t(cat.slug as TranslationKey)}
         </button>
       ))}
     </div>

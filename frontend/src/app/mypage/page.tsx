@@ -10,6 +10,9 @@ import type { Video } from "@/types/video";
 import type { Playlist } from "@/types/playlist";
 import { VideoCard } from "@/components/video/VideoCard";
 import { BadgeList } from "@/components/social/BadgeList";
+import { useT } from "@/hooks/useTranslation";
+import { t } from "@/lib/i18n";
+import type { TranslationKey } from "@/lib/i18n";
 
 interface Profile {
   submitted_videos: Video[];
@@ -33,11 +36,11 @@ function AvatarEditor({
     if (!file) return;
 
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      setError("JPEG、PNG、WebP のみ対応しています");
+      setError(t("avatarFormats"));
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      setError("2MB以下の画像を選んでください");
+      setError(t("avatarSizeLimit"));
       return;
     }
 
@@ -49,7 +52,7 @@ function AvatarEditor({
       await apiUpload("/api/auth/me/avatar", formData);
       await onChanged();
     } catch {
-      setError("アップロードに失敗しました");
+      setError(t("uploadFailed"));
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -63,7 +66,7 @@ function AvatarEditor({
       await apiDelete("/api/auth/me/avatar");
       await onChanged();
     } catch {
-      setError("削除に失敗しました");
+      setError(t("deleteFailed"));
     } finally {
       setUploading(false);
     }
@@ -113,7 +116,7 @@ function AvatarEditor({
           disabled={uploading}
           className="text-xs text-text-muted hover:text-red-500"
         >
-          画像を削除
+          {t("deleteAvatar")}
         </button>
       )}
       {error && <p className="text-xs text-red-500">{error}</p>}
@@ -136,7 +139,7 @@ function DisplayNameEditor({
   const handleSave = async () => {
     const trimmed = name.trim();
     if (!trimmed || trimmed.length > 50) {
-      setError("1〜50文字で入力してください");
+      setError(t("nameLength"));
       return;
     }
     if (trimmed === currentName) {
@@ -150,7 +153,7 @@ function DisplayNameEditor({
       await onSaved();
       setEditing(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "名前の変更に失敗しました");
+      setError(e instanceof Error ? e.message : t("nameChangeFailed"));
     } finally {
       setSaving(false);
     }
@@ -166,7 +169,7 @@ function DisplayNameEditor({
             setEditing(true);
           }}
           className="text-text-muted hover:text-brand-text"
-          title="名前を変更"
+          title={t("changeName")}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -201,13 +204,13 @@ function DisplayNameEditor({
           disabled={saving}
           className="rounded bg-brand px-3 py-1 text-xs font-medium text-white hover:bg-brand-hover disabled:opacity-50"
         >
-          {saving ? "..." : "保存"}
+          {saving ? "..." : t("save")}
         </button>
         <button
           onClick={() => setEditing(false)}
           className="rounded border border-input-border px-3 py-1 text-xs font-medium text-text-primary hover:bg-hover-bg"
         >
-          取消
+          {t("cancel")}
         </button>
       </div>
       {error && <p className="text-xs text-red-500">{error}</p>}
@@ -251,7 +254,7 @@ function VideoEditForm({
       });
       onSave(updated);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "編集に失敗しました");
+      setError(e instanceof Error ? e.message : t("editFailed"));
     } finally {
       setSaving(false);
     }
@@ -259,20 +262,20 @@ function VideoEditForm({
 
   return (
     <div className="rounded-xl border border-brand-medium bg-brand-light/30 p-4">
-      <p className="mb-3 text-sm font-medium text-text-primary">投稿を編集</p>
+      <p className="mb-3 text-sm font-medium text-text-primary">{t("editPost")}</p>
       <div className="mb-3">
-        <label className="mb-1 block text-xs text-text-secondary">コメント（200文字以内）</label>
+        <label className="mb-1 block text-xs text-text-secondary">{t("commentMax200")}</label>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           maxLength={200}
           rows={2}
           className="w-full rounded-lg border border-input-border px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-          placeholder="コメントを入力..."
+          placeholder={t("comment")}
         />
       </div>
       <div className="mb-4">
-        <label className="mb-1 block text-xs text-text-secondary">カテゴリ（最大3つ）</label>
+        <label className="mb-1 block text-xs text-text-secondary">{t("categoryMax3")}</label>
         <div className="flex flex-wrap gap-1.5">
           {CATEGORIES.map((cat) => {
             const selected = selectedSlugs.includes(cat.slug);
@@ -300,13 +303,13 @@ function VideoEditForm({
           disabled={saving}
           className="rounded-lg bg-brand px-4 py-2 text-xs font-medium text-white hover:bg-brand-hover disabled:opacity-50"
         >
-          {saving ? "保存中..." : "保存"}
+          {saving ? t("saving") : t("save")}
         </button>
         <button
           onClick={onCancel}
           className="rounded-lg border border-input-border px-4 py-2 text-xs font-medium text-text-primary hover:bg-hover-bg"
         >
-          キャンセル
+          {t("cancel")}
         </button>
       </div>
     </div>
@@ -314,6 +317,7 @@ function VideoEditForm({
 }
 
 export default function MyPage() {
+  useT(); // subscribe to locale changes for sub-components using t() directly
   const { user, loading: authLoading, refreshUser } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -329,12 +333,12 @@ export default function MyPage() {
 
     apiGet<Profile>("/api/auth/profile")
       .then((data) => setProfile(data))
-      .catch(() => setError("プロフィールの取得に失敗しました"))
+      .catch(() => setError(t("profileError")))
       .finally(() => setLoading(false));
   }, [user, authLoading]);
 
   const handleDeleteVideo = async (videoId: string) => {
-    if (!confirm("この投稿を削除しますか？")) return;
+    if (!confirm(t("confirmDelete"))) return;
     try {
       await apiDelete(`/api/videos/${videoId}`);
       setProfile((prev) =>
@@ -343,7 +347,7 @@ export default function MyPage() {
           : prev,
       );
     } catch {
-      alert("削除に失敗しました");
+      alert(t("deleteFailed"));
     }
   };
 
@@ -368,7 +372,7 @@ export default function MyPage() {
   if (authLoading || loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label="読み込み中" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand" role="status" aria-label={t("loading")} />
       </div>
     );
   }
@@ -384,15 +388,15 @@ export default function MyPage() {
   if (!user) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold text-text-heading">ログインが必要です</h1>
+        <h1 className="text-2xl font-bold text-text-heading">{t("loginRequired")}</h1>
         <p className="mt-3 text-text-secondary">
-          マイページを表示するにはログインしてください。
+          {t("loginRequiredDesc")}
         </p>
         <Link
           href="/auth/signin"
           className="mt-6 inline-block rounded-lg bg-brand px-6 py-3 text-sm font-medium text-white hover:bg-brand-hover"
         >
-          ログインする
+          {t("loginButton")}
         </Link>
       </div>
     );
@@ -400,7 +404,7 @@ export default function MyPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="text-2xl font-bold">マイページ</h1>
+      <h1 className="text-2xl font-bold">{t("myPage")}</h1>
       <div className="mt-4 flex items-center gap-4">
         <AvatarEditor
           avatarUrl={user.avatar_url}
@@ -426,7 +430,7 @@ export default function MyPage() {
 
       {/* 投稿した動画 */}
       <section className="mt-10">
-        <h2 className="mb-4 text-lg font-bold">投稿した動画</h2>
+        <h2 className="mb-4 text-lg font-bold">{t("submittedVideos")}</h2>
         {profile && profile.submitted_videos.length > 0 ? (
           <div className="space-y-4">
             {profile.submitted_videos.map((video) => (
@@ -444,14 +448,14 @@ export default function MyPage() {
           </div>
         ) : (
           <p className="py-8 text-center text-text-muted">
-            まだ動画を投稿していません。
+            {t("noSubmitted")}
           </p>
         )}
       </section>
 
       {/* いいねした動画 */}
       <section className="mt-10">
-        <h2 className="mb-4 text-lg font-bold">いいねした動画</h2>
+        <h2 className="mb-4 text-lg font-bold">{t("likedVideos")}</h2>
         {profile && profile.voted_videos.length > 0 ? (
           <div className="space-y-4">
             {profile.voted_videos.map((video) => (
@@ -460,7 +464,7 @@ export default function MyPage() {
           </div>
         ) : (
           <p className="py-8 text-center text-text-muted">
-            まだ動画にいいねしていません。
+            {t("noLiked")}
           </p>
         )}
       </section>
@@ -480,7 +484,7 @@ export default function MyPage() {
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
           </svg>
-          フィードバックを送る
+          {t("sendFeedback")}
         </Link>
       </section>
     </div>
@@ -511,7 +515,7 @@ function PlaylistManagement() {
       setPlaylists((prev) => [pl, ...prev]);
       setNewName("");
     } catch {
-      setCreateError("リストの作成に失敗しました");
+      setCreateError(t("createListFailed"));
       setTimeout(() => setCreateError(""), 3000);
     } finally {
       setCreating(false);
@@ -522,13 +526,13 @@ function PlaylistManagement() {
 
   return (
     <section className="mt-10">
-      <h2 className="mb-4 text-lg font-bold">マイリスト</h2>
+      <h2 className="mb-4 text-lg font-bold">{t("myList")}</h2>
       <div className="mb-4 flex items-center gap-2">
         <input
           type="text"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
-          placeholder="新しいリスト名"
+          placeholder={t("newListName")}
           maxLength={100}
           className="flex-1 rounded-lg border border-input-border px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           onKeyDown={(e) => {
@@ -540,7 +544,7 @@ function PlaylistManagement() {
           disabled={creating || !newName.trim()}
           className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50"
         >
-          作成
+          {t("create")}
         </button>
       </div>
       {createError && (
@@ -551,7 +555,7 @@ function PlaylistManagement() {
           <div className="h-6 w-6 animate-spin rounded-full border-4 border-brand-medium border-t-brand" />
         </div>
       ) : playlists.length === 0 ? (
-        <p className="py-4 text-center text-sm text-text-muted">リストはまだありません。</p>
+        <p className="py-4 text-center text-sm text-text-muted">{t("noLists")}</p>
       ) : (
         <div className="space-y-2">
           {playlists.map((pl) => (
@@ -562,9 +566,9 @@ function PlaylistManagement() {
             >
               <div>
                 <span className="text-sm font-medium text-text-primary">{pl.name}</span>
-                <span className="ml-2 text-xs text-text-muted">{pl.video_count}件</span>
+                <span className="ml-2 text-xs text-text-muted">{pl.video_count} {t("items")}</span>
               </div>
-              <span className="text-xs text-text-muted">{pl.is_public ? "公開" : "非公開"}</span>
+              <span className="text-xs text-text-muted">{pl.is_public ? t("public") : t("private")}</span>
             </Link>
           ))}
         </div>
@@ -578,9 +582,9 @@ function CategoryVisibilitySettings() {
 
   return (
     <section className="mt-10">
-      <h2 className="mb-2 text-lg font-bold">カテゴリ表示設定</h2>
+      <h2 className="mb-2 text-lg font-bold">{t("categorySettings")}</h2>
       <p className="mb-4 text-sm text-text-secondary">
-        苦手なジャンルを非表示にできます。非表示にしたカテゴリはランキングのタブから消え、「すべて」表示でもフィルタされます。
+        {t("categorySettingsDesc")}
       </p>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {CATEGORIES.map((cat) => {
@@ -596,7 +600,7 @@ function CategoryVisibilitySettings() {
               }`}
             >
               <span className="text-base">{cat.icon}</span>
-              <span className="flex-1 text-left">{cat.nameJa}</span>
+              <span className="flex-1 text-left">{t(cat.slug as TranslationKey)}</span>
               {hidden ? (
                 <svg className="h-4 w-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.11 6.11m3.769 3.769l4.242 4.242M6.11 6.11L3 3m3.11 3.11l4.243 4.243m4.242 4.242L21 21" />
@@ -639,9 +643,9 @@ function MuteManagement() {
 
   return (
     <section className="mt-10">
-      <h2 className="mb-2 text-lg font-bold">ミュート中のユーザー</h2>
+      <h2 className="mb-2 text-lg font-bold">{t("mutedUsers")}</h2>
       <p className="mb-4 text-sm text-text-secondary">
-        ミュートしたユーザーの投稿はランキングに表示されなくなります。
+        {t("mutedUsersDesc")}
       </p>
       {loading ? (
         <div className="flex justify-center py-4">
@@ -649,7 +653,7 @@ function MuteManagement() {
         </div>
       ) : mutedUsers.length === 0 ? (
         <p className="py-4 text-center text-sm text-text-muted">
-          ミュート中のユーザーはいません。
+          {t("noMuted")}
         </p>
       ) : (
         <div className="space-y-2">
@@ -669,7 +673,7 @@ function MuteManagement() {
                 onClick={() => handleUnmute(mu.id)}
                 className="rounded-lg border border-input-border px-3 py-1 text-xs font-medium text-text-primary transition hover:bg-hover-bg"
               >
-                ミュート解除
+                {t("unmute")}
               </button>
             </div>
           ))}
@@ -699,7 +703,7 @@ function FollowingList() {
       await apiDelete(`/api/follows/${targetId}`);
       setUsers((prev) => prev.filter((u) => u.id !== targetId));
     } catch {
-      alert("フォロー解除に失敗しました");
+      alert(t("unfollowFailed"));
     } finally {
       setUnfollowingId(null);
     }
@@ -709,14 +713,14 @@ function FollowingList() {
 
   return (
     <section className="mt-10">
-      <h2 className="mb-4 text-lg font-bold">フォロー中</h2>
+      <h2 className="mb-4 text-lg font-bold">{t("following")}</h2>
       {loading ? (
         <div className="flex justify-center py-4">
           <div className="h-6 w-6 animate-spin rounded-full border-4 border-brand-medium border-t-brand" />
         </div>
       ) : users.length === 0 ? (
         <p className="py-4 text-center text-sm text-text-muted">
-          まだ誰もフォローしていません。
+          {t("noFollowing")}
         </p>
       ) : (
         <div className="space-y-2">
@@ -737,7 +741,7 @@ function FollowingList() {
                 disabled={unfollowingId === u.id}
                 className="ml-2 shrink-0 rounded-lg border border-input-border px-3 py-1 text-xs font-medium text-text-primary transition hover:bg-hover-bg disabled:opacity-50"
               >
-                {unfollowingId === u.id ? "..." : "フォロー解除"}
+                {unfollowingId === u.id ? "..." : t("unfollow")}
               </button>
             </div>
           ))}

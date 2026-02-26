@@ -8,6 +8,7 @@ import { VoteButton } from "./VoteButton";
 import { MuteButton } from "./MuteButton";
 import { ShareButtons } from "./ShareButtons";
 import { AddToPlaylistButton } from "./AddToPlaylistButton";
+import { useT } from "@/hooks/useTranslation";
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -27,6 +28,7 @@ interface VideoCardProps {
 }
 
 export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit, onTagClick }: VideoCardProps) {
+  const t = useT();
   const platformInfo = PLATFORMS.find((p) => p.value === video.platform);
   return (
     <div className="overflow-hidden rounded-xl border border-border-main bg-surface shadow-sm transition hover:shadow-md">
@@ -36,7 +38,7 @@ export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit, onTa
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium text-text-heading">
-            {video.title || video.author_name || "動画を見る"}
+            {video.title || video.author_name || t("viewVideo")}
           </p>
           {video.author_name && video.title && (
             <p className="truncate text-xs text-text-muted">{video.author_name}</p>
@@ -113,7 +115,7 @@ export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit, onTa
             {video.submitted_by.avatar_url && (
               <img src={video.submitted_by.avatar_url} alt={video.submitted_by.display_name} className="h-4 w-4 rounded-full object-cover" loading="lazy" />
             )}
-            <span>投稿:</span>
+            <span>{t("postedBy")}</span>
             <Link
               href={`/user/${video.submitted_by.id}`}
               className="text-brand-text hover:underline"
@@ -133,7 +135,7 @@ export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit, onTa
                 onClick={() => onEdit(video)}
                 className="text-xs text-text-muted hover:text-brand-text"
               >
-                編集
+                {t("edit")}
               </button>
             )}
             {onDelete && (
@@ -141,7 +143,7 @@ export const VideoCard = memo(function VideoCard({ video, onDelete, onEdit, onTa
                 onClick={() => onDelete(video.id)}
                 className="text-xs text-text-muted hover:text-red-500"
               >
-                削除
+                {t("delete")}
               </button>
             )}
             <MuteButton userId={video.submitted_by.id} displayName={video.submitted_by.display_name} />
