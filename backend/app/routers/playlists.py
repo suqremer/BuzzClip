@@ -130,7 +130,14 @@ async def get_playlists_containing_video(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
-    result = await session.execute(
+    # Get all user's playlists
+    all_result = await session.execute(
+        select(Playlist).where(Playlist.user_id == current_user.id).order_by(Playlist.created_at.desc())
+    )
+    all_playlists = list(all_result.scalars().all())
+
+    # Get playlist IDs that contain this video
+    containing_result = await session.execute(
         select(PlaylistVideo.playlist_id)
         .join(Playlist, Playlist.id == PlaylistVideo.playlist_id)
         .where(
@@ -138,7 +145,18 @@ async def get_playlists_containing_video(
             PlaylistVideo.video_id == video_id,
         )
     )
-    return {"playlist_ids": [row[0] for row in result]}
+    containing_ids = {row[0] for row in containing_result}
+
+    return {
+        "playlists": [
+            {
+                "playlist_id": p.id,
+                "playlist_name": p.name,
+                "contains": p.id in containing_ids,
+            }
+            for p in all_playlists
+        ]
+    }
 
 
 @router.get("/{playlist_id}", response_model=PlaylistDetailResponse)
