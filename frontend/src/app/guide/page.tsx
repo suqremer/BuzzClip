@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "使い方ガイド - BuzzClip",
+  description:
+    "BuzzClipの使い方を解説。エロ動画の投稿・いいね・ランキング・リスト作成・検索の方法をステップごとに紹介。",
+};
 
 export default function GuidePage() {
   return (

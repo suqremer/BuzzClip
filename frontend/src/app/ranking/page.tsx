@@ -118,7 +118,7 @@ function RankingContent() {
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold">{t("ranking")}</h1>
+          <h1 className="text-2xl font-bold">{t("rankingPageTitle")}</h1>
           <button
             onClick={handleRefresh}
             disabled={loading && videos.length === 0}

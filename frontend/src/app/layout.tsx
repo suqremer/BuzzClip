@@ -17,19 +17,28 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "BuzzClip - セクシー動画ランキング",
+  title: {
+    default: "BuzzClip - エロ動画ランキング | Xのセクシー動画まとめ",
+    template: "%s | BuzzClip",
+  },
   description:
-    "Xでバズったセクシー動画をみんなで集めてランキング化。毎日更新の動画ランキング。",
+    "X(Twitter)でバズったエロ動画・セクシー動画をみんなで集めてランキング化。素人・コスプレ・グラビア・アイドルなどカテゴリ別に毎日更新。",
+  keywords: [
+    "エロ動画", "セクシー動画", "ランキング", "バズ動画",
+    "Twitter エロ動画", "X エロ動画", "アダルト動画", "人気動画",
+    "素人", "コスプレ", "グラビア", "ダンス",
+  ],
   openGraph: {
-    title: "BuzzClip - セクシー動画ランキング",
+    title: "BuzzClip - エロ動画ランキング",
     description:
-      "Xでバズったセクシー動画をみんなで集めてランキング化。毎日更新の動画ランキング。",
+      "Xでバズったエロ動画・セクシー動画をランキングで毎日更新。カテゴリ別にチェック。",
     type: "website",
+    siteName: "BuzzClip",
   },
   twitter: {
     card: "summary",
-    title: "BuzzClip - セクシー動画ランキング",
-    description: "Xでバズったセクシー動画をみんなで集めてランキング化。毎日更新。",
+    title: "BuzzClip - エロ動画ランキング",
+    description: "Xでバズったエロ動画・セクシー動画をランキングで毎日更新。",
   },
   other: {
     "rating": "adult",
@@ -41,8 +50,29 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "BuzzClip",
+    alternateName: "バズクリップ",
+    url: "https://buzzclip.jp",
+    description:
+      "X(Twitter)でバズったエロ動画・セクシー動画をランキングで毎日更新",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://buzzclip.jp/search?q={search_term_string}",
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <html lang="ja" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <GoogleAnalytics />
       <body className={`${notoSansJP.variable} font-sans antialiased`}>
         <ThemeProvider>

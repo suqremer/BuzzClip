@@ -12,10 +12,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const res = await fetch(`${API_URL}/api/videos/${id}`, { cache: "no-store" });
     if (!res.ok) return { title: "BuzzClip" };
     const video = await res.json();
-    const title = `${video.title || "バズ動画"} - BuzzClip`;
+    const title = `${video.title || "セクシー動画"} - BuzzClip`;
     const description = video.author_name
-      ? `${video.author_name}さんのバズ動画をBuzzClipでチェック`
-      : "BuzzClipで話題のバズ動画をチェック";
+      ? `${video.author_name}のセクシー動画をBuzzClipでチェック。エロ動画ランキング毎日更新中`
+      : "BuzzClipで話題のエロ動画・セクシー動画をランキングでチェック";
     const url = `${SITE_URL}/video/${id}`;
     return {
       title,

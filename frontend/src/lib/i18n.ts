@@ -2,6 +2,7 @@ const translations = {
   ja: {
     // Nav
     ranking: "ランキング",
+    rankingPageTitle: "エロ動画ランキング",
     submit: "投稿",
     search: "検索",
     mypage: "マイページ",
@@ -81,8 +82,8 @@ const translations = {
     public: "公開",
     private: "非公開",
     // Home
-    heroTitle1: "話題のセクシー動画、",
-    heroTitle2: "ランキングで発見。",
+    heroTitle1: "エロ動画ランキング、",
+    heroTitle2: "毎日更新中。",
     heroSub1: "Xでバズったセクシー動画を",
     heroSub2: "みんなで集めてランキング化",
     viewRanking: "ランキングを見る",
@@ -183,6 +184,7 @@ const translations = {
   en: {
     // Nav
     ranking: "Ranking",
+    rankingPageTitle: "Sexy Video Rankings",
     submit: "Submit",
     search: "Search",
     mypage: "My Page",
@@ -262,8 +264,8 @@ const translations = {
     public: "Public",
     private: "Private",
     // Home
-    heroTitle1: "Trending Sexy Videos,",
-    heroTitle2: "Ranked by the Community.",
+    heroTitle1: "Sexy Video Rankings,",
+    heroTitle2: "Updated Daily.",
     heroSub1: "Discover viral sexy videos from X,",
     heroSub2: "ranked by community votes",
     viewRanking: "View Rankings",
