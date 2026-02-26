@@ -61,10 +61,10 @@ if "sqlite" in settings.database_url:
 
 DEFAULT_CATEGORIES = [
     {"slug": "sexy", "name_ja": "セクシー", "icon": "♡", "sort_order": 1},
-    {"slug": "amateur", "name_ja": "素人", "icon": "📱", "sort_order": 2},
-    {"slug": "cosplay", "name_ja": "コスプレ", "icon": "🎀", "sort_order": 3},
-    {"slug": "japanese", "name_ja": "日本モノ", "icon": "🇯🇵", "sort_order": 4},
-    {"slug": "western", "name_ja": "海外モノ", "icon": "🌍", "sort_order": 5},
+    {"slug": "japanese", "name_ja": "日本モノ", "icon": "🇯🇵", "sort_order": 2},
+    {"slug": "western", "name_ja": "海外モノ", "icon": "🌍", "sort_order": 3},
+    {"slug": "amateur", "name_ja": "素人", "icon": "📱", "sort_order": 4},
+    {"slug": "cosplay", "name_ja": "コスプレ", "icon": "🎀", "sort_order": 5},
     {"slug": "other", "name_ja": "その他", "icon": "🏷️", "sort_order": 6},
 ]
 

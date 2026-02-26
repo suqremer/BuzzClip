@@ -7,10 +7,10 @@ export const SITE_URL =
 
 export const CATEGORIES = [
   { slug: "sexy", nameJa: "セクシー", icon: "♡" },
-  { slug: "amateur", nameJa: "素人", icon: "📱" },
-  { slug: "cosplay", nameJa: "コスプレ", icon: "🎀" },
   { slug: "japanese", nameJa: "日本モノ", icon: "🇯🇵" },
   { slug: "western", nameJa: "海外モノ", icon: "🌍" },
+  { slug: "amateur", nameJa: "素人", icon: "📱" },
+  { slug: "cosplay", nameJa: "コスプレ", icon: "🎀" },
   { slug: "other", nameJa: "その他", icon: "🏷️" },
 ] as const;
 
