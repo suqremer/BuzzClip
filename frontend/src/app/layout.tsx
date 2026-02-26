@@ -29,16 +29,17 @@ export const metadata: Metadata = {
     "素人", "コスプレ", "グラビア", "ダンス",
   ],
   openGraph: {
-    title: "BuzzClip - エロ動画ランキング",
+    title: "BuzzClip - エロ動画ランキング | Sexy Video Rankings",
     description:
-      "Xでバズったエロ動画・セクシー動画をランキングで毎日更新。カテゴリ別にチェック。",
+      "Xでバズったエロ動画をランキングで毎日更新 / Trending adult videos from X, ranked daily.",
     type: "website",
     siteName: "BuzzClip",
   },
   twitter: {
     card: "summary",
-    title: "BuzzClip - エロ動画ランキング",
-    description: "Xでバズったエロ動画・セクシー動画をランキングで毎日更新。",
+    title: "BuzzClip - エロ動画ランキング | Sexy Video Rankings",
+    description:
+      "Xでバズったエロ動画をランキングで毎日更新 / Trending adult videos from X, ranked daily.",
   },
   verification: {
     google: "4MSVobYR4tbSxIih_ZtBYvyROOcKbJDdXh2CWZFGh3s",
