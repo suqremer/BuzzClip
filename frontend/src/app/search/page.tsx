@@ -7,12 +7,15 @@ import type { Video } from "@/types/video";
 import type { PaginatedResponse } from "@/types/api";
 import { VideoCard } from "@/components/video/VideoCard";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useT } from "@/hooks/useTranslation";
+import { getLocale } from "@/lib/i18n";
 
 function SearchContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get("q") || "";
 
+  const t = useT();
   const [input, setInput] = useState(query);
 
   // Sync input with URL query param changes (e.g. browser back/forward)
@@ -77,31 +80,33 @@ function SearchContent() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold">検索</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t("search")}</h1>
 
       <form onSubmit={handleSubmit} className="mb-8">
-        <label htmlFor="search-input" className="sr-only">検索</label>
+        <label htmlFor="search-input" className="sr-only">{t("search")}</label>
         <div className="flex gap-2">
           <input
             id="search-input"
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="動画タイトル、投稿者名で検索..."
+            placeholder={t("searchInputPlaceholder")}
             className="flex-1 rounded-lg border border-input-border px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
           <button
             type="submit"
             className="rounded-lg bg-brand px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-hover"
           >
-            検索
+            {t("search")}
           </button>
         </div>
       </form>
 
       {query && (
         <p className="mb-4 text-sm text-text-secondary">
-          「{query}」の検索結果: {total}件
+          {getLocale() === "ja"
+            ? `「${query}」${t("searchResultsFor")} ${total}${t("searchResultCount")}`
+            : `${total} ${t("searchResultsFor")} "${query}"`}
         </p>
       )}
 
@@ -110,12 +115,12 @@ function SearchContent() {
           <div
             className="h-8 w-8 animate-spin rounded-full border-4 border-brand-medium border-t-brand"
             role="status"
-            aria-label="検索中"
+            aria-label={t("searching")}
           />
         </div>
       ) : videos.length === 0 && query ? (
         <p className="py-12 text-center text-text-muted">
-          該当する動画が見つかりませんでした。
+          {t("noSearchResults")}
         </p>
       ) : (
         <div className="space-y-4">

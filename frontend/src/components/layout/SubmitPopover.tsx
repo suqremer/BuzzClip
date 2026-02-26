@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiPost } from "@/lib/api";
 import { CATEGORIES } from "@/lib/constants";
+import { useT } from "@/hooks/useTranslation";
+import type { TranslationKey } from "@/lib/i18n";
 
 const URL_PATTERNS = [
   { regex: /^https?:\/\/(www\.)?(twitter\.com|x\.com)\/\w+\/status\/\d+/, platform: "x" as const, icon: "𝕏" },
@@ -18,6 +20,7 @@ const URL_PATTERNS = [
 export function SubmitPopover() {
   const { user } = useAuth();
   const router = useRouter();
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
@@ -72,7 +75,7 @@ export function SubmitPopover() {
       setComment("");
       router.push("/ranking");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "投稿に失敗しました");
+      setError(e instanceof Error ? e.message : t("submitFailed"));
     } finally {
       setSubmitting(false);
     }
@@ -84,25 +87,25 @@ export function SubmitPopover() {
         onClick={() => setOpen(!open)}
         className="text-sm font-medium text-text-primary hover:text-brand-text"
       >
-        投稿する
+        {t("submitButton")}
       </button>
 
       {open && (
         <div className="absolute left-1/2 top-full z-50 mt-3 w-96 -translate-x-1/2 rounded-xl border border-border-main bg-surface shadow-lg">
           {!user ? (
             <div className="p-6 text-center">
-              <p className="mb-3 text-sm text-text-secondary">投稿するにはログインが必要です</p>
+              <p className="mb-3 text-sm text-text-secondary">{t("loginRequiredPost")}</p>
               <Link
                 href="/auth/signin"
                 onClick={() => setOpen(false)}
                 className="inline-block rounded-lg bg-brand px-5 py-2 text-sm font-medium text-white hover:bg-brand-hover"
               >
-                ログインする
+                {t("loginButton")}
               </Link>
             </div>
           ) : (
             <div className="p-4">
-              <p className="mb-3 text-sm font-bold text-text-heading">動画を投稿</p>
+              <p className="mb-3 text-sm font-bold text-text-heading">{t("submitVideo")}</p>
 
               {/* URL */}
               <div className="relative mb-3">
@@ -110,7 +113,7 @@ export function SubmitPopover() {
                   type="url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="動画URLを貼り付け（X, YouTube, TikTok）"
+                  placeholder={t("pasteVideoUrl")}
                   className="w-full rounded-lg border border-input-border px-3 py-2 pr-8 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 />
                 {detectedPlatform && (
@@ -120,12 +123,12 @@ export function SubmitPopover() {
                 )}
               </div>
               {url.trim() && !detectedPlatform && (
-                <p className="mb-3 text-xs text-red-500">X, YouTube, TikTokの動画URLを入力してください</p>
+                <p className="mb-3 text-xs text-red-500">{t("invalidVideoUrl")}</p>
               )}
 
               {/* Categories */}
               <div className="mb-3">
-                <p className="mb-1.5 text-xs text-text-secondary">カテゴリ（最大3つ）</p>
+                <p className="mb-1.5 text-xs text-text-secondary">{t("categoryLabelMax3")}</p>
                 <div className="flex flex-wrap gap-1">
                   {CATEGORIES.map((cat) => (
                     <button
@@ -138,7 +141,7 @@ export function SubmitPopover() {
                           : "bg-chip-bg text-text-primary hover:bg-chip-hover"
                       }`}
                     >
-                      {cat.icon} {cat.nameJa}
+                      {cat.icon} {t(cat.slug as TranslationKey)}
                     </button>
                   ))}
                 </div>
@@ -150,7 +153,7 @@ export function SubmitPopover() {
                 onChange={(e) => setComment(e.target.value)}
                 maxLength={200}
                 rows={2}
-                placeholder="ひとこと（任意）#タグも使えます"
+                placeholder={t("commentShortPlaceholder")}
                 className="mb-3 w-full rounded-lg border border-input-border px-3 py-2 text-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
 
@@ -161,7 +164,7 @@ export function SubmitPopover() {
                 disabled={!detectedPlatform || categories.length === 0 || submitting}
                 className="w-full rounded-lg bg-brand py-2 text-sm font-bold text-white transition hover:bg-brand-hover disabled:opacity-50"
               >
-                {submitting ? "投稿中..." : "投稿する"}
+                {submitting ? t("submitting") : t("submitButton")}
               </button>
             </div>
           )}

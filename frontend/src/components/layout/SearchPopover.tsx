@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useT } from "@/hooks/useTranslation";
 
 export function SearchPopover() {
   const [open, setOpen] = useState(false);
@@ -9,6 +10,7 @@ export function SearchPopover() {
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const t = useT();
 
   useEffect(() => {
     if (!open) return;
@@ -40,7 +42,7 @@ export function SearchPopover() {
         onClick={() => setOpen(!open)}
         className="text-sm font-medium text-text-primary hover:text-brand-text"
       >
-        検索
+        {t("search")}
       </button>
 
       {open && (
@@ -52,7 +54,7 @@ export function SearchPopover() {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="動画タイトル、投稿者名で検索..."
+                placeholder={t("searchInputPlaceholder")}
                 className="flex-1 rounded-lg border border-input-border px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
               <button
@@ -60,7 +62,7 @@ export function SearchPopover() {
                 disabled={!query.trim()}
                 className="shrink-0 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-hover disabled:opacity-50"
               >
-                検索
+                {t("search")}
               </button>
             </div>
           </form>

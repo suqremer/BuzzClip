@@ -89,7 +89,7 @@ export function AddToPlaylistButton({ videoId }: AddToPlaylistButtonProps) {
                       </svg>
                     )}
                   </span>
-                  <span className="truncate">{p.playlist_name}</span>
+                  <span className="truncate">{p.playlist_name === "お気に入り" ? t("defaultFavorites") : p.playlist_name}</span>
                 </button>
               ))
             )}

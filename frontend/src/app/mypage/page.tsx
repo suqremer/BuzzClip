@@ -565,7 +565,7 @@ function PlaylistManagement() {
               className="flex items-center justify-between rounded-lg border border-border-main px-4 py-3 transition hover:bg-hover-bg"
             >
               <div>
-                <span className="text-sm font-medium text-text-primary">{pl.name}</span>
+                <span className="text-sm font-medium text-text-primary">{pl.name === "お気に入り" ? t("defaultFavorites") : pl.name}</span>
                 <span className="ml-2 text-xs text-text-muted">{pl.video_count} {t("items")}</span>
               </div>
               <span className="text-xs text-text-muted">{pl.is_public ? t("public") : t("private")}</span>

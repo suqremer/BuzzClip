@@ -156,6 +156,23 @@ const translations = {
     // Playlist
     addToList: "リストに追加",
     noListsAvailable: "リストがありません",
+    defaultFavorites: "お気に入り",
+    // Search page
+    searchInputPlaceholder: "動画タイトル、投稿者名で検索...",
+    searchResultsFor: "の検索結果:",
+    searchResultCount: "件",
+    noSearchResults: "該当する動画が見つかりませんでした。",
+    searching: "検索中",
+    // Submit popover
+    loginRequiredPost: "投稿するにはログインが必要です",
+    pasteVideoUrl: "動画URLを貼り付け（X, YouTube, TikTok）",
+    invalidVideoUrl: "X, YouTube, TikTokの動画URLを入力してください",
+    categoryLabelMax3: "カテゴリ（最大3つ）",
+    commentShortPlaceholder: "ひとこと（任意）#タグも使えます",
+    // Footer
+    footerHowToUse: "使い方",
+    addToHomeScreen: "ホーム画面に追加",
+    footerFeedback: "フィードバック",
   },
   en: {
     // Nav
@@ -314,6 +331,23 @@ const translations = {
     // Playlist
     addToList: "Add to List",
     noListsAvailable: "No lists available",
+    defaultFavorites: "Favorites",
+    // Search page
+    searchInputPlaceholder: "Search by title or author...",
+    searchResultsFor: "results for",
+    searchResultCount: "",
+    noSearchResults: "No videos found for this search.",
+    searching: "Searching",
+    // Submit popover
+    loginRequiredPost: "Please sign in to submit videos",
+    pasteVideoUrl: "Paste video URL (X, YouTube, TikTok)",
+    invalidVideoUrl: "Please enter a valid X, YouTube, or TikTok video URL",
+    categoryLabelMax3: "Category (max 3)",
+    commentShortPlaceholder: "Add a comment... #tags work too",
+    // Footer
+    footerHowToUse: "How to Use",
+    addToHomeScreen: "Add to Home Screen",
+    footerFeedback: "Feedback",
   },
 } as const;
 
