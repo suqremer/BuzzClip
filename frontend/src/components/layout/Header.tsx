@@ -118,6 +118,17 @@ export function Header() {
               {t("mypage")}
             </Link>
           )}
+          <div className="flex flex-wrap gap-3 border-t border-border-light py-2 text-sm text-text-secondary">
+            <Link href="/guide" className="hover:text-brand-text" onClick={() => setMenuOpen(false)}>
+              {t("footerHowToUse")}
+            </Link>
+            <Link href="/guide#homescreen" className="hover:text-brand-text" onClick={() => setMenuOpen(false)}>
+              {t("addToHomeScreen")}
+            </Link>
+            <Link href="/feedback" className="hover:text-brand-text" onClick={() => setMenuOpen(false)}>
+              {t("footerFeedback")}
+            </Link>
+          </div>
           <div className="flex items-center gap-3 border-t border-border-light py-2">
             <ThemeToggle />
             <span className="text-xs text-text-muted">{locale === "ja" ? "テーマ切替" : "Theme"}</span>

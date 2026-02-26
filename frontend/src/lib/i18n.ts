@@ -1,6 +1,7 @@
 const translations = {
   ja: {
     // Nav
+    home: "ホーム",
     ranking: "ランキング",
     rankingPageTitle: "エロ動画ランキング",
     submit: "投稿",
@@ -185,6 +186,7 @@ const translations = {
   },
   en: {
     // Nav
+    home: "Home",
     ranking: "Ranking",
     rankingPageTitle: "Sexy Video Rankings",
     submit: "Submit",
