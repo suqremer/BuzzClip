@@ -40,6 +40,9 @@ export const metadata: Metadata = {
     title: "BuzzClip - エロ動画ランキング",
     description: "Xでバズったエロ動画・セクシー動画をランキングで毎日更新。",
   },
+  verification: {
+    google: "4MSVobYR4tbSxIih_ZtBYvyROOcKbJDdXh2CWZFGh3s",
+  },
   other: {
     "rating": "adult",
   },
