@@ -63,17 +63,9 @@ DEFAULT_CATEGORIES = [
     {"slug": "sexy", "name_ja": "セクシー", "icon": "♡", "sort_order": 1},
     {"slug": "amateur", "name_ja": "素人", "icon": "📱", "sort_order": 2},
     {"slug": "cosplay", "name_ja": "コスプレ", "icon": "🎀", "sort_order": 3},
-    {"slug": "idol", "name_ja": "アイドル", "icon": "🎤", "sort_order": 4},
-    {"slug": "gravure", "name_ja": "グラビア", "icon": "📸", "sort_order": 5},
-    {"slug": "dance", "name_ja": "ダンス", "icon": "💃", "sort_order": 6},
-    {"slug": "funny", "name_ja": "おもしろ", "icon": "😂", "sort_order": 7},
-    {"slug": "cats-animals", "name_ja": "猫・動物", "icon": "🐱", "sort_order": 8},
-    {"slug": "sports", "name_ja": "スポーツ", "icon": "⚽", "sort_order": 9},
-    {"slug": "music", "name_ja": "音楽", "icon": "🎵", "sort_order": 10},
-    {"slug": "gaming", "name_ja": "ゲーム", "icon": "🎮", "sort_order": 11},
-    {"slug": "japanese", "name_ja": "日本モノ", "icon": "🇯🇵", "sort_order": 12},
-    {"slug": "western", "name_ja": "海外モノ", "icon": "🌍", "sort_order": 13},
-    {"slug": "other", "name_ja": "その他", "icon": "🏷️", "sort_order": 14},
+    {"slug": "japanese", "name_ja": "日本モノ", "icon": "🇯🇵", "sort_order": 4},
+    {"slug": "western", "name_ja": "海外モノ", "icon": "🌍", "sort_order": 5},
+    {"slug": "other", "name_ja": "その他", "icon": "🏷️", "sort_order": 6},
 ]
 
 

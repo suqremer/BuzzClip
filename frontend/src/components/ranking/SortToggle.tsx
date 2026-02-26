@@ -10,26 +10,14 @@ interface SortToggleProps {
 export function SortToggle({ activeSort, onSortChange }: SortToggleProps) {
   const t = useT();
 
-  const options = [
-    { value: "hot" as const, label: t("sortHot"), icon: "🔥" },
-    { value: "new" as const, label: t("sortNew"), icon: "🕐" },
-  ];
-
   return (
-    <div className="flex gap-1.5">
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          onClick={() => onSortChange(opt.value)}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-            activeSort === opt.value
-              ? "bg-brand text-white"
-              : "bg-chip-bg text-text-primary hover:bg-chip-hover"
-          }`}
-        >
-          {opt.icon} {opt.label}
-        </button>
-      ))}
-    </div>
+    <select
+      value={activeSort}
+      onChange={(e) => onSortChange(e.target.value as "hot" | "new")}
+      className="rounded-lg border border-input-border bg-surface px-2 py-1 text-sm font-medium text-text-primary transition hover:bg-hover-bg focus:outline-none focus:ring-2 focus:ring-brand/40"
+    >
+      <option value="hot">🔥 {t("sortHot")}</option>
+      <option value="new">🕐 {t("sortNew")}</option>
+    </select>
   );
 }

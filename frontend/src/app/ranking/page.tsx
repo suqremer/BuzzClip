@@ -9,7 +9,6 @@ import { VideoCard } from "@/components/video/VideoCard";
 import { SortToggle } from "@/components/ranking/SortToggle";
 import { RankingTabs } from "@/components/ranking/RankingTabs";
 import { CategoryFilter } from "@/components/ranking/CategoryFilter";
-import { PlatformFilter } from "@/components/ranking/PlatformFilter";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { ContributorRanking } from "@/components/social/ContributorRanking";
@@ -19,12 +18,11 @@ function RankingContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category");
   const initialTag = searchParams.get("tag");
-  const { preferences, setPreferredPlatforms } = usePreferences();
+  const { preferences } = usePreferences();
   const t = useT();
 
   const [sortMode, setSortMode] = useState<"hot" | "new">("hot");
   const [period, setPeriod] = useState("24h");
-  const [platforms, setPlatforms] = useState<string[]>(preferences.preferredPlatforms);
   const [category, setCategory] = useState<string | null>(initialCategory);
   const [activeTag, setActiveTag] = useState<string | null>(initialTag);
   const [videos, setVideos] = useState<Video[]>([]);
@@ -43,7 +41,6 @@ function RankingContent() {
           per_page: "20",
         });
         if (category) params.set("category", category);
-        if (platforms.length > 0) params.set("platform", platforms.join(","));
         if (activeTag) params.set("tag", activeTag);
 
         let endpoint: string;
@@ -68,7 +65,7 @@ function RankingContent() {
         setLoading(false);
       }
     },
-    [sortMode, period, category, platforms, activeTag]
+    [sortMode, period, category, activeTag]
   );
 
   useEffect(() => {
@@ -115,34 +112,29 @@ function RankingContent() {
   }, [fetchVideos]);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold">{t("rankingPageTitle")}</h1>
-          <button
-            onClick={handleRefresh}
-            disabled={loading && videos.length === 0}
-            className="rounded-full p-1.5 text-text-muted transition hover:bg-hover-bg hover:text-text-primary disabled:opacity-50"
-            title={t("refresh")}
-            aria-label={t("refresh")}
-          >
-            <svg className={`h-5 w-5 ${loading && videos.length === 0 ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
-        </div>
+    <div className="mx-auto max-w-3xl px-4 py-6">
+      <div className="mb-4 flex items-center gap-2">
+        <h1 className="shrink-0 text-lg font-bold sm:text-2xl">{t("rankingPageTitle")}</h1>
         <SortToggle activeSort={sortMode} onSortChange={setSortMode} />
+        <button
+          onClick={handleRefresh}
+          disabled={loading && videos.length === 0}
+          className="ml-auto shrink-0 rounded-full p-1.5 text-text-muted transition hover:bg-hover-bg hover:text-text-primary disabled:opacity-50"
+          title={t("refresh")}
+          aria-label={t("refresh")}
+        >
+          <svg className={`h-5 w-5 ${loading && videos.length === 0 ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
       </div>
 
       {sortMode === "hot" && (
-        <div className="mb-4">
+        <div className="mb-3">
           <RankingTabs activePeriod={period} onPeriodChange={setPeriod} />
         </div>
       )}
-      <div className="mb-4">
-        <PlatformFilter selectedPlatforms={platforms} onPlatformsChange={(p) => { setPlatforms(p); setPreferredPlatforms(p); }} />
-      </div>
-      <div className={activeTag ? "mb-4" : "mb-6"}>
+      <div className={activeTag ? "mb-3" : "mb-5"}>
         <CategoryFilter
           activeCategory={category}
           onCategoryChange={setCategory}
