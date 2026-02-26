@@ -13,7 +13,6 @@ import { PlatformFilter } from "@/components/ranking/PlatformFilter";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { usePreferences } from "@/contexts/PreferencesContext";
 import { ContributorRanking } from "@/components/social/ContributorRanking";
-import { AdUnit, InFeedAd } from "@/components/AdUnit";
 import { useT } from "@/hooks/useTranslation";
 
 function RankingContent() {
@@ -180,7 +179,8 @@ function RankingContent() {
           {filteredVideos.map((video, i) => (
             <div key={video.id}>
               <VideoCard video={video} onTagClick={handleTagClick} />
-              {i === 4 && <InFeedAd slot="INFEED_SLOT_1" className="my-4" />}
+
+
             </div>
           ))}
           {hasMore && (
@@ -192,9 +192,6 @@ function RankingContent() {
           )}
         </div>
       )}
-
-      {/* Ad */}
-      <AdUnit slot="RANKING_BOTTOM" className="my-6" />
 
       {/* Contributor Ranking */}
       <section className="mt-10">

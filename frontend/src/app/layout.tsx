@@ -7,7 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { PreferencesProvider } from "@/contexts/PreferencesContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
-import { AdSense } from "@/components/AdSense";
+import { AgeGate } from "@/components/AgeGate";
 import "./globals.css";
 
 const notoSansJP = Noto_Sans_JP({
@@ -17,19 +17,22 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "BuzzClip - バズ動画ランキング",
+  title: "BuzzClip - セクシー動画ランキング",
   description:
-    "話題のバズ動画をみんなで集めてランキング化。X・YouTube・TikTok対応",
+    "Xでバズったセクシー動画をみんなで集めてランキング化。毎日更新の動画ランキング。",
   openGraph: {
-    title: "BuzzClip - バズ動画ランキング",
+    title: "BuzzClip - セクシー動画ランキング",
     description:
-      "話題のバズ動画をみんなで集めてランキング化。X・YouTube・TikTok対応",
+      "Xでバズったセクシー動画をみんなで集めてランキング化。毎日更新の動画ランキング。",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "BuzzClip - バズ動画ランキング",
-    description: "話題のバズ動画をみんなで集めてランキング化。X・YouTube・TikTok対応",
+    title: "BuzzClip - セクシー動画ランキング",
+    description: "Xでバズったセクシー動画をみんなで集めてランキング化。毎日更新。",
+  },
+  other: {
+    "rating": "adult",
   },
 };
 
@@ -41,11 +44,11 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <GoogleAnalytics />
-      <AdSense />
       <body className={`${notoSansJP.variable} font-sans antialiased`}>
         <ThemeProvider>
           <AuthProvider>
             <PreferencesProvider>
+              <AgeGate />
               <Header />
               <main className="min-h-screen pb-16 md:pb-0">{children}</main>
               <Footer />

@@ -2,11 +2,11 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "BuzzClip - バズ動画ランキング",
+    name: "BuzzClip - セクシー動画ランキング",
     short_name: "BuzzClip",
-    start_url: "/",
+    start_url: "/ranking",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#4f46e5",
+    background_color: "#0f0f23",
+    theme_color: "#6366f1",
   };
 }

@@ -6,17 +6,17 @@ export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://buzzclip.jp";
 
 export const CATEGORIES = [
+  { slug: "sexy", nameJa: "セクシー", icon: "♡" },
+  { slug: "amateur", nameJa: "素人", icon: "📱" },
+  { slug: "cosplay", nameJa: "コスプレ", icon: "🎀" },
+  { slug: "idol", nameJa: "アイドル", icon: "🎤" },
+  { slug: "gravure", nameJa: "グラビア", icon: "📸" },
+  { slug: "dance", nameJa: "ダンス", icon: "💃" },
   { slug: "funny", nameJa: "おもしろ", icon: "😂" },
   { slug: "cats-animals", nameJa: "猫・動物", icon: "🐱" },
   { slug: "sports", nameJa: "スポーツ", icon: "⚽" },
-  { slug: "cooking", nameJa: "料理", icon: "🍳" },
-  { slug: "heartwarming", nameJa: "感動", icon: "✨" },
   { slug: "music", nameJa: "音楽", icon: "🎵" },
   { slug: "gaming", nameJa: "ゲーム", icon: "🎮" },
-  { slug: "news", nameJa: "ニュース", icon: "📰" },
-  { slug: "tech", nameJa: "テクノロジー", icon: "🤖" },
-  { slug: "idol", nameJa: "アイドル", icon: "🎤" },
-  { slug: "sexy", nameJa: "セクシー", icon: "♡" },
   { slug: "other", nameJa: "その他", icon: "🏷️" },
 ] as const;
 

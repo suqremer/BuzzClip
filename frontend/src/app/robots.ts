@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/auth/"],
+        disallow: ["/api/", "/auth/", "/admin/"],
       },
     ],
     sitemap: "https://buzzclip.jp/sitemap.xml",

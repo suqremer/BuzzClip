@@ -11,7 +11,6 @@ import { ReportButton } from "@/components/video/ReportButton";
 import { ShareButtons } from "@/components/video/ShareButtons";
 import { AddToPlaylistButton } from "@/components/video/AddToPlaylistButton";
 import { VideoCard } from "@/components/video/VideoCard";
-import { AdUnit } from "@/components/AdUnit";
 import { useT } from "@/hooks/useTranslation";
 
 interface VideoDetailProps {
@@ -153,9 +152,6 @@ export default function VideoDetail({ id }: VideoDetailProps) {
           </div>
         </div>
       </div>
-
-      {/* Ad */}
-      <AdUnit slot="VIDEO_DETAIL" className="my-6" />
 
       {/* Related Videos */}
       {related.length > 0 && (
