@@ -32,6 +32,8 @@ const translations = {
     sports: "スポーツ",
     music: "音楽",
     gaming: "ゲーム",
+    japanese: "日本モノ",
+    western: "海外モノ",
     other: "その他",
     allCategories: "すべて",
     // Video detail
@@ -214,6 +216,8 @@ const translations = {
     sports: "Sports",
     music: "Music",
     gaming: "Gaming",
+    japanese: "Japanese",
+    western: "Western",
     other: "Other",
     allCategories: "All",
     // Video detail

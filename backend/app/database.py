@@ -71,7 +71,9 @@ DEFAULT_CATEGORIES = [
     {"slug": "sports", "name_ja": "スポーツ", "icon": "⚽", "sort_order": 9},
     {"slug": "music", "name_ja": "音楽", "icon": "🎵", "sort_order": 10},
     {"slug": "gaming", "name_ja": "ゲーム", "icon": "🎮", "sort_order": 11},
-    {"slug": "other", "name_ja": "その他", "icon": "🏷️", "sort_order": 12},
+    {"slug": "japanese", "name_ja": "日本モノ", "icon": "🇯🇵", "sort_order": 12},
+    {"slug": "western", "name_ja": "海外モノ", "icon": "🌍", "sort_order": 13},
+    {"slug": "other", "name_ja": "その他", "icon": "🏷️", "sort_order": 14},
 ]
 
 

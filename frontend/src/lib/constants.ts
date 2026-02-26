@@ -17,6 +17,8 @@ export const CATEGORIES = [
   { slug: "sports", nameJa: "スポーツ", icon: "⚽" },
   { slug: "music", nameJa: "音楽", icon: "🎵" },
   { slug: "gaming", nameJa: "ゲーム", icon: "🎮" },
+  { slug: "japanese", nameJa: "日本モノ", icon: "🇯🇵" },
+  { slug: "western", nameJa: "海外モノ", icon: "🌍" },
   { slug: "other", nameJa: "その他", icon: "🏷️" },
 ] as const;
 
