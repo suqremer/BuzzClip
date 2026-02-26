@@ -9,6 +9,7 @@ import { useT } from "@/hooks/useTranslation";
 export function ContributorRanking() {
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [loading, setLoading] = useState(true);
+  const t = useT();
 
   useEffect(() => {
     apiGet<{ contributors: Contributor[]; period: string }>("/api/rankings/contributors")
@@ -24,8 +25,6 @@ export function ContributorRanking() {
       </div>
     );
   }
-
-  const t = useT();
 
   if (contributors.length === 0) return null;
 
